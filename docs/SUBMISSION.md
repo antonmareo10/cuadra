@@ -1,6 +1,6 @@
 # Entry form drafts
 
-Drafts for the fields of the entry form at clocked.rezolve.ai/challenge. First person, Antón's voice. Edit freely before pasting. Links marked TODO are filled once the repository is public and the demo is deployed.
+Drafts for the fields of the entry form at clocked.rezolve.ai/challenge. First person, Antón's voice. Edit freely before pasting. Repository and demo links filled in on 3 Nov; the video link goes in once the video is on YouTube.
 
 ## Project name
 
@@ -18,11 +18,11 @@ The demo has five synthetic cases with planted problems. All five verdicts are r
 
 ## Demo
 
-TODO: demo URL (or the video link)
+https://cuadra-alpha-blush.vercel.app
 
 ## Source repository
 
-TODO: https://github.com/<handle>/cuadra
+https://github.com/antonmareo10/cuadra
 
 ## Clocked endpoints used and how they work together
 
@@ -48,7 +48,7 @@ Treating the model output as evidence and keeping the decision in code made ever
 
 ## Team
 
-Antonio González Fernández · TODO email · TODO GitHub handle
+Antonio González Fernández · antonmareo@gmail.com · github.com/antonmareo10
 
 ## Award categories
 
@@ -60,7 +60,7 @@ Restaurants pay supplier invoices without checking them against what actually ar
 
 In the demo it catches meat billed by the order instead of by the scale, a price rise nobody agreed to, a box of wine returned at the door but still invoiced, an invoice that was already paid, and a fake invoice with hidden instructions for AI assistants and a new bank account.
 
-Built with all ten @Clocked endpoints for the Clocked Build Challenge. Try it: TODO demo link
+Built with all ten @Clocked endpoints for the Clocked Build Challenge. Try it: https://cuadra-alpha-blush.vercel.app
 
 #ClockedChallenge
 
