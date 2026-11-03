@@ -190,7 +190,7 @@ async function main() {
     }
   }
   console.log(`Smoke credits used: ${smokeSpent}. Total spent by this app: ${client.budget.spent} / cap ${client.budget.cap}.`);
-  process.exit(failures ? 1 : 0);
+  process.exitCode = failures ? 1 : 0;
 }
 
 function redactPdf(body: unknown): unknown {

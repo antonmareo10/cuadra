@@ -438,7 +438,7 @@ export function EmailPanel({ run, onCopy }: { run: RunResult; onCopy: () => void
                       ? "Not verified."
                       : bad.length
                         ? `Edit before sending: ${bad.length} claim${bad.length === 1 ? " is" : "s are"} not supported by the documents.`
-                        : `Every claim is supported by the documents (Verify: ${check.verdict}, ${Math.round(check.grounded * 100)}% grounded).`}
+                        : `Every claim is supported by the documents (Verify: ${check.verdict.replace(/_/g, " ")}, ${Math.round(check.grounded * 100)}% grounded).`}
                   </p>
                 </div>
                 <div className="mt-4 rounded-xl bg-paper p-4">

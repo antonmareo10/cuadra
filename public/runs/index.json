@@ -25,8 +25,8 @@
       "fill"
     ],
     "calls": 19,
-    "credits": 219,
-    "recordedAt": "2026-11-03T19:32:32.091Z"
+    "credits": 202,
+    "recordedAt": "2026-11-03T20:16:11.925Z"
   },
   {
     "caseId": "fish-bank-change",
@@ -46,16 +46,16 @@
     "endpoints": [
       "pii",
       "pipeline",
-      "extract",
       "script",
+      "extract",
       "rerank",
       "compare",
       "grounding",
       "fill"
     ],
     "calls": 19,
-    "credits": 161,
-    "recordedAt": "2026-11-03T19:28:31.423Z"
+    "credits": 164,
+    "recordedAt": "2026-11-03T20:15:58.440Z"
   },
   {
     "caseId": "drinks-vat-return",
@@ -83,8 +83,8 @@
       "grounding"
     ],
     "calls": 18,
-    "credits": 177,
-    "recordedAt": "2026-11-03T19:32:43.772Z"
+    "credits": 172,
+    "recordedAt": "2026-11-03T20:15:41.540Z"
   },
   {
     "caseId": "veg-duplicate",
@@ -111,8 +111,8 @@
       "grounding"
     ],
     "calls": 15,
-    "credits": 155,
-    "recordedAt": "2026-11-03T19:32:52.724Z"
+    "credits": 146,
+    "recordedAt": "2026-11-03T20:16:27.336Z"
   },
   {
     "caseId": "clean-substitution",
@@ -139,7 +139,7 @@
       "fill"
     ],
     "calls": 17,
-    "credits": 134,
-    "recordedAt": "2026-11-03T19:28:24.180Z"
+    "credits": 133,
+    "recordedAt": "2026-11-03T20:15:17.774Z"
   }
 ]

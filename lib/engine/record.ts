@@ -52,8 +52,8 @@ export async function checkSupplierClaims(
     for (const i of issues.filter((x) => x.type === route.type)) {
       for (const c of relevant) {
         i.evidence.push({
-          doc: "tariff",
-          quote: `Supplier: “${c.claim}” — Verify: ${c.verdict.replace("_", " ")} by the agreed tariff or order (${Math.round(Math.max(c.notStated, c.contradicted) * 100)}%)`,
+          doc: "claim",
+          quote: `“${c.claim}” is ${c.verdict.replace("_", " ")} in the agreed tariff or the order (${Math.round(Math.max(c.notStated, c.contradicted) * 100)}%)`,
           by: "Verify",
         });
       }
@@ -86,12 +86,20 @@ export function buildBrief(p: {
     "",
   ];
   const relevant = p.issues.filter((i) => i.cls !== "info");
-  if (!relevant.length) lines.push("Checks: every invoice line matches the order and the delivery note at the agreed price and VAT. Nothing to raise.");
-  relevant.forEach((i, n) => {
-    const action =
-      i.resolution === "hold" ? "Hold the payment" : i.resolution === "credit_note" ? "Request a credit note" : i.resolution === "confirm" ? "Waiting for the kitchen to confirm" : "Accepted";
-    lines.push(`${n + 1}. ${i.title}. ${i.detail}${i.math ? ` Computation: ${i.math}.` : ""}${i.amount > 0 ? ` Amount: ${e(i.amount)} including VAT.` : ""} Action: ${action}.`);
-  });
+  const toRaise = relevant.filter((i) => i.resolution === "credit_note" || i.resolution === "hold");
+  const internal = relevant.filter((i) => i.resolution === "confirm");
+  const accepted = relevant.filter((i) => i.resolution === "accept");
+  const item = (i: Issue) => `${i.title}. ${i.detail}${i.math ? ` Computation: ${i.math}.` : ""}${i.amount > 0 ? ` Amount: ${e(i.amount)} including VAT.` : ""}`;
+  lines.push(toRaise.length ? "To raise with the supplier:" : "To raise with the supplier: nothing.");
+  toRaise.forEach((i, n) => lines.push(`${n + 1}. ${item(i)} Action: ${i.resolution === "hold" ? "hold the payment" : "request a credit note"}.`));
+  if (internal.length) {
+    lines.push("Internal, not for the supplier yet (waiting for the kitchen to confirm):");
+    for (const i of internal) lines.push(`- ${item(i)}`);
+  }
+  if (accepted.length) {
+    lines.push("Accepted, nothing to raise:");
+    for (const i of accepted) lines.push(`- ${i.title}. ${i.detail}`);
+  }
   for (const c of p.claim?.claims.filter((x) => x.verdict !== "supported") ?? []) {
     lines.push(
       `The supplier writes on the invoice: "${c.claim}". The restaurant's records (agreed tariff ${p.supplier.tariff.validity.toLowerCase()}, which requires written acceptance of any price change, and the order) do not show this.`,
@@ -118,7 +126,7 @@ export async function fillRecord(
   p: Parameters<typeof buildBrief>[0],
 ): Promise<{ record: FilledRecord; brief: string }> {
   const brief = buildBrief(p);
-  const withEmail = p.issues.some((i) => i.cls !== "info" && i.resolution !== "accept");
+  const withEmail = p.issues.some((i) => i.cls !== "info" && (i.resolution === "credit_note" || i.resolution === "hold"));
   const { data } = await client.call<any>("fill", fillRequest(brief, withEmail, p.owner, p.restaurant), "Fill · reconciliation record");
   const f = data?.fields ?? {};
   const record: FilledRecord = {

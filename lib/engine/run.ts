@@ -125,7 +125,11 @@ export async function reconcile(
         claim: supplierClaim,
       }));
     }
-    step("record", record ? "done" : "skipped", record?.emailCheck ? `Email checked: ${record.emailCheck.verdict}` : "Record filled");
+    step(
+      "record",
+      record ? "done" : "skipped",
+      !record ? "Skipped: nothing readable to record" : record.emailCheck ? `Email checked: ${record.emailCheck.verdict.replace(/_/g, " ")}` : "Record filled, nothing to email",
+    );
   } catch (err) {
     errors.push(`Fill/Verify: ${errText(err)}`);
     step("record", "failed", errText(err));

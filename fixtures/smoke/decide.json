@@ -34,9 +34,9 @@
     "credits": 1,
     "costUsd": 0.000199,
     "costBasis": "reference",
-    "modelMs": 11.72144,
+    "modelMs": 9.27168,
     "transport": "door:east",
-    "wallMs": 1792,
-    "startedAt": "2026-11-03T18:50:03.152Z"
+    "wallMs": 3174,
+    "startedAt": "2026-11-03T20:44:03.384Z"
   }
 }

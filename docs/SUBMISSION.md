@@ -12,7 +12,7 @@ Cuadra checks a restaurant's supplier invoices against what was ordered and what
 
 It is for small restaurants. They receive dozens of supplier invoices a month and almost never check them line by line against the delivery note the kitchen signed, because it takes longer than the money seems worth. I have spent the last year building software that reads restaurant delivery notes, so I have seen the leaks up close: meat billed by the order instead of by the scale, a price rise nobody agreed to, water billed at the alcohol VAT rate, a box sent back at the door and still invoiced, the same delivery invoiced twice. And now invoices that ask you to pay a new bank account.
 
-You give Cuadra the order (often a WhatsApp message from the chef), the delivery note and the invoice. About ten seconds later you get one answer, for example "Pay €365.42 now, claim €42.81, ask the kitchen about €18.70", with every number linked to the line it came from, and the email to the supplier already written and fact-checked. Uncertain calls are left to you, and invoices that look like fraud or a duplicate are held until you clear them yourself.
+You give Cuadra the order (often a WhatsApp message from the chef), the delivery note and the invoice. Ten to twenty seconds later you get one answer, for example "Pay €365.42 now, claim €42.81, ask the kitchen about €18.70", with every number linked to the line it came from, and the email to the supplier already written and fact-checked. Uncertain calls are left to you, and invoices that look like fraud or a duplicate are held until you clear them yourself.
 
 The demo has five synthetic cases with planted problems. All five verdicts are right and every planted amount is found to the cent. They are real Clocked recordings replayed instantly, so the demo never waits.
 
@@ -56,7 +56,7 @@ Best Overall App, Best Use of Decide/Extract/Fill, Best Use of Protect/Guard/Ins
 
 ## LinkedIn post for People's Choice (draft)
 
-Restaurants pay supplier invoices without checking them against what actually arrived. I built Cuadra to do that check in ten seconds: it reads the chef's WhatsApp order, the signed delivery note and the invoice, and says what to pay, what to claim back and what not to pay at all.
+Restaurants pay supplier invoices without checking them against what actually arrived. I built Cuadra to do that check in seconds: it reads the chef's WhatsApp order, the signed delivery note and the invoice, and says what to pay, what to claim back and what not to pay at all.
 
 In the demo it catches meat billed by the order instead of by the scale, a price rise nobody agreed to, a box of wine returned at the door but still invoiced, an invoice that was already paid, and a fake invoice with hidden instructions for AI assistants and a new bank account.
 

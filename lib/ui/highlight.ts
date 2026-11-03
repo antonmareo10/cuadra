@@ -38,7 +38,7 @@ export function marksFor(doc: ReadDocument, issues: Issue[]): Mark[] {
   for (const p of doc.pii) add(p.start, p.end, "pii", `Protect · ${p.type.replace(/_/g, " ")}`);
   for (const i of issues) {
     for (const e of i.evidence) {
-      if (e.doc !== doc.kind) continue;
+      if (e.doc !== doc.kind || e.quote.length > 160) continue;
       add(e.start, e.end, i.cls === "stop" ? "stop" : "issue", `${e.by} · ${i.title}`, i.id);
     }
   }

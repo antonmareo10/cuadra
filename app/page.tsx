@@ -6,6 +6,7 @@ import type { Verdict } from "@/lib/engine/types";
 import { eur } from "@/lib/money";
 import { Hero } from "./components/Hero";
 import { SiteFooter, SiteHeader } from "./components/Chrome";
+import { endpointsUsed } from "@/lib/ui/endpoints";
 import { CountUp, EndpointChip, Icon, Reveal } from "./components/ui";
 
 interface IndexItem {
@@ -96,7 +97,7 @@ export default function Home() {
   const held = items.filter((i) => i.verdict.kind === "hold");
   const avgCalls = items.length ? Math.round(items.reduce((a, i) => a + i.calls, 0) / items.length) : 0;
   const avgCredits = items.length ? Math.round(items.reduce((a, i) => a + i.credits, 0) / items.length) : 0;
-  const endpoints = new Set(items.flatMap((i) => i.endpoints));
+  const endpoints = new Set(endpointsUsed(items.flatMap((i) => i.endpoints)));
   const recordedOn = items[0]?.recordedAt
     ? new Date(items[0].recordedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid" })
     : null;
@@ -163,7 +164,7 @@ export default function Home() {
                   <p className="mt-2 flex-1 text-[15px] leading-relaxed text-ink-2">{it.story}</p>
                   <p className="mt-4 text-[13px] text-muted">{it.supplier}</p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {it.endpoints.map((e) => (
+                    {endpointsUsed(it.endpoints).map((e) => (
                       <EndpointChip key={e} endpoint={e} />
                     ))}
                   </div>
@@ -202,7 +203,7 @@ export default function Home() {
             <Reveal>
               <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">How one invoice is checked</h2>
               <p className="mt-3 max-w-2xl text-ink-2">
-                Fifteen to twenty Clocked calls per invoice, about ten seconds end to end. Each endpoint changes what happens next; none
+                Fifteen to twenty Clocked calls per invoice, 10 to 20 seconds end to end. Each endpoint changes what happens next; none
                 is decoration.
               </p>
             </Reveal>

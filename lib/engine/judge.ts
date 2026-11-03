@@ -7,7 +7,7 @@ import { DOC_LABEL, type Issue, type Resolution } from "./types";
 const UNCERTAIN = 0.6;
 
 export function issueNarrative(i: Issue): string {
-  const ev = i.evidence
+  const ev = dedupeEvidence(i.evidence)
     .filter((e) => e.quote)
     .slice(0, 8)
     .map((e) => `- ${e.doc in DOC_LABEL ? DOC_LABEL[e.doc as keyof typeof DOC_LABEL] : e.doc} (${e.by}): "${e.quote}"`)
@@ -60,13 +60,31 @@ export async function judgeIssues(client: ClockedClient, issues: Issue[]): Promi
   return items.length;
 }
 
-/** Stops first, then Decide's priority, then money at stake. */
+/** Same document + same quote = one piece of evidence, crediting every endpoint that found it. */
+export function dedupeEvidence(list: Issue["evidence"]): Issue["evidence"] {
+  const out: Issue["evidence"] = [];
+  for (const e of list) {
+    const q = e.quote.trim();
+    if (!q) continue;
+    const same = out.find((x) => x.doc === e.doc && x.quote.trim() === q);
+    if (same) {
+      if (!same.by.split(" · ").includes(e.by)) same.by = `${same.by} · ${e.by}`;
+      if (same.start === undefined && e.start !== undefined) {
+        same.start = e.start;
+        same.end = e.end;
+      }
+    } else out.push({ ...e });
+  }
+  return out;
+}
+
+/** Stops first, then Decide's priority level, then money at stake. */
 export function rankIssues(issues: Issue[]): Issue[] {
   const clsRank = { stop: 0, money: 1, review: 1, info: 3 } as const;
   return [...issues].sort(
     (a, b) =>
       clsRank[a.cls] - clsRank[b.cls] ||
-      (b.decision?.priority ?? (b.cls === "info" ? -1 : 0)) - (a.decision?.priority ?? (a.cls === "info" ? -1 : 0)) ||
+      Math.round(b.decision?.priority ?? (b.cls === "info" ? -1 : 0)) - Math.round(a.decision?.priority ?? (a.cls === "info" ? -1 : 0)) ||
       b.amount - a.amount,
   );
 }

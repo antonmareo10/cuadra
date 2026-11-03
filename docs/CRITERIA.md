@@ -7,7 +7,7 @@ Official weights (Best Overall App, see [RULES.md](RULES.md)): usefulness 25 · 
 - **A concrete user and a concrete pain.** A small restaurant receives 20–60 supplier invoices a month. Each one should be checked against what the chef ordered (often a WhatsApp message) and what the kitchen signed for (the delivery note). In practice nobody does it line by line, so short weights, unagreed price rises, wrong VAT, returned boxes, duplicates and bank-detail fraud get paid.
 - **The output is a decision, not a report:** "Pay €365.42 now, claim €42.81, ask the kitchen about €18.70", or "Hold payment". It comes with the email to send to the supplier, already checked.
 - **Measured on the five sample cases** (synthetic, with planted problems documented in `data/cases/*/truth.json`): all five verdicts right, every planted issue found with the exact amount, nothing claimed that was not planted. `tests/cases.test.ts` asserts this on the recorded Clocked responses.
-- **Money it protects in the samples:** €104.81 to claim back across two invoices, plus two invoices held (a bank-change fraud attempt and an invoice already paid).
+- **Money it protects in the samples:** €105.01 to claim back across two invoices, plus two invoices held (a bank-change fraud attempt and an invoice already paid).
 - **Human in the loop:** every action can be changed and the amount to pay recomputes; hard stops can only be cleared by the owner.
 
 ## 2. Quality of the core Clocked integration (30)

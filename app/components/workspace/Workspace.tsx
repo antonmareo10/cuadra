@@ -8,6 +8,7 @@ import type { Endpoint } from "@/lib/clocked/client";
 import { computeVerdict } from "@/lib/engine/checks";
 import type { DocKind, Issue, Resolution, RunResult, Verdict } from "@/lib/engine/types";
 import { eur } from "@/lib/money";
+import { endpointsUsed } from "@/lib/ui/endpoints";
 import { CountUp, EASE, EndpointChip, Icon } from "../ui";
 import { CallsTable, DocumentsView, EmailPanel, SafetyPanel } from "./Evidence";
 import { IssuesList, LinesTable } from "./IssuesView";
@@ -61,7 +62,7 @@ function useToast() {
 function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunResult; onReplay: () => void }) {
   const invoice = run.documents.find((d) => d.kind === "invoice");
   const stops = run.issues.filter((i) => i.cls === "stop");
-  const endpoints = [...new Set(run.calls.map((c) => c.endpoint))];
+  const endpoints = endpointsUsed(run.calls.map((c) => c.endpoint));
   const tone =
     verdict.kind === "hold" || verdict.kind === "unreadable" ? "stop" : verdict.kind === "pay_adjusted" ? "warn" : "ok";
   const recorded = run.source.kind === "recorded";
@@ -174,9 +175,13 @@ function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunRes
 }
 
 function RunTimeline({ run, replayKey }: { run: RunResult; replayKey: number }) {
+  const used = new Set(endpointsUsed(run.calls.map((c) => c.endpoint)));
   const byStep: Record<string, Endpoint[]> = {};
-  for (const s of run.steps) byStep[s.id] = s.endpoints.filter((e) => run.calls.some((c) => c.endpoint === e));
+  for (const s of run.steps) byStep[s.id] = s.endpoints.filter((e) => used.has(e));
   const counts = run.calls.reduce<Record<string, number>>((a, c) => ((a[c.endpoint] = (a[c.endpoint] ?? 0) + 1), a), {});
+  // Guard and Extract also run once inside every Pipeline call.
+  counts.injection = (counts.injection ?? 0) + (counts.pipeline ?? 0);
+  counts.extract = (counts.extract ?? 0) + (counts.pipeline ?? 0);
   return (
     <ol key={replayKey} className="space-y-3" aria-label="Run steps">
       {run.steps.map((s, i) => (
@@ -304,7 +309,7 @@ export function Workspace({ run }: { run: RunResult }) {
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0 space-y-14">
           <SectionNav active={active} />
           <IssuesList issues={issues} documents={run.documents} onEvidence={showEvidence} onResolve={setResolution} />

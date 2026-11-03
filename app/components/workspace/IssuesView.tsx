@@ -2,13 +2,22 @@
 
 import clsx from "clsx";
 import { motion } from "motion/react";
+import { dedupeEvidence } from "@/lib/engine/judge";
 import { normalizeCode } from "@/lib/engine/text";
 import type { DocKind, Issue, ReadDocument, Resolution, RunResult } from "@/lib/engine/types";
 import { eur } from "@/lib/money";
 import { EASE, Icon, ProbabilityBar, Reveal, SourceChip } from "../ui";
 import type { Focus } from "./Workspace";
 
-const DOC_SHORT: Record<string, string> = { po: "Order", delivery: "Delivery note", invoice: "Invoice", history: "Earlier invoice", tariff: "Agreed tariff", checks: "Checks" };
+const DOC_SHORT: Record<string, string> = {
+  po: "Order",
+  delivery: "Delivery note",
+  invoice: "Invoice",
+  history: "Earlier invoice",
+  tariff: "Agreed tariff",
+  checks: "Checks",
+  claim: "Supplier's note",
+};
 
 const ACTION_LABEL: Record<Resolution, string> = {
   accept: "Accept",
@@ -45,7 +54,8 @@ function IssueCard({
   const st = CLS_STYLE[issue.cls];
   const d = issue.decision;
   const options: Resolution[] = issue.cls === "stop" ? ["hold", "accept"] : ["accept", "credit_note", "confirm", "hold"];
-  const evidence = issue.evidence.filter((e) => e.quote);
+  // Long passages (Compare can quote a whole table) stay out of the chips; short quotes are the useful ones.
+  const evidence = dedupeEvidence(issue.evidence).filter((e) => e.quote.length <= 160);
   return (
     <motion.li
       layout

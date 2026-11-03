@@ -131,7 +131,7 @@ export function LiveRun() {
     <div className="mx-auto max-w-4xl px-4 pb-24 pt-10 sm:px-6 sm:pt-14">
       <h1 className="text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.03em]">Run a live reconciliation</h1>
       <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-ink-2">
-        The same engine as the recorded cases, against Clocked in real time: about 15 to 20 calls and 10 seconds. Files go to Clocked for reading and are not
+        The same engine as the recorded cases, against Clocked in real time: 15 to 20 calls and 10 to 20 seconds. Files go to Clocked for reading and are not
         stored by this app.
       </p>
 

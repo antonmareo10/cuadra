@@ -6,12 +6,15 @@ Cuadra is a three-way match for small restaurants. It reads the **order** (often
 
 | | |
 |---|---|
-| ![Landing](docs/screenshots/home-1440.png) | ![Fraud invoice held](docs/screenshots/case-fish-1440.png) |
-| ![Mobile](docs/screenshots/case-meat-390.png) | ![Document view with evidence](docs/screenshots/documents-1440.png) |
+| ![Landing page](docs/screenshots/home-1440.png) | ![Ranked issues with evidence and Decide's recommendation](docs/screenshots/issues-meat-1440.png) |
+| ![Evidence highlighted in the document's own text](docs/screenshots/documents-1440.png) | ![Safety checks on the fraudulent invoice](docs/screenshots/safety-fish-1440.png) |
+| ![Record and supplier email checked by Verify](docs/screenshots/email-meat-1440.png) | ![Line by line match](docs/screenshots/lines-meat-1440.png) |
+
+Phone and dark mode: [390 px case view](docs/screenshots/case-meat-390.png) · [390 px issues](docs/screenshots/issues-meat-390.png) · [dark theme](docs/screenshots/case-drinks-dark-1440.png). Demo video: [docs/video/cuadra-demo.mp4](docs/video/cuadra-demo.mp4).
 
 ## Why
 
-A small restaurant gets 20 to 60 supplier invoices a month and pays most of them without checking them against the delivery note, because doing it by hand takes longer than the money seems worth. The money leaks anyway: meat billed by the order instead of by the scale, a "new tariff" nobody agreed to, water at the alcohol VAT rate, a box sent back at the door and still invoiced, the same delivery invoiced twice, and now invoices that ask you to pay a "new" bank account. Cuadra does the check in about ten seconds and hands the owner a decision with the evidence and the email to send.
+A small restaurant gets 20 to 60 supplier invoices a month and pays most of them without checking them against the delivery note, because doing it by hand takes longer than the money seems worth. The money leaks anyway: meat billed by the order instead of by the scale, a "new tariff" nobody agreed to, water at the alcohol VAT rate, a box sent back at the door and still invoiced, the same delivery invoiced twice, and now invoices that ask you to pay a "new" bank account. Cuadra does the check in 10 to 20 seconds and hands the owner a decision with the evidence and the email to send.
 
 ## Try it (no key needed)
 

@@ -189,7 +189,7 @@ export type IssueType =
 export type IssueClass = "money" | "review" | "stop" | "info";
 
 export interface Evidence {
-  doc: DocKind | "history" | "tariff" | "checks";
+  doc: DocKind | "history" | "tariff" | "checks" | "claim";
   quote: string;
   start?: number;
   end?: number;

@@ -260,7 +260,7 @@ export function fillRequest(brief: string, withEmail: boolean, owner: string, re
       format: "text",
       max_tokens: 90,
       description:
-        "Two sentences in English for the restaurant owner: what to pay now and what to raise with the supplier, with the euro amounts from the brief. Do not invent facts.",
+        "Two sentences in English for the restaurant owner: what to pay now, what to claim from the supplier (the items under 'To raise') and what to check with the kitchen, with the euro amounts from the brief. Do not invent facts.",
     },
   };
   if (withEmail) {
@@ -269,7 +269,7 @@ export function fillRequest(brief: string, withEmail: boolean, owner: string, re
       format: "text",
       max_tokens: 320,
       description:
-        `An email in Spanish from ${owner} (${restaurant}) to the supplier. Polite and concrete: one short paragraph per issue in the brief, with the document numbers, quantities and euro amounts given there, and what is requested (credit note, confirmation or cancellation). ` +
+        `An email in Spanish from ${owner} (${restaurant}) to the supplier. Polite and concrete: one short paragraph per item under 'To raise' in the brief, with the document numbers, quantities and euro amounts given there, and what is requested (credit note, confirmation or cancellation). Do not mention accepted items. ` +
         "Use only facts from the brief. No placeholders, no subject line.",
     };
   }
