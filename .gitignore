@@ -1,0 +1,23 @@
+# Secrets: the Clocked API key lives only in .env.local (never committed)
+.env
+.env.local
+.env.*.local
+*.key
+
+# Dependencies and builds
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local run artifacts
+.clocked/
+playwright-report/
+test-results/
+*.log
+.DS_Store
+Thumbs.db
