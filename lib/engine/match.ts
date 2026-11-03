@@ -39,7 +39,7 @@ export async function matchLines(
     const c = normalizeCode(l.code.value);
     if (c && !dnByCode.has(c)) dnByCode.set(c, l.index);
   });
-  const tariffCodes = new Set(supplier.tariff.products.map((p) => normalizeCode(p.code)));
+  const tariffByCode = new Map(supplier.tariff.products.map((p) => [normalizeCode(p.code), p]));
   const poDocs = (po?.lines ?? []).map((l) => ({
     id: `po-${l.index}`,
     text: [l.description.value, l.quantity.value, l.unit.value].filter(Boolean).join(" · "),
@@ -48,24 +48,28 @@ export async function matchLines(
   const matches: LineMatch[] = await Promise.all(
     invoice.lines.map(async (line): Promise<LineMatch> => {
       const code = normalizeCode(line.code.value);
+      const dnByCodeLine = code && dnByCode.has(code) ? delivery?.lines[dnByCode.get(code)!] : undefined;
+      // The product name to match on: as invoiced, else as delivered, else the name on the tariff for that code.
+      const name = line.description.value ?? dnByCodeLine?.description.value ?? tariffByCode.get(code)?.name ?? line.code.value ?? null;
       const m: LineMatch = {
         invoiceLine: line.index,
+        name: name ?? `line ${line.index + 1}`,
         deliveryLine: null,
         deliveryBy: null,
         poLine: null,
         poCandidates: [],
-        tariffCode: code && tariffCodes.has(code) ? code : null,
+        tariffCode: code && tariffByCode.has(code) ? code : null,
         closestDifferent: null,
       };
       if (code && dnByCode.has(code)) {
         m.deliveryLine = dnByCode.get(code)!;
         m.deliveryBy = "code";
-      } else if (delivery && delivery.lines.length && line.description.value) {
+      } else if (delivery && delivery.lines.length && name) {
         const docs = delivery.lines.map((l) => ({ id: `po-${l.index}`, text: [l.code.value, l.description.value].filter(Boolean).join(" ") }));
         const { data } = await client.call<any>(
           "rerank",
-          matchRequest(line.description.value, docs, supplier.name, restaurant),
-          `Rerank · delivery line for ${line.description.value}`,
+          matchRequest(name, docs, supplier.name, restaurant),
+          `Rerank · delivery line for ${name}`,
         );
         const best = parseCandidates(data).find((c) => c.action === "use" && c.relevance >= USE_THRESHOLD);
         if (best) {
@@ -73,11 +77,11 @@ export async function matchLines(
           m.deliveryBy = "rerank";
         }
       }
-      if (poDocs.length && line.description.value) {
+      if (poDocs.length && name) {
         const { data } = await client.call<any>(
           "rerank",
-          matchRequest(line.description.value, poDocs, supplier.name, restaurant),
-          `Rerank · order line for ${line.description.value}`,
+          matchRequest(name, poDocs, supplier.name, restaurant),
+          `Rerank · order line for ${name}`,
         );
         m.poCandidates = parseCandidates(data);
       }
@@ -97,10 +101,16 @@ export async function matchLines(
     takenPo.add(c.index);
     assigned.add(m.invoiceLine);
   }
+  // For an unmatched invoice line, the closest order line nobody else matched: shown as
+  // "closest order line" and linked as a possible substitution (Decide reads the evidence).
+  const near = (c: LineCandidate) => c.relevance + (c.levels.different_case ?? 0) + (c.levels.elsewhere ?? 0);
   for (const m of matches) {
     if (m.poLine === null && m.poCandidates.length) {
-      const top = [...m.poCandidates].sort((a, b) => b.relevance + b.levels.different_case - (a.relevance + a.levels.different_case))[0];
-      if (top && (top.reason === "different_case" || top.levels.different_case > 0.3)) m.closestDifferent = top;
+      const top = m.poCandidates.filter((c) => !takenPo.has(c.index)).sort((a, b) => near(b) - near(a))[0];
+      if (top && near(top) >= 0.1) {
+        m.closestDifferent = top;
+        takenPo.add(top.index);
+      }
     }
   }
   return matches;

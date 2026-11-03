@@ -49,7 +49,7 @@ export function runChecks(p: {
   for (const m of matches) {
     const L = invoice.lines[m.invoiceLine];
     if (!L) continue;
-    const name = L.description.value ?? L.code.value ?? `line ${m.invoiceLine + 1}`;
+    const name = m.name;
     const qi = L.quantity.number ?? null;
     const pi = L.unitPrice.number ?? null;
     const vi = L.vatRate.number ?? null;
@@ -202,7 +202,7 @@ export function runChecks(p: {
         cls: "review",
         title: `${name}: delivered and invoiced, not on the order`,
         detail: closest
-          ? `Closest order line is “${closest.description.value}”, which Rerank judges a different product (${Math.round((m.closestDifferent!.levels.different_case ?? 0) * 100)}% different case).`
+          ? `Closest order line is “${closest.description.value}”; Rerank judges it a different product (${Math.round(m.closestDifferent!.relevance * 100)}% same product).`
           : "No order line asks for this product.",
         amount: lineValue,
         invoiceLine: m.invoiceLine,

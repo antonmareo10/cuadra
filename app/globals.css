@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --paper: #f5f2ea;
+  --surface: #fffdf8;
+  --surface-2: #efebe1;
+  --ink: #1b1a17;
+  --ink-2: #3a3832;
+  --muted: #6a665c;
+  --line: #e0d9cb;
+  --accent: #c8432a;
+  --accent-ink: #ffffff;
+  --ok: #3f7a35;
+  --ok-soft: #e3eedc;
+  --warn: #9a6a06;
+  --warn-soft: #f6ecd2;
+  --stop: #b3261e;
+  --stop-soft: #f8e1dd;
+  --info: #2f5f7f;
+  --info-soft: #dfeaf1;
+  --hl: #fbe7a3;
+  --shadow: 0 1px 2px rgb(27 26 23 / 0.06), 0 8px 24px -12px rgb(27 26 23 / 0.18);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121210;
+    --surface: #1a1916;
+    --surface-2: #23221e;
+    --ink: #f2eee5;
+    --ink-2: #d6d1c5;
+    --muted: #a39e91;
+    --line: #34322c;
+    --accent: #f0694b;
+    --accent-ink: #1b1a17;
+    --ok: #8dbb72;
+    --ok-soft: #22301d;
+    --warn: #e3ac45;
+    --warn-soft: #342a15;
+    --stop: #f27264;
+    --stop-soft: #3a1d1a;
+    --info: #86b6d6;
+    --info-soft: #1c2a34;
+    --hl: #5a4a14;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #121210;
+  --surface: #1a1916;
+  --surface-2: #23221e;
+  --ink: #f2eee5;
+  --ink-2: #d6d1c5;
+  --muted: #a39e91;
+  --line: #34322c;
+  --accent: #f0694b;
+  --accent-ink: #1b1a17;
+  --ok: #8dbb72;
+  --ok-soft: #22301d;
+  --warn: #e3ac45;
+  --warn-soft: #342a15;
+  --stop: #f27264;
+  --stop-soft: #3a1d1a;
+  --info: #86b6d6;
+  --info-soft: #1c2a34;
+  --hl: #5a4a14;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-stop: var(--stop);
+  --color-stop-soft: var(--stop-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-hl: var(--hl);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --shadow-card: var(--shadow);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--hl);
+  color: var(--ink);
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Document text view */
+.doc-text {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.doc-text mark {
+  background: transparent;
+  color: inherit;
+  border-radius: 3px;
+  padding: 1px 0;
+  transition: background-color 200ms, box-shadow 200ms;
+}
+.doc-text mark.m-field {
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--info) 55%, transparent);
+}
+.doc-text mark.m-pii {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--muted) 70%, transparent);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+}
+.doc-text mark.m-issue {
+  background: var(--warn-soft);
+  box-shadow: inset 0 -2px 0 var(--warn);
+}
+.doc-text mark.m-stop {
+  background: var(--stop-soft);
+  box-shadow: inset 0 -2px 0 var(--stop);
+}
+.doc-text mark.m-focus {
+  background: var(--hl);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .pulse-dot {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

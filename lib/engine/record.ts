@@ -37,13 +37,20 @@ export async function checkSupplierClaims(
   const docs = [{ id: "agreed-tariff", text: supplier.tariffText }];
   if (po?.text) docs.push({ id: "order", text: po.text });
   const text = notes.join(" ");
-  const { data } = await client.call<any>("grounding", verifySupplierClaimRequest(text, docs), "Verify · supplier's note on the invoice");
+  const { data } = await client.call<any>("grounding", verifySupplierClaimRequest(notes, docs), "Verify · supplier's notes on the invoice");
   const claims = parseClaims(data);
   const result: SupplierClaimCheck = { text, verdict: String(data?.verdict ?? ""), claims };
   const unsupported = claims.filter((c) => c.verdict !== "supported");
-  if (unsupported.length) {
-    for (const i of issues.filter((x) => x.type === "price_above_agreed")) {
-      for (const c of unsupported) {
+  // Route each unsupported statement to the issue it bears on.
+  const routes: { type: Issue["type"]; re: RegExp }[] = [
+    { type: "price_above_agreed", re: /precio|tarifa|price|tariff/i },
+    { type: "bank_details_changed", re: /banc|cuenta|iban|bank|account/i },
+  ];
+  for (const route of routes) {
+    const relevant = unsupported.filter((c) => route.re.test(c.claim));
+    if (!relevant.length) continue;
+    for (const i of issues.filter((x) => x.type === route.type)) {
+      for (const c of relevant) {
         i.evidence.push({
           doc: "tariff",
           quote: `Supplier: “${c.claim}” — Verify: ${c.verdict.replace("_", " ")} by the agreed tariff or order (${Math.round(Math.max(c.notStated, c.contradicted) * 100)}%)`,
@@ -75,6 +82,7 @@ export function buildBrief(p: {
     `Invoice ${h.number?.value ?? "(number not read)"} dated ${h.date?.value ?? "?"}, printed total ${p.verdict.invoiceTotal !== null ? e(p.verdict.invoiceTotal) : "not read"}.`,
     p.delivery ? `Delivery note ${p.delivery.header.number?.value ?? "?"} dated ${p.delivery.header.date?.value ?? "?"}, signed on delivery.` : "No delivery note.",
     p.po ? `Order: ${p.po.header.number?.value ?? p.po.label} of ${p.po.header.date?.value ?? "?"}.` : "No purchase order.",
+    `Goods invoiced: ${p.invoice.lines.map((l) => l.description.value ?? l.code.value).filter(Boolean).join(", ")}.`,
     "",
   ];
   const relevant = p.issues.filter((i) => i.cls !== "info");
@@ -84,8 +92,10 @@ export function buildBrief(p: {
       i.resolution === "hold" ? "Hold the payment" : i.resolution === "credit_note" ? "Request a credit note" : i.resolution === "confirm" ? "Waiting for the kitchen to confirm" : "Accepted";
     lines.push(`${n + 1}. ${i.title}. ${i.detail}${i.math ? ` Computation: ${i.math}.` : ""}${i.amount > 0 ? ` Amount: ${e(i.amount)} including VAT.` : ""} Action: ${action}.`);
   });
-  if (p.claim && p.claim.claims.some((c) => c.verdict !== "supported")) {
-    lines.push(`The supplier's note "${p.claim.text}" is not supported by the agreed tariff, which is valid until 31/12/2026 and requires written acceptance of price changes.`);
+  for (const c of p.claim?.claims.filter((x) => x.verdict !== "supported") ?? []) {
+    lines.push(
+      `The supplier writes on the invoice: "${c.claim}". The restaurant's records (agreed tariff ${p.supplier.tariff.validity.toLowerCase()}, which requires written acceptance of any price change, and the order) do not show this.`,
+    );
   }
   lines.push("");
   if (p.verdict.kind === "hold") lines.push("Decision: hold the whole payment until the stops above are cleared with the supplier by phone, using the number on file.");

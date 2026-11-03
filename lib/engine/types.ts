@@ -159,6 +159,8 @@ export interface LineCandidate {
 
 export interface LineMatch {
   invoiceLine: number;
+  /** Product name used for matching and display (invoice text, else delivery note, else tariff). */
+  name: string;
   deliveryLine: number | null;
   deliveryBy: "code" | "rerank" | null;
   poLine: number | null;

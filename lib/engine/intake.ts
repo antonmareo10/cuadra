@@ -142,6 +142,7 @@ function applyExtraction(doc: ReadDocument, result: any) {
 
 const REPAIR_FIELDS: Record<string, { key: keyof LineRead; def: Record<string, unknown> }[]> = {
   invoice: [
+    { key: "description", def: { description: "the product name (Descripción)" } },
     { key: "quantity", def: { description: "the quantity (Cantidad)", format: "number" } },
     { key: "unitPrice", def: { description: "the unit price before VAT (Precio)", format: "number" } },
     { key: "vatRate", def: { description: "the VAT percentage (IVA)", format: "number" } },
@@ -160,7 +161,7 @@ const REPAIR_FIELDS: Record<string, { key: keyof LineRead; def: Record<string, u
 async function repairLines(client: ClockedClient, doc: ReadDocument): Promise<void> {
   const wanted = REPAIR_FIELDS[doc.kind] ?? [];
   for (const line of doc.lines) {
-    const missing = wanted.filter((w) => (line[w.key] as FieldRead).number == null);
+    const missing = wanted.filter((w) => (w.key === "description" ? (line[w.key] as FieldRead).value : (line[w.key] as FieldRead).number) == null);
     if (!missing.length || line.start === undefined || line.end === undefined) continue;
     const slice = sliceCp(doc.text, line.start, line.end);
     const fields = Object.fromEntries(missing.map((m) => [m.key, m.def]));

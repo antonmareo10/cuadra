@@ -71,7 +71,8 @@ export function extractFields(kind: DocKind, plainText: boolean): Record<string,
         fields: LINE_COLUMNS_INVOICE,
       },
       notes: {
-        description: "statements from the supplier about prices, tariffs, bank accounts or payment changes",
+        description:
+          "free-text notices from the supplier announcing a price change, a new tariff or a change of bank account; not the standard payment terms, due date or IBAN lines",
         list: true,
         max_items: 6,
       },
@@ -291,10 +292,11 @@ export function verifyEmailRequest(email: string, docs: { id: string; text: stri
   };
 }
 
-export function verifySupplierClaimRequest(note: string, docs: { id: string; text: string }[]) {
+export function verifySupplierClaimRequest(notes: string[], docs: { id: string; text: string }[]) {
   return {
     documents: docs,
-    answer: note,
+    answer: notes.join(" "),
+    claims: notes.slice(0, 30),
     question: "Is this statement from the supplier supported by the agreed tariff and the restaurant's order?",
     instructions:
       "Check what a supplier wrote on its invoice against the restaurant's records: the agreed price list and the order. Claims about agreements or communications the records do not show are not stated.",
