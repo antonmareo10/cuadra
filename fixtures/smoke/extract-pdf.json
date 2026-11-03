@@ -1,0 +1,70 @@
+{
+  "request": {
+    "pdf": "<pdf base64, 1156 chars>",
+    "return_text": true,
+    "fields": {
+      "invoice_number": "the invoice number"
+    }
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "fields": {
+      "invoice_number": {
+        "value": "F-2026-0981",
+        "start": 8,
+        "end": 19,
+        "confidence": 0.9999999988627772,
+        "p_verify": 0.9999999988627772
+      }
+    },
+    "timing": {
+      "read_ms": 79,
+      "forwards": {
+        "fields": [
+          5,
+          1
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 1,
+          "branches": 0,
+          "generate": 64,
+          "locate": 0,
+          "verify": 12,
+          "assemble": 0
+        }
+      },
+      "total_ms": 79,
+      "server_ms": 83
+    },
+    "pdf": {
+      "pages": 1,
+      "selected": [
+        1
+      ],
+      "mode": "text",
+      "page_offsets": [
+        0
+      ],
+      "characters": 210,
+      "text": "FACTURA F-2026-0981\nFecha: 02/11/2026\nProveedor: Frutas Ejemplo S.L.\nTOM-001 Tomate pera 5,000 kg 1,80 9,00\nLEC-010 Lechuga romana 6,000 ud 0,95 5,70\nTotal factura: 15,29 EUR\nIBAN: ES00 0000 0000 0000 0000 0000"
+    }
+  },
+  "record": {
+    "id": "c3",
+    "endpoint": "extract",
+    "label": "smoke:extract-pdf",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 4,
+    "costUsd": 0.000797,
+    "costBasis": "reference",
+    "modelMs": 79.287682,
+    "transport": "door:east",
+    "wallMs": 252,
+    "startedAt": "2026-11-03T18:50:05.558Z"
+  }
+}

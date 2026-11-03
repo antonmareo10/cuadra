@@ -1,0 +1,250 @@
+{
+  "request": {
+    "text": "FACTURA F-2026-0981\nFecha: 02/11/2026\nProveedor: Frutas Ejemplo S.L.\nTOM-001 Tomate pera 5,000 kg 1,80 9,00\nLEC-010 Lechuga romana 6,000 ud 0,95 5,70\nTotal factura: 15,29 EUR\nIBAN: ES00 0000 0000 0000 0000 0000",
+    "fields": {
+      "invoice_number": "the invoice number",
+      "total": {
+        "description": "invoice total amount",
+        "normalize": {
+          "type": "money",
+          "decimal_separator": ",",
+          "currency": "EUR"
+        }
+      },
+      "lines": {
+        "description": "invoice line",
+        "list": true,
+        "max_items": 4,
+        "row_anchor": "code",
+        "fields": {
+          "code": "product code",
+          "description": "product description",
+          "quantity": {
+            "description": "quantity",
+            "format": "number"
+          },
+          "unit_price": "unit price"
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "fields": {
+      "invoice_number": {
+        "value": "F-2026-0981",
+        "start": 8,
+        "end": 19,
+        "confidence": 0.9999999998170626,
+        "p_verify": 0.9999999998170626
+      },
+      "total": {
+        "value": "15,29 EUR",
+        "start": 165,
+        "end": 174,
+        "confidence": 0.9929942880114292,
+        "p_verify": 0.9929942880114292,
+        "normalized": {
+          "value": {
+            "amount": "15.29",
+            "currency": "EUR"
+          },
+          "source": "derived",
+          "rule": "decimal_comma:currency",
+          "confidence": 0.9929942880114292
+        }
+      },
+      "lines": {
+        "value": [
+          {
+            "code": "TOM-001",
+            "description": "Tomate pera",
+            "quantity": "5,000",
+            "unit_price": "1,80"
+          },
+          {
+            "code": "LEC-010",
+            "description": "Lechuga romana",
+            "quantity": "6,000",
+            "unit_price": "0,95"
+          }
+        ],
+        "items": [
+          {
+            "start": 69,
+            "end": 108,
+            "fields": {
+              "code": {
+                "value": "TOM-001",
+                "start": 69,
+                "end": 76,
+                "confidence": 0.9999999991229291,
+                "p_verify": 0.9999999991229291
+              },
+              "description": {
+                "value": "Tomate pera",
+                "start": 77,
+                "end": 88,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "5,000",
+                "start": 89,
+                "end": 94,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "1,80",
+                "start": 98,
+                "end": 102,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              }
+            }
+          },
+          {
+            "start": 108,
+            "end": 149,
+            "fields": {
+              "code": {
+                "value": "LEC-010",
+                "start": 108,
+                "end": 115,
+                "confidence": 0.9999999995052444,
+                "p_verify": 0.9999999995052444
+              },
+              "description": {
+                "value": "Lechuga romana",
+                "start": 116,
+                "end": 130,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "6,000",
+                "start": 131,
+                "end": 136,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "0,95",
+                "start": 140,
+                "end": 144,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.989,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "0000",
+                    "start": 186,
+                    "p_verify": 0
+                  },
+                  {
+                    "value": "0000",
+                    "start": 201,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              }
+            }
+          }
+        ],
+        "source": "extracted",
+        "row_anchor": "code"
+      }
+    },
+    "timing": {
+      "read_ms": 252,
+      "forwards": {
+        "fields": [
+          6,
+          1
+        ],
+        "records": [
+          3,
+          1
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 1,
+          "branches": 1,
+          "generate": 167,
+          "locate": 1,
+          "verify": 20,
+          "assemble": 0
+        },
+        "cells": {
+          "doc": 0,
+          "point": 23,
+          "resolve": 14,
+          "extend": 0,
+          "contest": 20,
+          "lists": 0,
+          "verify": 0
+        }
+      },
+      "records": {
+        "variant": "A",
+        "listing_ms": 0,
+        "starts_ms": 0,
+        "cells_ms": 58,
+        "forwards": {
+          "listing": [
+            0,
+            0
+          ],
+          "starts": [
+            0,
+            0
+          ],
+          "cells": [
+            3,
+            1
+          ]
+        },
+        "records": 2,
+        "cells": 6,
+        "explicit": 0
+      },
+      "total_ms": 252,
+      "server_ms": 257
+    }
+  },
+  "record": {
+    "id": "c2",
+    "endpoint": "extract",
+    "label": "smoke:extract",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 11,
+    "costUsd": 0.002191,
+    "costBasis": "reference",
+    "modelMs": 252.287964,
+    "transport": "door:east",
+    "wallMs": 612,
+    "startedAt": "2026-11-03T18:50:04.945Z"
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "request": {
+    "text": "FACTURA F-2026-0981\nFecha: 02/11/2026\nProveedor: Frutas Ejemplo S.L.\nTOM-001 Tomate pera 5,000 kg 1,80 9,00\nLEC-010 Lechuga romana 6,000 ud 0,95 5,70\nTotal factura: 15,29 EUR\nIBAN: ES00 0000 0000 0000 0000 0000",
+    "steps": [
+      {
+        "injection": {
+          "source": "content"
+        },
+        "stop": true,
+        "name": "guard"
+      },
+      {
+        "extract": {
+          "fields": {
+            "invoice_number": "the invoice number"
+          }
+        },
+        "name": "read"
+      }
+    ]
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "steps": [
+      {
+        "step": 0,
+        "endpoint": "injection",
+        "name": "guard",
+        "status": 200,
+        "ms": 30,
+        "result": {
+          "model": "clocked-1.0",
+          "injection": 0.0021124442568593027,
+          "verdict": "benign",
+          "threshold": 0.5,
+          "source": "content",
+          "instructions_used": "default",
+          "category": "benign",
+          "categories": {
+            "benign": 0.9949363397683988,
+            "instruction override": 0.001143468723778733,
+            "role-play or persona jailbreak": 0.0007699844858468615,
+            "system prompt or secret extraction": 0.0009130107603549696,
+            "obfuscated or encoded payload": 0.0006920512485589611,
+            "tool misuse or data exfiltration": 0.0007408414463677855,
+            "social engineering": 0.0008043035666938975
+          },
+          "severity": "none",
+          "severity_expected": 1.011,
+          "severities": {
+            "none": 0.9957769992232826,
+            "low": 0.0012173858296514765,
+            "medium": 0.0007947207099698276,
+            "high": 0.0009115584512068844,
+            "critical": 0.0012993357858892567
+          },
+          "evidence": [],
+          "timing": {
+            "read_ms": 29,
+            "total_ms": 30
+          }
+        }
+      },
+      {
+        "step": 1,
+        "endpoint": "extract",
+        "name": "read",
+        "status": 200,
+        "ms": 62,
+        "result": {
+          "model": "clocked-1.0",
+          "fields": {
+            "invoice_number": {
+              "value": "F-2026-0981",
+              "start": 8,
+              "end": 19,
+              "confidence": 0.9999999988627772,
+              "p_verify": 0.9999999988627772
+            }
+          },
+          "timing": {
+            "read_ms": 59,
+            "forwards": {
+              "fields": [
+                5,
+                0
+              ]
+            },
+            "stages": {
+              "fields": {
+                "reader": "recognition",
+                "doc": 0,
+                "branches": 0,
+                "generate": 47,
+                "locate": 0,
+                "verify": 11,
+                "assemble": 0
+              }
+            },
+            "total_ms": 59,
+            "server_ms": 62
+          }
+        }
+      }
+    ],
+    "stopped": null,
+    "timing": {
+      "total_ms": 93,
+      "model_ms": 59
+    }
+  },
+  "record": {
+    "id": "c11",
+    "endpoint": "pipeline",
+    "label": "smoke:pipeline",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 4,
+    "costUsd": 0.000797,
+    "costBasis": "reference",
+    "modelMs": 85.700254,
+    "transport": "door:east",
+    "wallMs": 259,
+    "startedAt": "2026-11-03T18:50:07.552Z"
+  }
+}

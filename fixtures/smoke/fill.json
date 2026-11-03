@@ -1,0 +1,77 @@
+{
+  "request": {
+    "text": "Delivery note: 2 boxes of lettuce returned to the driver (damaged). Invoice bills 6 boxes.",
+    "fields": {
+      "credit_note_needed": {
+        "type": "yes_no",
+        "description": "Should the restaurant ask for a credit note?"
+      },
+      "status": {
+        "type": "choice",
+        "options": [
+          "Pay in full",
+          "Pay after credit note",
+          "Hold"
+        ]
+      },
+      "note": {
+        "type": "generate",
+        "description": "One short sentence for the supplier.",
+        "max_tokens": 30,
+        "format": "text"
+      }
+    }
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "fields": {
+      "credit_note_needed": {
+        "value": true,
+        "confidence": 0.99,
+        "probabilities": {
+          "yes": 0.9947985956207956,
+          "no": 0.005201404379204355
+        }
+      },
+      "status": {
+        "value": "Pay after credit note",
+        "confidence": 0.911,
+        "probabilities": {
+          "Pay in full": 0.032125177569634934,
+          "Pay after credit note": 0.9403683487926062,
+          "Hold": 0.027506473637758842
+        }
+      },
+      "note": {
+        "value": "2 boxes of lettuce returned due to damage",
+        "confidence": 0.9873507438689209,
+        "source": "generated"
+      }
+    },
+    "timing": {
+      "read_ms": 37,
+      "generate_ms": 60,
+      "total_ms": 74,
+      "source_states": 1,
+      "source_prefills": 1,
+      "shared_source_tokens": 64,
+      "shared_read_generate_forwards": 1,
+      "engine": "unified"
+    }
+  },
+  "record": {
+    "id": "c4",
+    "endpoint": "fill",
+    "label": "smoke:fill",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 3,
+    "costUsd": 0.000598,
+    "costBasis": "reference",
+    "modelMs": 69.737665,
+    "transport": "door:east",
+    "wallMs": 240,
+    "startedAt": "2026-11-03T18:50:05.811Z"
+  }
+}

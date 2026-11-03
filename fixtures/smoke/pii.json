@@ -1,0 +1,97 @@
+{
+  "request": {
+    "text": "Recibido por: Marta Gil, móvil 600 000 001. Transportista: Luis Prieto. IBAN ES00 0000 0000 0000 0000 0000.",
+    "entities": [
+      "person",
+      "phone",
+      "bank_account"
+    ],
+    "anonymize": "replace"
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "entities": [
+      {
+        "type": "person",
+        "value": "Marta Gil",
+        "start": 14,
+        "end": 23,
+        "confidence": 1,
+        "source": "model",
+        "mentions": 1
+      },
+      {
+        "type": "phone",
+        "value": "600 000 001",
+        "start": 31,
+        "end": 42,
+        "confidence": 1,
+        "source": "model",
+        "mentions": 1
+      },
+      {
+        "type": "person",
+        "value": "Luis Prieto",
+        "start": 59,
+        "end": 70,
+        "confidence": 1,
+        "source": "model",
+        "mentions": 1
+      },
+      {
+        "type": "bank_account",
+        "value": "ES00 0000 0000 0000 0000 0000",
+        "start": 77,
+        "end": 106,
+        "confidence": 1,
+        "source": "model",
+        "mentions": 1
+      }
+    ],
+    "counts": {
+      "person": 2,
+      "phone": 1,
+      "bank_account": 1
+    },
+    "threshold": 0.5,
+    "instructions_used": "default",
+    "mentions": {
+      "candidates": 0,
+      "variants": 0,
+      "reads": 0,
+      "verified": 0,
+      "occurrences": {
+        "read": 0,
+        "kept": 0
+      },
+      "rejected": {},
+      "spans": 0,
+      "ms": 0
+    },
+    "checks": {
+      "trimmed": 0,
+      "split": 0,
+      "rejected": {}
+    },
+    "anonymized_text": "Recibido por: <PERSON>, móvil <PHONE>. Transportista: <PERSON>. IBAN <BANK_ACCOUNT>.",
+    "timing": {
+      "read_ms": 104,
+      "total_ms": 105
+    }
+  },
+  "record": {
+    "id": "c5",
+    "endpoint": "pii",
+    "label": "smoke:pii",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 5,
+    "costUsd": 0.000996,
+    "costBasis": "reference",
+    "modelMs": 101.481949,
+    "transport": "door:east",
+    "wallMs": 281,
+    "startedAt": "2026-11-03T18:50:06.052Z"
+  }
+}

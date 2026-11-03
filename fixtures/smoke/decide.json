@@ -1,0 +1,42 @@
+{
+  "request": {
+    "state": "The invoice bills 10 kg of beef; the delivery note signed in the kitchen shows 8.4 kg.",
+    "questions": {
+      "overbilled": {
+        "type": "noul",
+        "instructions": "Does the invoice bill more than was delivered?",
+        "threshold": 0.8
+      }
+    }
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "answers": {
+      "overbilled": {
+        "type": "noul",
+        "noul": 0.9959,
+        "decision": true,
+        "threshold": 0.8
+      }
+    },
+    "usage": {
+      "input_tokens": 33,
+      "output_tokens": 2
+    }
+  },
+  "record": {
+    "id": "c1",
+    "endpoint": "decide",
+    "label": "smoke:decide",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 1,
+    "costUsd": 0.000199,
+    "costBasis": "reference",
+    "modelMs": 11.72144,
+    "transport": "door:east",
+    "wallMs": 1792,
+    "startedAt": "2026-11-03T18:50:03.152Z"
+  }
+}

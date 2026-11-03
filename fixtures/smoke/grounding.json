@@ -1,0 +1,88 @@
+{
+  "request": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "FACTURA F-2026-0981\nFecha: 02/11/2026\nProveedor: Frutas Ejemplo S.L.\nTOM-001 Tomate pera 5,000 kg 1,80 9,00\nLEC-010 Lechuga romana 6,000 ud 0,95 5,70\nTotal factura: 15,29 EUR\nIBAN: ES00 0000 0000 0000 0000 0000"
+      }
+    ],
+    "answer": "The invoice bills 5 kg of tomatoes. The total is 20 EUR."
+  },
+  "response": {
+    "model": "clocked-1.0",
+    "grounded": 0.6348,
+    "ungrounded": 0.3652,
+    "verdict": "contradicted",
+    "threshold": 0.5,
+    "instructions_used": "default",
+    "documents": [
+      {
+        "id": "invoice",
+        "share": 1,
+        "share_of_answer": 0.6348,
+        "claims": [
+          0
+        ]
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The invoice bills 5 kg of tomatoes.",
+        "kind": "claim",
+        "counted": true,
+        "weight": 0.6364,
+        "supported": 0.9951,
+        "contradicted": 0.0021,
+        "not_stated": 0.0014,
+        "not_a_claim": 0.0014,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 1
+        },
+        "source": "invoice"
+      },
+      {
+        "claim": "The total is 20 EUR.",
+        "kind": "claim",
+        "counted": true,
+        "weight": 0.3636,
+        "supported": 0.0043,
+        "contradicted": 0.988,
+        "not_stated": 0.0054,
+        "not_a_claim": 0.0023,
+        "verdict": "contradicted",
+        "sources": {
+          "invoice": 1
+        },
+        "source": null
+      }
+    ],
+    "unsupported_claims": [
+      1
+    ],
+    "not_claims": [],
+    "weakest_claim": {
+      "index": 1,
+      "supported": 0.0043
+    },
+    "timing": {
+      "read_ms": 77,
+      "total_ms": 79
+    }
+  },
+  "record": {
+    "id": "c8",
+    "endpoint": "grounding",
+    "label": "smoke:grounding",
+    "status": 200,
+    "ok": true,
+    "attempts": 1,
+    "credits": 3,
+    "costUsd": 0.000598,
+    "costBasis": "reference",
+    "modelMs": 70.582209,
+    "transport": "door:east",
+    "wallMs": 251,
+    "startedAt": "2026-11-03T18:50:06.816Z"
+  }
+}
