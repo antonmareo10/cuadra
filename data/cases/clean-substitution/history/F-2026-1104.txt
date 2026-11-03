@@ -1,0 +1,10 @@
+FACTURA F-2026-1104 · Huerta del Jarama S.L. · CIF B00211223
+Fecha: 21/10/2026 · Albarán: AH-55121 · Su pedido: —
+Cliente: La Encina Hostelería S.L. · CIF B00123457
+HJ-1021 TOMATE PERA CAT. I 6,000 kg 1,85 4% 11,10
+HJ-2040 LECHUGA ROMANA 8 ud 0,95 4% 7,60
+HJ-3300 PATATA AGRIA SACO 10 KG 1 saco 7,90 4% 7,90
+HJ-5120 LIMÓN 2,000 kg 1,70 4% 3,40
+Base imponible 4%: 30,00 € · IVA 4%: 1,20 €
+TOTAL FACTURA: 31,20 €
+Estado en contabilidad: Pagada 21/10/2026

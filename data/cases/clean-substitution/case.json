@@ -1,0 +1,35 @@
+{
+  "id": "clean-substitution",
+  "title": "Vegetables, one substitution",
+  "story": "The weekly vegetable order. Everything adds up, but the tomatoes on the invoice are not the tomatoes that were ordered.",
+  "supplier": "huerta",
+  "restaurant": "Taberna La Encina",
+  "documents": [
+    {
+      "kind": "po",
+      "file": "po.pdf",
+      "mime": "application/pdf",
+      "label": "Purchase order"
+    },
+    {
+      "kind": "delivery",
+      "file": "delivery.pdf",
+      "mime": "application/pdf",
+      "label": "Delivery note"
+    },
+    {
+      "kind": "invoice",
+      "file": "invoice.pdf",
+      "mime": "application/pdf",
+      "label": "Invoice"
+    }
+  ],
+  "history": [
+    {
+      "number": "F-2026-1104",
+      "date": "21/10/2026",
+      "status": "Pagada 21/10/2026",
+      "file": "history/F-2026-1104.txt"
+    }
+  ]
+}

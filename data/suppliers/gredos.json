@@ -1,0 +1,56 @@
+{
+  "id": "gredos",
+  "name": "Cárnicas Sierra de Gredos S.L.",
+  "taxId": "B00322334",
+  "phoneOnFile": "+34 920 000 322",
+  "ibanOnFile": "ES49 9999 0322 0000 0032 2334",
+  "paymentTerms": "Transferencia a 30 días fecha factura",
+  "tariff": {
+    "name": "Tarifa acordada Cárnicas Sierra de Gredos · 4.º trimestre 2026",
+    "validity": "Válida del 01/10/2026 al 31/12/2026",
+    "products": [
+      {
+        "code": "CSG-101",
+        "name": "SOLOMILLO DE TERNERA",
+        "unit": "kg",
+        "price": 28.9,
+        "vat": 10
+      },
+      {
+        "code": "CSG-118",
+        "name": "SECRETO IBÉRICO DE CEBO",
+        "unit": "kg",
+        "price": 15.4,
+        "vat": 10
+      },
+      {
+        "code": "CSG-130",
+        "name": "POLLO DE CORRAL ENTERO",
+        "unit": "ud",
+        "price": 9.8,
+        "vat": 10
+      },
+      {
+        "code": "CSG-142",
+        "name": "COSTILLA DE CERDO",
+        "unit": "kg",
+        "price": 7.2,
+        "vat": 10
+      },
+      {
+        "code": "CSG-155",
+        "name": "HAMBURGUESA VACUNO 180 G (CAJA 20)",
+        "unit": "caja",
+        "price": 32,
+        "vat": 10
+      },
+      {
+        "code": "CSG-170",
+        "name": "CHORIZO CRIOLLO",
+        "unit": "kg",
+        "price": 8.5,
+        "vat": 10
+      }
+    ]
+  }
+}

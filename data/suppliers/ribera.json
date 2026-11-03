@@ -1,0 +1,56 @@
+{
+  "id": "ribera",
+  "name": "Bebidas Ribera Distribución S.L.",
+  "taxId": "B00433445",
+  "phoneOnFile": "+34 916 000 433",
+  "ibanOnFile": "ES83 9999 0433 0000 0043 3445",
+  "paymentTerms": "Transferencia a 15 días fecha factura",
+  "tariff": {
+    "name": "Tarifa acordada Bebidas Ribera · 4.º trimestre 2026",
+    "validity": "Válida del 01/10/2026 al 31/12/2026",
+    "products": [
+      {
+        "code": "BRD-201",
+        "name": "AGUA MINERAL 1,5 L (CAJA 6)",
+        "unit": "caja",
+        "price": 3.6,
+        "vat": 10
+      },
+      {
+        "code": "BRD-310",
+        "name": "CERVEZA BARRIL 30 L",
+        "unit": "barril",
+        "price": 64,
+        "vat": 21
+      },
+      {
+        "code": "BRD-415",
+        "name": "VINO TINTO RIBERA CRIANZA (CAJA 6)",
+        "unit": "caja",
+        "price": 42,
+        "vat": 21
+      },
+      {
+        "code": "BRD-420",
+        "name": "VINO BLANCO RUEDA VERDEJO (CAJA 6)",
+        "unit": "caja",
+        "price": 33,
+        "vat": 21
+      },
+      {
+        "code": "BRD-505",
+        "name": "REFRESCO DE COLA 33 CL (CAJA 24)",
+        "unit": "caja",
+        "price": 14.4,
+        "vat": 21
+      },
+      {
+        "code": "BRD-610",
+        "name": "TÓNICA 20 CL (CAJA 24)",
+        "unit": "caja",
+        "price": 13.2,
+        "vat": 21
+      }
+    ]
+  }
+}

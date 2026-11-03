@@ -1,0 +1,13 @@
+{
+  "id": "veg-duplicate",
+  "verdict": "hold",
+  "invoiceComputedTotal": 74.57,
+  "invoicePrintedTotal": 74.57,
+  "planted": [
+    {
+      "type": "duplicate_invoice",
+      "amount": 0,
+      "note": "Same delivery note AH-55120, same lines and amounts as F-2026-1131, paid on 28/10/2026. Paying again would pay twice."
+    }
+  ]
+}

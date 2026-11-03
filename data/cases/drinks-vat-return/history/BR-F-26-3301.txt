@@ -1,0 +1,10 @@
+FACTURA BR-F-26-3301 · Bebidas Ribera Distribución S.L. · CIF B00433445
+Fecha: 23/10/2026 · Albarán: BR-A-118222 · Su pedido: —
+Cliente: La Encina Hostelería S.L. · CIF B00123457
+BRD-201 AGUA MINERAL 1,5 L (CAJA 6) 4 caja 3,60 10% 14,40
+BRD-310 CERVEZA BARRIL 30 L 2 barril 64,00 21% 128,00
+BRD-505 REFRESCO DE COLA 33 CL (CAJA 24) 3 caja 14,40 21% 43,20
+Base imponible 10%: 14,40 € · IVA 10%: 1,44 €
+Base imponible 21%: 171,20 € · IVA 21%: 35,95 €
+TOTAL FACTURA: 222,99 €
+Estado en contabilidad: Pagada 23/10/2026

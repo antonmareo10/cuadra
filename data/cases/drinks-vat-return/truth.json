@@ -1,0 +1,25 @@
+{
+  "id": "drinks-vat-return",
+  "verdict": "pay_adjusted",
+  "invoiceComputedTotal": 554.91,
+  "invoicePrintedTotal": 563.91,
+  "planted": [
+    {
+      "type": "vat_rate_wrong",
+      "product": "BRD-201",
+      "amount": 2.38,
+      "note": "Water billed at 21% VAT; the agreed rate is 10%: 21.60 € × 11%."
+    },
+    {
+      "type": "returned_at_delivery",
+      "product": "BRD-415",
+      "amount": 50.82,
+      "note": "One box of crianza returned at the door (delivery note remark) but invoiced: 42.00 € + 21% VAT."
+    },
+    {
+      "type": "totals_math",
+      "amount": 9,
+      "note": "Printed total 563.91 € but lines + VAT add up to 554.91 €."
+    }
+  ]
+}

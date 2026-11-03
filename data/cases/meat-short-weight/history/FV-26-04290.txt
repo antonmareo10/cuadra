@@ -1,0 +1,9 @@
+FACTURA FV-26-04290 · Cárnicas Sierra de Gredos S.L. · CIF B00322334
+Fecha: 22/10/2026 · Albarán: ALB-2026-07721 · Su pedido: —
+Cliente: La Encina Hostelería S.L. · CIF B00123457
+CSG-101 SOLOMILLO DE TERNERA 4,000 kg 28,90 10% 115,60
+CSG-142 COSTILLA DE CERDO 6,000 kg 7,20 10% 43,20
+CSG-155 HAMBURGUESA VACUNO 180 G (CAJA 20) 1 caja 32,00 10% 32,00
+Base imponible 10%: 190,80 € · IVA 10%: 19,08 €
+TOTAL FACTURA: 209,88 €
+Estado en contabilidad: Pagada 22/10/2026

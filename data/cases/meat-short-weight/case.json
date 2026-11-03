@@ -1,0 +1,35 @@
+{
+  "id": "meat-short-weight",
+  "title": "Meat, billed by the order not the scale",
+  "story": "The chef ordered on WhatsApp. The butcher invoiced what was ordered, not what the scale and the delivery note say, and slipped in a new price.",
+  "supplier": "gredos",
+  "restaurant": "Taberna La Encina",
+  "documents": [
+    {
+      "kind": "po",
+      "file": "po.txt",
+      "mime": "text/plain",
+      "label": "Order (WhatsApp)"
+    },
+    {
+      "kind": "delivery",
+      "file": "delivery.pdf",
+      "mime": "application/pdf",
+      "label": "Delivery note"
+    },
+    {
+      "kind": "invoice",
+      "file": "invoice.pdf",
+      "mime": "application/pdf",
+      "label": "Invoice"
+    }
+  ],
+  "history": [
+    {
+      "number": "FV-26-04290",
+      "date": "22/10/2026",
+      "status": "Pagada 22/10/2026",
+      "file": "history/FV-26-04290.txt"
+    }
+  ]
+}

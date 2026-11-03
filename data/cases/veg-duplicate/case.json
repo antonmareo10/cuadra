@@ -1,0 +1,41 @@
+{
+  "id": "veg-duplicate",
+  "title": "Vegetables, an invoice you already paid",
+  "story": "A tidy invoice for last week's delivery. It is the same delivery you paid on 28 October, sent again with a new number and date.",
+  "supplier": "huerta",
+  "restaurant": "Taberna La Encina",
+  "documents": [
+    {
+      "kind": "po",
+      "file": "po.pdf",
+      "mime": "application/pdf",
+      "label": "Purchase order"
+    },
+    {
+      "kind": "delivery",
+      "file": "delivery.pdf",
+      "mime": "application/pdf",
+      "label": "Delivery note"
+    },
+    {
+      "kind": "invoice",
+      "file": "invoice.pdf",
+      "mime": "application/pdf",
+      "label": "Invoice"
+    }
+  ],
+  "history": [
+    {
+      "number": "F-2026-1131",
+      "date": "24/10/2026",
+      "status": "Pagada 28/10/2026",
+      "file": "history/F-2026-1131.txt"
+    },
+    {
+      "number": "F-2026-1104",
+      "date": "21/10/2026",
+      "status": "Pagada 21/10/2026",
+      "file": "history/F-2026-1104.txt"
+    }
+  ]
+}

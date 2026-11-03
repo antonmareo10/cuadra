@@ -1,0 +1,11 @@
+Tarifa acordada Bebidas Ribera · 4.º trimestre 2026
+Bebidas Ribera Distribución S.L. · CIF B00433445 — cliente La Encina Hostelería S.L.
+Válida del 01/10/2026 al 31/12/2026. Cualquier cambio de precio requiere aceptación por escrito del cliente antes de aplicarse.
+Código · Producto · Unidad · Precio (sin IVA) · IVA
+BRD-201 · AGUA MINERAL 1,5 L (CAJA 6) · caja · 3,60 € · 10%
+BRD-310 · CERVEZA BARRIL 30 L · barril · 64,00 € · 21%
+BRD-415 · VINO TINTO RIBERA CRIANZA (CAJA 6) · caja · 42,00 € · 21%
+BRD-420 · VINO BLANCO RUEDA VERDEJO (CAJA 6) · caja · 33,00 € · 21%
+BRD-505 · REFRESCO DE COLA 33 CL (CAJA 24) · caja · 14,40 € · 21%
+BRD-610 · TÓNICA 20 CL (CAJA 24) · caja · 13,20 € · 21%
+Condiciones de pago: Transferencia a 15 días fecha factura.

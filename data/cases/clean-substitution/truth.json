@@ -1,0 +1,14 @@
+{
+  "id": "clean-substitution",
+  "verdict": "ready",
+  "invoiceComputedTotal": 78,
+  "invoicePrintedTotal": 78,
+  "planted": [
+    {
+      "type": "substitution",
+      "product": "HJ-1022",
+      "amount": 0,
+      "note": "Tomate rama delivered and invoiced instead of the ordered tomate pera, at the same price; the delivery note says so. Accept."
+    }
+  ]
+}

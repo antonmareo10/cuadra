@@ -1,0 +1,77 @@
+{
+  "id": "huerta",
+  "name": "Huerta del Jarama S.L.",
+  "taxId": "B00211223",
+  "phoneOnFile": "+34 910 000 211",
+  "ibanOnFile": "ES15 9999 0211 0000 0021 1223",
+  "paymentTerms": "Transferencia a 30 días fecha factura",
+  "tariff": {
+    "name": "Tarifa acordada Huerta del Jarama · 4.º trimestre 2026",
+    "validity": "Válida del 01/10/2026 al 31/12/2026",
+    "products": [
+      {
+        "code": "HJ-1021",
+        "name": "TOMATE PERA CAT. I",
+        "unit": "kg",
+        "price": 1.85,
+        "vat": 4
+      },
+      {
+        "code": "HJ-1022",
+        "name": "TOMATE RAMA CAT. I",
+        "unit": "kg",
+        "price": 1.85,
+        "vat": 4
+      },
+      {
+        "code": "HJ-2040",
+        "name": "LECHUGA ROMANA",
+        "unit": "ud",
+        "price": 0.95,
+        "vat": 4
+      },
+      {
+        "code": "HJ-3105",
+        "name": "CEBOLLA DULCE",
+        "unit": "kg",
+        "price": 2.1,
+        "vat": 4
+      },
+      {
+        "code": "HJ-3300",
+        "name": "PATATA AGRIA SACO 10 KG",
+        "unit": "saco",
+        "price": 7.9,
+        "vat": 4
+      },
+      {
+        "code": "HJ-4410",
+        "name": "PIMIENTO ROJO",
+        "unit": "kg",
+        "price": 2.6,
+        "vat": 4
+      },
+      {
+        "code": "HJ-5120",
+        "name": "LIMÓN",
+        "unit": "kg",
+        "price": 1.7,
+        "vat": 4
+      },
+      {
+        "code": "HJ-6001",
+        "name": "PEREJIL MANOJO",
+        "unit": "ud",
+        "price": 0.6,
+        "vat": 4
+      },
+      {
+        "code": "HJ-8800",
+        "name": "HUEVOS CAMPEROS L (BANDEJA 30)",
+        "unit": "bandeja",
+        "price": 6.9,
+        "vat": 4
+      }
+    ]
+  }
+}

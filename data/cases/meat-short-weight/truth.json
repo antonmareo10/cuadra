@@ -1,0 +1,32 @@
+{
+  "id": "meat-short-weight",
+  "verdict": "pay_adjusted",
+  "invoiceComputedTotal": 426.93,
+  "invoicePrintedTotal": 426.93,
+  "planted": [
+    {
+      "type": "billed_not_delivered",
+      "product": "CSG-101",
+      "amount": 25.43,
+      "note": "6 kg invoiced, 5.2 kg delivered: 0.8 kg × 28.90 € + 10% VAT."
+    },
+    {
+      "type": "price_above_agreed",
+      "product": "CSG-118",
+      "amount": 6.6,
+      "note": "16.90 €/kg invoiced vs 15.40 €/kg agreed until 31/12: 4 kg × 1.50 € + 10% VAT. The 'new tariff' claim is not in any document."
+    },
+    {
+      "type": "billed_not_delivered",
+      "product": "CSG-130",
+      "amount": 10.78,
+      "note": "3 chickens invoiced, 2 delivered (1 back-ordered): 9.80 € + 10% VAT."
+    },
+    {
+      "type": "not_ordered",
+      "product": "CSG-170",
+      "amount": 0,
+      "note": "2 kg chorizo criollo delivered and invoiced (18.70 € with VAT) but not in the WhatsApp order: ask the kitchen."
+    }
+  ]
+}

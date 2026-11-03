@@ -1,0 +1,49 @@
+{
+  "id": "bahia",
+  "name": "Pescados Bahía Norte S.A.",
+  "taxId": "A00544556",
+  "phoneOnFile": "+34 942 000 544",
+  "ibanOnFile": "ES20 9999 0544 0000 0054 4556",
+  "paymentTerms": "Transferencia a 30 días fecha factura",
+  "tariff": {
+    "name": "Tarifa acordada Pescados Bahía Norte · 4.º trimestre 2026",
+    "validity": "Válida del 01/10/2026 al 31/12/2026",
+    "products": [
+      {
+        "code": "PBN-110",
+        "name": "MERLUZA DE PINCHO",
+        "unit": "kg",
+        "price": 14.5,
+        "vat": 10
+      },
+      {
+        "code": "PBN-205",
+        "name": "LUBINA DE ESTERO",
+        "unit": "kg",
+        "price": 12.8,
+        "vat": 10
+      },
+      {
+        "code": "PBN-310",
+        "name": "PULPO COCIDO",
+        "unit": "kg",
+        "price": 19.9,
+        "vat": 10
+      },
+      {
+        "code": "PBN-420",
+        "name": "MEJILLÓN GALLEGO",
+        "unit": "kg",
+        "price": 2.4,
+        "vat": 10
+      },
+      {
+        "code": "PBN-515",
+        "name": "GAMBA ROJA",
+        "unit": "kg",
+        "price": 38,
+        "vat": 10
+      }
+    ]
+  }
+}

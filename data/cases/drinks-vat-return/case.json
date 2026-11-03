@@ -1,0 +1,35 @@
+{
+  "id": "drinks-vat-return",
+  "title": "Drinks, wrong VAT and a returned box",
+  "story": "Water billed at the alcohol VAT rate, a box of wine sent back at the door but still invoiced, and a total that does not add up.",
+  "supplier": "ribera",
+  "restaurant": "Taberna La Encina",
+  "documents": [
+    {
+      "kind": "po",
+      "file": "po.pdf",
+      "mime": "application/pdf",
+      "label": "Purchase order"
+    },
+    {
+      "kind": "delivery",
+      "file": "delivery.pdf",
+      "mime": "application/pdf",
+      "label": "Delivery note"
+    },
+    {
+      "kind": "invoice",
+      "file": "invoice.pdf",
+      "mime": "application/pdf",
+      "label": "Invoice"
+    }
+  ],
+  "history": [
+    {
+      "number": "BR-F-26-3301",
+      "date": "23/10/2026",
+      "status": "Pagada 23/10/2026",
+      "file": "history/BR-F-26-3301.txt"
+    }
+  ]
+}

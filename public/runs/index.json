@@ -1,0 +1,31 @@
+[
+  {
+    "caseId": "meat-short-weight",
+    "title": "Meat, billed by the order not the scale",
+    "story": "The chef ordered on WhatsApp. The butcher invoiced what was ordered, not what the scale and the delivery note say, and slipped in a new price.",
+    "supplier": "Cárnicas Sierra de Gredos S.L.",
+    "verdict": {
+      "kind": "pay_adjusted",
+      "headline": "Pay the undisputed amount",
+      "invoiceTotal": 426.93,
+      "payNow": 365.42,
+      "disputed": 42.81,
+      "pending": 18.7,
+      "expectedPayable": 384.12
+    },
+    "issues": 4,
+    "endpoints": [
+      "pii",
+      "pipeline",
+      "extract",
+      "rerank",
+      "compare",
+      "grounding",
+      "decide",
+      "fill"
+    ],
+    "calls": 19,
+    "credits": 206,
+    "recordedAt": "2026-11-03T19:20:57.515Z"
+  }
+]
