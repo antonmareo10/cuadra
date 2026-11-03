@@ -15,6 +15,8 @@ export interface Segment {
   text: string;
   marks: Mark[];
   key: string;
+  start: number;
+  end: number;
 }
 
 const RANK: Record<MarkKind, number> = { field: 0, pii: 1, issue: 2, stop: 3 };
@@ -45,9 +47,10 @@ export function marksFor(doc: ReadDocument, issues: Issue[]): Mark[] {
 }
 
 /** Splits text into segments, each carrying every mark that covers it. */
-export function segment(text: string, marks: Mark[]): Segment[] {
+export function segment(text: string, marks: Mark[], extraCuts: number[] = []): Segment[] {
   const toU = cpToUtf16(text);
   const cuts = new Set<number>([0, Array.from(text).length]);
+  for (const m of extraCuts) cuts.add(m);
   for (const m of marks) {
     cuts.add(m.start);
     cuts.add(m.end);
@@ -59,7 +62,7 @@ export function segment(text: string, marks: Mark[]): Segment[] {
     const b = points[i + 1];
     if (b <= a) continue;
     const covering = marks.filter((m) => m.start <= a && m.end >= b).sort((x, y) => RANK[y.kind] - RANK[x.kind]);
-    out.push({ text: text.slice(toU(a), toU(b)), marks: covering, key: `${a}-${b}` });
+    out.push({ text: text.slice(toU(a), toU(b)), marks: covering, key: `${a}-${b}`, start: a, end: b });
   }
   return out;
 }

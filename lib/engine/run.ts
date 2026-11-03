@@ -142,6 +142,7 @@ export async function reconcile(
       phoneOnFile: input.supplier.phoneOnFile,
       ibanOnFileTail: ibanTail(input.supplier.ibanOnFile),
       paymentTerms: input.supplier.paymentTerms,
+      tariff: input.supplier.tariff,
     },
     source: opts.source,
     documents: docs,

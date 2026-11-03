@@ -70,9 +70,9 @@ describe("ClockedClient", () => {
 
   it("never puts the key in an error message", async () => {
     const t = fake([{ status: 401, headers: {}, body: { error: "Use a Clocked account API key." } }]);
-    const err = await client(t)
+    const err = (await client(t)
       .call("decide", {})
-      .catch((e) => e as ClockedError);
+      .catch((e: unknown) => e)) as ClockedError;
     expect(err.kind).toBe("auth");
     expect(err.message).not.toMatch(/Bearer/);
   });

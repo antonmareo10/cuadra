@@ -41,7 +41,16 @@ async function main() {
     const model =
       (transport.exchanges.map((x) => (x.body as { model?: string })?.model).find((m) => typeof m === "string") as string | undefined) ?? null;
     result.source.model = model;
-    const rec: Recording = { caseId: id, recordedAt, engineVersion: ENGINE_VERSION, model, exchanges: transport.exchanges };
+    const rec: Recording = {
+      caseId: id,
+      recordedAt,
+      engineVersion: ENGINE_VERSION,
+      model,
+      exchanges: transport.exchanges,
+      calls,
+      wallMs: Date.now() - t0,
+    };
+    result.totals.wallMs = rec.wallMs ?? result.totals.wallMs;
     fs.writeFileSync(path.join(process.cwd(), "recordings", `${id}.json`), JSON.stringify(rec) + "\n");
     writeRun(result);
     const truth = loadTruth(id);

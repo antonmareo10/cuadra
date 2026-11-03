@@ -267,7 +267,8 @@ export function runChecks(p: {
     ...invoice.pii.filter((x) => x.type === "bank_account").map((x) => ({ value: x.value, start: x.start, end: x.end, by: "Protect" })),
     ...(invoice.header.iban?.value ? [{ value: invoice.header.iban.value, start: invoice.header.iban.start, end: invoice.header.iban.end, by: "Extract" }] : []),
   ].filter((x) => normalizeIban(x.value).length >= 15);
-  if (ibans.length && !ibans.some((x) => normalizeIban(x.value) === normalizeIban(supplier.ibanOnFile))) {
+  const onFile = normalizeIban(supplier.ibanOnFile);
+  if (onFile && ibans.length && !ibans.some((x) => normalizeIban(x.value) === onFile)) {
     issues.push({
       id: id(),
       type: "bank_details_changed",
@@ -332,7 +333,8 @@ export function runChecks(p: {
 /** What the restaurant should pay, given the issues and how each one is resolved. */
 export function computeVerdict(invoice: ReadDocument, issues: Issue[], expectedPayable: number | null): Verdict {
   const total = invoice.header.total?.number ?? null;
-  const stops = issues.filter((i) => i.cls === "stop" && i.resolution === "hold");
+  // Any issue set to "hold" (a hard stop, or the owner's choice) holds the whole payment.
+  const stops = issues.filter((i) => i.cls !== "info" && i.resolution === "hold");
   const withheld = (r: string) => round2(issues.filter((i) => i.resolution === r).reduce((a, i) => a + i.amount, 0));
   const disputed = withheld("credit_note");
   const pending = withheld("confirm");
@@ -350,7 +352,7 @@ export function computeVerdict(invoice: ReadDocument, issues: Issue[], expectedP
       expectedPayable,
     };
   }
-  const payNow = round2(total - disputed - pending - withheld("hold"));
+  const payNow = round2(total - disputed - pending);
   if (disputed + pending <= 0.0001) {
     return { kind: "ready", headline: "Ready to pay", invoiceTotal: total, payNow, disputed, pending, expectedPayable };
   }

@@ -46,8 +46,8 @@
     "endpoints": [
       "pii",
       "pipeline",
-      "script",
       "extract",
+      "script",
       "rerank",
       "compare",
       "grounding",

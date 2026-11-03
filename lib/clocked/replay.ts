@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { ClockedError } from "./errors";
-import type { Endpoint, Transport, TransportRequest, TransportResponse } from "./client";
+import type { CallRecord, Endpoint, Transport, TransportRequest, TransportResponse } from "./client";
 
 /**
  * Recorded runs. While recording, every live exchange is stored with a hash of its
@@ -23,6 +23,10 @@ export interface Recording {
   engineVersion: string;
   model: string | null;
   exchanges: RecordedExchange[];
+  /** The live call log (wall time, attempts, transport) as it happened while recording. */
+  calls?: CallRecord[];
+  /** End-to-end wall time of the recorded run, ms. */
+  wallMs?: number;
 }
 
 function stable(value: unknown): string {

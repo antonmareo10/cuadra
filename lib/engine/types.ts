@@ -281,7 +281,14 @@ export interface RunResult {
   caseId: string;
   title: string;
   story?: string;
-  supplier: { name: string; taxId: string; phoneOnFile: string; ibanOnFileTail: string; paymentTerms: string };
+  supplier: {
+    name: string;
+    taxId: string;
+    phoneOnFile: string;
+    ibanOnFileTail: string;
+    paymentTerms: string;
+    tariff: { name: string; validity: string; products: TariffProduct[] };
+  };
   source: { kind: "recorded" | "live"; recordedAt: string; model: string | null };
   documents: ReadDocument[];
   matches: LineMatch[];
