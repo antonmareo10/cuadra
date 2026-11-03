@@ -1,6 +1,6 @@
 # Entry form drafts
 
-Drafts for the fields of the entry form at clocked.rezolve.ai/challenge. First person, Antón's voice. Edit freely before pasting. Repository and demo links filled in on 3 Nov; the video link goes in once the video is on YouTube.
+Drafts for the fields of the entry form at clocked.rezolve.ai/challenge. First person, Antón's voice. Edit freely before pasting. Repository, demo and video links filled in on 3 Nov.
 
 ## Project name
 
@@ -19,6 +19,10 @@ The demo has five synthetic cases with planted problems. All five verdicts are r
 ## Demo
 
 https://cuadra-alpha-blush.vercel.app
+
+## Demo video (55 s)
+
+https://youtu.be/5Lf3TDWYG40
 
 ## Source repository
 

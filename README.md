@@ -2,7 +2,7 @@
 
 Cuadra is a three-way match for small restaurants. It reads the **order** (often a WhatsApp message from the chef), the **delivery note** the kitchen signed and the **supplier's invoice**, checks every line against the other two, and says what to pay, what to claim back and which invoices not to touch at all. It is built on the [Clocked API](https://clocked.rezolve.ai/docs): all ten endpoints, each one changing the result.
 
-**Live demo:** https://cuadra-alpha-blush.vercel.app (five recorded cases open instantly, no key needed)
+**Live demo:** https://cuadra-alpha-blush.vercel.app (five recorded cases open instantly, no key needed) · **Video (55 s):** https://youtu.be/5Lf3TDWYG40
 
 ![Case view: pay the undisputed amount, claim the rest](docs/screenshots/case-meat-1440.png)
 
