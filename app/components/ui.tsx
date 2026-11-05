@@ -5,7 +5,7 @@ import { animate, motion, useInView, useReducedMotion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Endpoint } from "@/lib/clocked/client";
 import { eur } from "@/lib/money";
-import { RECEIPT, TICK } from "@/lib/ui/brand";
+import { WORDMARK } from "@/lib/ui/brand";
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -275,14 +275,17 @@ export function ThemeToggle() {
 }
 
 export function Logo({ className }: { className?: string }) {
+  // The wordmark from lib/ui/brand.ts: «cuadra» with the accountant's double rule.
   return (
-    <span className={clsx("inline-flex items-center gap-2 font-semibold tracking-tight", className)}>
-      <svg viewBox="0 0 32 32" className="h-7 w-7" aria-hidden>
-        <rect width="32" height="32" rx="8" className="fill-ink" />
-        <path d={RECEIPT} className="fill-paper" />
-        <path d={TICK} className="stroke-accent" fill="none" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+    <span className={clsx("inline-flex items-center", className)}>
+      <svg viewBox={WORDMARK.viewBox} className="h-[26px] w-auto" role="img" aria-label="Cuadra">
+        <g transform={WORDMARK.transform}>
+          <path d={WORDMARK.letters} className="fill-ink" />
+          {WORDMARK.rules.map((d) => (
+            <path key={d} d={d} className="fill-accent" />
+          ))}
+        </g>
       </svg>
-      <span className="text-[17px]">cuadra</span>
     </span>
   );
 }

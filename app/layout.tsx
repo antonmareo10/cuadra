@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: "Cuadra · Pay the right amount, to the right account",
   description,
-  icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icon-512.png", sizes: "512x512", type: "image/png" }], apple: "/apple-icon.png" },
   openGraph: {
     type: "website",
     siteName: "Cuadra",
