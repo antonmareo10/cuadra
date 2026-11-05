@@ -44,6 +44,7 @@ const checkOutput = {
     pay_now_eur: z.number(),
     claim_eur: z.number(),
     check_first_eur: z.number(),
+    waiting_for_photo_check_eur: z.number().describe("Part of check_first_eur held only until the owner has looked at a delivery note read from a photo"),
     independent_recomputation_eur: z.number().nullable(),
   }),
   findings: z.array(

@@ -43,7 +43,7 @@ function photoIssue(doc: ReadDocument, id: string): Issue {
     id,
     type: "read_from_photo",
     cls: "review",
-    title: `${doc.label} read from a ${what}: look at it before paying`,
+    title: `${doc.kind === "po" ? "Order" : "Delivery note"} read from a ${what}: look at it before paying`,
     detail:
       `Extract read ${doc.lines.length} line${doc.lines.length === 1 ? "" : "s"} from the ${what}, without character positions, so they cannot be traced to a printed line.` +
       (fixes.length ? ` It read ${fixes.length} quantit${fixes.length === 1 ? "y" : "ies"} corrected by hand: ${fixes.join("; ")}.` : "") +

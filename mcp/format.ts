@@ -98,9 +98,15 @@ function mergeByLine(list: SourceLine[]): SourceLine[] {
   return out;
 }
 
+function actionFor(i: Issue): string {
+  if (i.type === "read_from_photo") return i.resolution === "confirm" ? "look at the photo before paying anything that depends on it" : "the owner has checked the photo";
+  return ACTION[i.resolution];
+}
+
 function decidedBy(i: Issue): string {
   if (i.cls === "stop") return "policy in code: a hard stop that only the owner can clear";
   if (i.cls === "info") return "informational, nothing to do";
+  if (i.type === "read_from_photo") return "policy in code: never sent to Decide; only the owner can release the payment, after looking at the photo";
   if (!i.decision) return "default action (Decide did not answer)";
   const pct = Math.round(i.decision.confidence * 100);
   return i.decision.uncertain
@@ -132,9 +138,13 @@ export function decisionText(run: RunResult): string {
     case "ready":
       return `Ready to pay ${eur(v.payNow)}.`;
     case "pay_adjusted": {
-      const parts = [`Pay ${eur(v.payNow)} now.`];
+      const photo = v.waitingForPhoto ?? 0;
+      const parts = photo > 0
+        ? [`Pay nothing yet: the delivery note was read from a photo, without character positions. Once the owner has looked at the photo, pay ${eur(photo)}.`]
+        : [`Pay ${eur(v.payNow)} now.`];
       if (v.disputed > 0) parts.push(`Claim ${eur(v.disputed)} back with a credit note.`);
-      if (v.pending > 0) parts.push(`Check ${eur(v.pending)} with the kitchen or the supplier before paying it.`);
+      const kitchen = Math.round((v.pending - photo) * 100) / 100;
+      if (kitchen > 0) parts.push(`Check ${eur(kitchen)} with the kitchen or the supplier before paying it.`);
       return parts.join(" ");
     }
     case "hold":
@@ -161,7 +171,7 @@ export function summarizeRun(run: RunResult, runId: string) {
       severity: i.cls,
       title: i.title,
       amount_eur: i.amount,
-      action: ACTION[i.resolution],
+      action: actionFor(i),
       decided_by: decidedBy(i),
       sources: keySources(run, i).map((s) => ({ where: where(s), ...s })),
     }));
@@ -189,6 +199,7 @@ export function summarizeRun(run: RunResult, runId: string) {
       pay_now_eur: v.payNow,
       claim_eur: v.disputed,
       check_first_eur: v.pending,
+      waiting_for_photo_check_eur: v.waitingForPhoto ?? 0,
       independent_recomputation_eur: v.expectedPayable,
     },
     findings,
@@ -248,7 +259,7 @@ export function explainFinding(run: RunResult, findingId: string) {
     detail: i.detail,
     formula: i.math ?? null,
     amount_eur: i.amount,
-    action: ACTION[i.resolution],
+    action: actionFor(i),
     decided_by: decidedBy(i),
     decide_probabilities: i.decision?.probabilities ?? null,
     found_by: i.sources,
@@ -286,12 +297,14 @@ export function supplierClaim(run: RunResult) {
       ? `Do not pay and do not reply to the contact details on the invoice. Call ${run.supplier.name} on ${run.supplier.phoneOnFile}, the number on file, before sending anything.`
       : "Hold the payment until the owner has cleared every hard stop.";
   else if (v.disputed + v.pending <= 0) advice = "Nothing to claim: pay the invoice.";
+  else if ((v.waitingForPhoto ?? 0) > 0)
+    advice = `Look at the delivery note photo first: it was read without character positions. Then send the email, pay ${eur(v.waitingForPhoto!)} and keep ${eur(v.disputed + v.pending - v.waitingForPhoto!)} until the credit note or the confirmation arrives.`;
   else advice = `Send the email, pay ${eur(v.payNow)} now and keep ${eur(v.disputed + v.pending)} until the credit note or the confirmation arrives.`;
   return {
     claim_eur: v.disputed,
     check_first_eur: v.pending,
     decision: decisionText(run),
-    items: toRaise.map((i) => ({ id: i.id, title: i.title, amount_eur: i.amount, action: ACTION[i.resolution] })),
+    items: toRaise.map((i) => ({ id: i.id, title: i.title, amount_eur: i.amount, action: actionFor(i) })),
     email: r?.emailToSupplier ?? null,
     email_written_by: r?.emailToSupplier ? "Clocked Fill, from the brief Cuadra's checks produced" : null,
     email_check: r?.emailCheck

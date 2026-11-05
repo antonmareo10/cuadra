@@ -10,6 +10,10 @@ import { lineAround, type LineQuote } from "./lines";
 
 export interface ProofSource extends LineQuote {
   doc: string;
+  /** Which document, and the span's offsets in its text (to find the line on the page picture). */
+  kind: DocKind;
+  start: number;
+  end: number;
   note?: string;
   by: string;
 }
@@ -37,6 +41,9 @@ function source(run: RunResult, e: Evidence | undefined, maxMatch = 80, note?: s
     match: long ? `${Array.from(q.match).slice(0, maxMatch).join("").trimEnd()}…` : q.match,
     after: long ? "" : q.after,
     doc: DOC_LABEL[e.doc as DocKind],
+    kind: e.doc as DocKind,
+    start: e.start,
+    end: e.end,
     by: e.by,
     note,
   };
