@@ -1,0 +1,309 @@
+{
+  "base": "https://cuadra-alpha-blush.vercel.app",
+  "pages": [
+    {
+      "page": "home",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Cuadra \u00b7 Three-way match for restaurants",
+      "h1": [
+        "Payforwhatactuallyarrived."
+      ],
+      "load_s": 0.8,
+      "ttfb_ms": 279,
+      "dcl_ms": 462,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-meat-short-weight",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Meat, billed by the order not the scale \u00b7 Cuadra",
+      "h1": [
+        "Pay \u20ac365.42 now"
+      ],
+      "load_s": 0.93,
+      "ttfb_ms": 152,
+      "dcl_ms": 584,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-fish-bank-change",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Fish, everything matches, do not pay \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 1.0,
+      "ttfb_ms": 38,
+      "dcl_ms": 682,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-drinks-vat-return",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Drinks, wrong VAT and a returned box \u00b7 Cuadra",
+      "h1": [
+        "Pay \u20ac501.71 now"
+      ],
+      "load_s": 0.71,
+      "ttfb_ms": 27,
+      "dcl_ms": 379,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-veg-duplicate",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Vegetables, an invoice you already paid \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 0.76,
+      "ttfb_ms": 25,
+      "dcl_ms": 487,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-clean-substitution",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Vegetables, one substitution \u00b7 Cuadra",
+      "h1": [
+        "Ready to pay \u20ac78.00"
+      ],
+      "load_s": 0.54,
+      "ttfb_ms": 26,
+      "dcl_ms": 508,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "check",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Live run \u00b7 Cuadra",
+      "h1": [
+        "Run a live reconciliation"
+      ],
+      "load_s": 0.46,
+      "ttfb_ms": 26,
+      "dcl_ms": 265,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "404",
+      "viewport": "1440",
+      "status": 404,
+      "title": "Cuadra \u00b7 Three-way match for restaurants",
+      "h1": [
+        "404"
+      ],
+      "load_s": 0.3,
+      "ttfb_ms": 66,
+      "dcl_ms": 200,
+      "overflow_px": 0,
+      "console": [
+        "error: Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "failed": [],
+      "bad_status": [
+        "404 https://cuadra-alpha-blush.vercel.app/case/does-not-exist"
+      ]
+    },
+    {
+      "page": "home",
+      "viewport": "390",
+      "status": 200,
+      "title": "Cuadra \u00b7 Three-way match for restaurants",
+      "h1": [
+        "Payforwhatactuallyarrived."
+      ],
+      "load_s": 0.74,
+      "ttfb_ms": 321,
+      "dcl_ms": 460,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-meat-short-weight",
+      "viewport": "390",
+      "status": 200,
+      "title": "Meat, billed by the order not the scale \u00b7 Cuadra",
+      "h1": [
+        "Pay \u20ac365.42 now"
+      ],
+      "load_s": 0.59,
+      "ttfb_ms": 43,
+      "dcl_ms": 283,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-fish-bank-change",
+      "viewport": "390",
+      "status": 200,
+      "title": "Fish, everything matches, do not pay \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 0.33,
+      "ttfb_ms": 29,
+      "dcl_ms": 163,
+      "overflow_px": 579,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-drinks-vat-return",
+      "viewport": "390",
+      "status": 200,
+      "title": "Drinks, wrong VAT and a returned box \u00b7 Cuadra",
+      "h1": [
+        "Pay \u20ac501.71 now"
+      ],
+      "load_s": 0.42,
+      "ttfb_ms": 24,
+      "dcl_ms": 102,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-veg-duplicate",
+      "viewport": "390",
+      "status": 200,
+      "title": "Vegetables, an invoice you already paid \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 0.37,
+      "ttfb_ms": 23,
+      "dcl_ms": 76,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "case-clean-substitution",
+      "viewport": "390",
+      "status": 200,
+      "title": "Vegetables, one substitution \u00b7 Cuadra",
+      "h1": [
+        "Ready to pay \u20ac78.00"
+      ],
+      "load_s": 0.38,
+      "ttfb_ms": 32,
+      "dcl_ms": 95,
+      "overflow_px": 0,
+      "console": [
+        "pageerror: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      ],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "check",
+      "viewport": "390",
+      "status": 200,
+      "title": "Live run \u00b7 Cuadra",
+      "h1": [
+        "Run a live reconciliation"
+      ],
+      "load_s": 0.24,
+      "ttfb_ms": 29,
+      "dcl_ms": 60,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": []
+    },
+    {
+      "page": "404",
+      "viewport": "390",
+      "status": 404,
+      "title": "Cuadra \u00b7 Three-way match for restaurants",
+      "h1": [
+        "404"
+      ],
+      "load_s": 0.15,
+      "ttfb_ms": 26,
+      "dcl_ms": 74,
+      "overflow_px": 0,
+      "console": [
+        "error: Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "failed": [],
+      "bad_status": [
+        "404 https://cuadra-alpha-blush.vercel.app/case/does-not-exist"
+      ]
+    }
+  ],
+  "links": {
+    "https://clocked.rezolve.ai/docs": 200,
+    "https://cuadra-alpha-blush.vercel.app/": 200,
+    "https://cuadra-alpha-blush.vercel.app/case/clean-substitution": 200,
+    "https://cuadra-alpha-blush.vercel.app/case/does-not-exist": 404,
+    "https://cuadra-alpha-blush.vercel.app/case/drinks-vat-return": 200,
+    "https://cuadra-alpha-blush.vercel.app/case/fish-bank-change": 200,
+    "https://cuadra-alpha-blush.vercel.app/case/meat-short-weight": 200,
+    "https://cuadra-alpha-blush.vercel.app/case/veg-duplicate": 200,
+    "https://cuadra-alpha-blush.vercel.app/cases/clean-substitution/invoice.pdf": 200,
+    "https://cuadra-alpha-blush.vercel.app/cases/drinks-vat-return/invoice.pdf": 200,
+    "https://cuadra-alpha-blush.vercel.app/cases/fish-bank-change/invoice.pdf": 200,
+    "https://cuadra-alpha-blush.vercel.app/cases/meat-short-weight/invoice.pdf": 200,
+    "https://cuadra-alpha-blush.vercel.app/cases/veg-duplicate/invoice.pdf": 200,
+    "https://cuadra-alpha-blush.vercel.app/check": 200
+  }
+}

@@ -1,0 +1,303 @@
+{
+  "base": "http://localhost:3100",
+  "pages": [
+    {
+      "page": "home",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Cuadra \u00b7 Pay the right amount, to the right account",
+      "h1": [
+        "Paytherightamount,\ntotherightaccount."
+      ],
+      "load_s": 0.4,
+      "ttfb_ms": 6,
+      "dcl_ms": 84,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-meat-short-weight",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Meat, billed by the order not the scale \u00b7 Cuadra",
+      "h1": [
+        "Pay \n\u20ac365.42\n\u20ac365.42 now"
+      ],
+      "load_s": 2.08,
+      "ttfb_ms": 536,
+      "dcl_ms": 572,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-fish-bank-change",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Fish, everything matches, do not pay \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 1.16,
+      "ttfb_ms": 213,
+      "dcl_ms": 388,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-drinks-vat-return",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Drinks, wrong VAT and a returned box \u00b7 Cuadra",
+      "h1": [
+        "Pay \n\u20ac501.71\n\u20ac501.71 now"
+      ],
+      "load_s": 1.3,
+      "ttfb_ms": 18,
+      "dcl_ms": 214,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-veg-duplicate",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Vegetables, an invoice you already paid \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 1.26,
+      "ttfb_ms": 7,
+      "dcl_ms": 24,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-clean-substitution",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Vegetables, one substitution \u00b7 Cuadra",
+      "h1": [
+        "Ready to pay \n\u20ac78.00\n\u20ac78.00"
+      ],
+      "load_s": 1.02,
+      "ttfb_ms": 4,
+      "dcl_ms": 42,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "check",
+      "viewport": "1440",
+      "status": 200,
+      "title": "Live run \u00b7 Cuadra",
+      "h1": [
+        "Run a live reconciliation"
+      ],
+      "load_s": 0.66,
+      "ttfb_ms": 45,
+      "dcl_ms": 81,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "404",
+      "viewport": "1440",
+      "status": 404,
+      "title": "Page not found \u00b7 Cuadra",
+      "h1": [
+        "This page is not on the invoice."
+      ],
+      "load_s": 2.31,
+      "ttfb_ms": 1423,
+      "dcl_ms": 1716,
+      "overflow_px": 0,
+      "console": [
+        "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "failed": [],
+      "bad_status": [
+        "404 http://localhost:3100/case/does-not-exist"
+      ],
+      "axe": []
+    },
+    {
+      "page": "home",
+      "viewport": "390",
+      "status": 200,
+      "title": "Cuadra \u00b7 Pay the right amount, to the right account",
+      "h1": [
+        "Paytherightamount,\ntotherightaccount."
+      ],
+      "load_s": 1.92,
+      "ttfb_ms": 102,
+      "dcl_ms": 400,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-meat-short-weight",
+      "viewport": "390",
+      "status": 200,
+      "title": "Meat, billed by the order not the scale \u00b7 Cuadra",
+      "h1": [
+        "Pay \n\u20ac365.42\n\u20ac365.42 now"
+      ],
+      "load_s": 0.94,
+      "ttfb_ms": 13,
+      "dcl_ms": 72,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-fish-bank-change",
+      "viewport": "390",
+      "status": 200,
+      "title": "Fish, everything matches, do not pay \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 0.61,
+      "ttfb_ms": 24,
+      "dcl_ms": 147,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-drinks-vat-return",
+      "viewport": "390",
+      "status": 200,
+      "title": "Drinks, wrong VAT and a returned box \u00b7 Cuadra",
+      "h1": [
+        "Pay \n\u20ac501.71\n\u20ac501.71 now"
+      ],
+      "load_s": 0.5,
+      "ttfb_ms": 18,
+      "dcl_ms": 80,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-veg-duplicate",
+      "viewport": "390",
+      "status": 200,
+      "title": "Vegetables, an invoice you already paid \u00b7 Cuadra",
+      "h1": [
+        "Hold payment"
+      ],
+      "load_s": 0.47,
+      "ttfb_ms": 7,
+      "dcl_ms": 34,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "case-clean-substitution",
+      "viewport": "390",
+      "status": 200,
+      "title": "Vegetables, one substitution \u00b7 Cuadra",
+      "h1": [
+        "Ready to pay \n\u20ac78.00\n\u20ac78.00"
+      ],
+      "load_s": 0.63,
+      "ttfb_ms": 30,
+      "dcl_ms": 89,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "check",
+      "viewport": "390",
+      "status": 200,
+      "title": "Live run \u00b7 Cuadra",
+      "h1": [
+        "Run a live reconciliation"
+      ],
+      "load_s": 0.82,
+      "ttfb_ms": 5,
+      "dcl_ms": 40,
+      "overflow_px": 0,
+      "console": [],
+      "failed": [],
+      "bad_status": [],
+      "axe": []
+    },
+    {
+      "page": "404",
+      "viewport": "390",
+      "status": 404,
+      "title": "Page not found \u00b7 Cuadra",
+      "h1": [
+        "This page is not on the invoice."
+      ],
+      "load_s": 0.53,
+      "ttfb_ms": 24,
+      "dcl_ms": 145,
+      "overflow_px": 0,
+      "console": [
+        "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "failed": [],
+      "bad_status": [
+        "404 http://localhost:3100/case/does-not-exist"
+      ],
+      "axe": []
+    }
+  ],
+  "links": {
+    "http://localhost:3100/": 200,
+    "http://localhost:3100/case/clean-substitution": 200,
+    "http://localhost:3100/case/does-not-exist": 404,
+    "http://localhost:3100/case/drinks-vat-return": 200,
+    "http://localhost:3100/case/fish-bank-change": 200,
+    "http://localhost:3100/case/meat-short-weight": 200,
+    "http://localhost:3100/case/veg-duplicate": 200,
+    "http://localhost:3100/cases/clean-substitution/invoice.pdf": 200,
+    "http://localhost:3100/cases/drinks-vat-return/invoice.pdf": 200,
+    "http://localhost:3100/cases/fish-bank-change/invoice.pdf": 200,
+    "http://localhost:3100/cases/meat-short-weight/invoice.pdf": 200,
+    "http://localhost:3100/cases/veg-duplicate/invoice.pdf": 200,
+    "http://localhost:3100/check": 200,
+    "https://clocked.rezolve.ai/docs": 200,
+    "https://github.com/antonmareo10/cuadra": 200,
+    "https://youtu.be/5Lf3TDWYG40": 200
+  }
+}
