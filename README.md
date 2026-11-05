@@ -1,8 +1,10 @@
-# Cuadra · pay for what actually arrived
+# Cuadra · pay the right amount, to the right account
 
-Cuadra is a three-way match for small restaurants. It reads the **order** (often a WhatsApp message from the chef), the **delivery note** the kitchen signed and the **supplier's invoice**, checks every line against the other two, and says what to pay, what to claim back and which invoices not to touch at all. It is built on the [Clocked API](https://clocked.rezolve.ai/docs): all ten endpoints, each one changing the result.
+Cuadra checks a small restaurant's supplier invoices before they are paid. It reads the order (often a WhatsApp message from the chef), the delivery note the kitchen signed and the supplier's invoice, checks every line against the other two, and says what to pay, what to claim back and which invoices to hold. It is built on the [Clocked API](https://clocked.rezolve.ai/docs), all ten endpoints, each one changing the result.
 
-**Live demo:** https://cuadra-alpha-blush.vercel.app (five recorded cases open instantly, no key needed) · **Video (55 s):** https://youtu.be/5Lf3TDWYG40
+What makes it different: every finding points to the exact line of the document it came from ("Invoice, line 13: 6,000 kg" against "Delivery note, line 12: 5,200 kg"), because Extract returns character offsets and the app keeps them. It is also built for invoices that try to fool an AI assistant. In the demo, a fish invoice adds up line by line but asks to be paid into a new bank account, and hides white 1-point text telling "automated assistants" to approve it. Guard, Protect and Inspect flag it, and the hold is enforced in code, where no model can lift it.
+
+Live demo: https://cuadra-alpha-blush.vercel.app (five recorded cases open instantly, no key or sign-up) · Video (under a minute): https://youtu.be/5Lf3TDWYG40
 
 ![Case view: pay the undisputed amount, claim the rest](docs/screenshots/case-meat-1440.png)
 
@@ -16,7 +18,7 @@ Phone and dark mode: [390 px case view](docs/screenshots/case-meat-390.png) · [
 
 ## Why
 
-A small restaurant gets 20 to 60 supplier invoices a month and pays most of them without checking them against the delivery note, because doing it by hand takes longer than the money seems worth. The money leaks anyway: meat billed by the order instead of by the scale, a "new tariff" nobody agreed to, water at the alcohol VAT rate, a box sent back at the door and still invoiced, the same delivery invoiced twice, and now invoices that ask you to pay a "new" bank account. Cuadra does the check in 10 to 20 seconds and hands the owner a decision with the evidence and the email to send.
+A small restaurant gets 20 to 60 supplier invoices a month and pays most of them without checking them against the delivery note, because doing it by hand takes longer than the money seems worth. The money leaks anyway: meat billed by the order instead of by the scale, a "new tariff" nobody agreed to, water at the alcohol VAT rate, a box sent back at the door and still invoiced, the same delivery invoiced twice, and now invoices that ask you to pay a "new" bank account. Cuadra does the check in 11 to 24 seconds (the five recorded runs) and hands the owner a decision with the evidence and the email to send.
 
 ## Try it (no key needed)
 
@@ -25,7 +27,7 @@ npm install
 npm run demo          # builds and serves http://localhost:3000
 ```
 
-The five sample cases are **real Clocked recordings** (3 November 2026) replayed through the same engine, so the demo is instant and works offline. Live runs need a key (below).
+The five sample cases are real Clocked recordings (3 November 2026) replayed through the same engine, so the demo is instant and works offline. Live runs need a key (below).
 
 | Case | What is planted | Cuadra's answer |
 |---|---|---|
@@ -65,12 +67,12 @@ What each endpoint changes is listed in [docs/CRITERIA.md](docs/CRITERIA.md#3-th
 
 ## Uncertain results, missing information, failed requests
 
-- **Missing values stay missing.** Extract returns `null` for what a document does not state; Cuadra re-reads an empty cell inside its own line once, and if it is still empty the check that needs it is skipped and shown as unknown. Nothing is guessed.
-- **No data read means never OK.** An invoice without a readable total or lines, or a scan without a text layer, is held as unreadable.
-- **Uncertain calls go to the owner.** When Decide's top action is under 60%, it is not applied and the issue waits for the owner. Probabilities are shown next to every model judgement.
-- **Detectors are not the lock.** Guard, Inspect, Protect and Compare raise flags; the hold is enforced in code and only the owner can clear it.
-- **Failed requests.** Every request has an `Idempotency-Key`; 429, 5xx and network errors are retried with the same key and body (bounded backoff); `retryAsNew` stops; 4xx are not retried. A failed step is reported on the page and never treated as passing.
-- **Spending.** A hard credit cap (`CLOCKED_CREDIT_CAP`, default 6,000) is checked before every request; any response billed as something other than the free trial halts all further calls.
+- Missing values stay missing. Extract returns `null` for what a document does not state; Cuadra re-reads an empty cell inside its own line once, and if it is still empty the check that needs it is skipped and shown as unknown. Nothing is guessed.
+- No data read means never OK. An invoice without a readable total or lines, or a scan without a text layer, is held as unreadable.
+- Uncertain calls go to the owner. When Decide's top action is under 60%, it is not applied and the issue waits for the owner. Probabilities are shown next to every model judgement.
+- Detectors are not the lock. Guard, Inspect, Protect and Compare raise flags; the hold is enforced in code and only the owner can clear it.
+- Failed requests. Every request has an `Idempotency-Key`; 429, 5xx and network errors are retried with the same key and body (bounded backoff); `retryAsNew` stops; 4xx are not retried. A failed step is reported on the page and never treated as passing.
+- Spending. A hard credit cap (`CLOCKED_CREDIT_CAP`, default 6,000) is checked before every request; any response billed as something other than the free trial halts all further calls.
 
 ## Live runs and re-recording
 

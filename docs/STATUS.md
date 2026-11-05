@@ -1,5 +1,11 @@
 # Estado · Cuadra (Clocked Build Challenge)
 
+## 5-nov-2026: pulido en la rama `pulido` (sin publicar)
+
+Portada nueva con dos hallazgos reales en su línea exacta, números de línea en las citas y en los documentos, logo de factura con check, imagen social, arreglos (desborde en móvil del caso del pescado, error de hidratación con «reducir movimiento», 404 propia), accesibilidad AA sin fallos de axe, textos del formulario v2 en `docs/SUBMISSION.md` (v1 en `docs/SUBMISSION-v1.md`) y guion del vídeo con subtítulos nuevos (falta grabarlo con el PC libre; el vídeo del repo sigue siendo el del 3-nov). 34 pruebas pasan. Detalle y pasos para Antón: `OneDrive/anton/competiciones/clocked/PULIDO.md`. Publicar con `bash /c/Users/anton/data/clocked/desplegar-pulido.sh`.
+
+Lo de abajo es el estado del 3-nov.
+
 Actualizado: 3-nov-2026, 22:15. Cierre: martes 10-nov 23:59 ET = **miércoles 11-nov 05:59 en Madrid**. Objetivo interno: listo el lunes 9-nov.
 
 ## Qué funciona (verificado hoy)

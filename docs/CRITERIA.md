@@ -20,7 +20,7 @@ The core is **Extract → Rerank → (code) → Decide/Fill**, with safety in fr
 | Extract **lists of records** with `row_anchor` (product code), column descriptions keyed to the printed headers, `format: "number"`, `normalize` money with decimal comma | `lib/engine/requests.ts` |
 | **Nulls stay null.** A cell a records read leaves empty is re-read on its own line span and shifted back; if the line does not state it, it stays unknown and no check uses it | `repairLines` in `lib/engine/intake.ts` |
 | Values are verbatim spans; the **arithmetic is code**, never the model (Extract "is not a calculator") | `lib/engine/checks.ts` |
-| Every number in the UI links back to its span in the document text (click evidence → highlighted in the document view) | `app/components/workspace/*` |
+| Every number in the UI links back to its span in the document text: each quote says which line it is on ("Invoice, line 13"), and clicking it opens the numbered document view at that line. Line numbers count code points, like Clocked offsets | `lib/ui/lines.ts`, `app/components/workspace/*`, `tests/proof-lines.test.ts` |
 | Probabilities are used as policy: Decide confidence < 0.6 is **not applied** and goes to the owner | `lib/engine/judge.ts` |
 | Idempotency-Key per logical request, retries reuse it with the identical body; bounded backoff on 429/5xx/network; `retryAsNew` stops; 4xx not retried | `lib/clocked/client.ts`, `tests/client.test.ts` |
 | Cost headers read on every call (`X-Clocked-Credits`, model ms, cost basis) and shown per call; a **hard credit cap** refuses requests before sending; any billing basis other than the free trial halts all calls | `lib/clocked/budget.ts` |
@@ -53,7 +53,8 @@ Group awards (one project wins at most one judged award): Decide/Extract/Fill 3/
 - Evidence everywhere: issue → quote → highlighted span in the document's own text layer; Rerank, Decide, Guard and Compare probabilities shown as bars.
 - Interactive resolution: change an action and the amount to pay recalculates (same `computeVerdict` as the server).
 - States designed: hard stop, money, needs-a-look, accepted, unreadable document, failed step, live-runs-disabled, upload validation errors.
-- Responsive to 390 px, dark mode, reduced motion respected (Lenis and motion off), visible focus, 44 px touch targets.
+- Responsive to 390 px with no sideways scroll on any page, dark mode, reduced motion respected (Lenis and motion off), visible focus, 44 px touch targets, scrollable tables reachable by keyboard, AA contrast (axe-core reports no contrast or ARIA violations on any page).
+- The landing page shows the product first: two findings from the recordings, each on its exact source line, built from `public/runs/` at build time (`lib/ui/proof.ts`).
 - Live mode streams the run call by call (NDJSON) with guardrails for a public deployment.
 
 ## 5. Clear explanation and reproducibility (10)
