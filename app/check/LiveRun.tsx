@@ -28,6 +28,7 @@ const SUPPLIERS = [
 
 const SAMPLES = [
   { id: "meat-short-weight", name: "Meat, short weight" },
+  { id: "meat-photo-delivery", name: "Meat, delivery note as a photo" },
   { id: "fish-bank-change", name: "Fish, bank change" },
   { id: "drinks-vat-return", name: "Drinks, VAT and a return" },
   { id: "veg-duplicate", name: "Vegetables, duplicate" },

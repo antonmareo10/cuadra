@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { RunResult } from "@/lib/engine/types";
+import { loadLayout } from "@/lib/server/data";
 import { SiteFooter, SiteHeader } from "../../components/Chrome";
 import { Workspace } from "../../components/workspace/Workspace";
 
@@ -39,7 +40,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
     <>
       <SiteHeader />
       <main id="main">
-        <Workspace run={run} />
+        <Workspace run={run} layout={loadLayout(run.caseId)} />
       </main>
       <SiteFooter />
     </>

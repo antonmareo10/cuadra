@@ -1,12 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import localFont from "next/font/local";
 import { SITE } from "@/lib/site";
 import { SmoothScroll } from "./components/SmoothScroll";
 import "./globals.css";
 
+// Headlines: Instrument Serif (SIL Open Font License, app/fonts/OFL-InstrumentSerif.txt), bundled so builds need no network.
+const display = localFont({
+  src: [
+    { path: "./fonts/InstrumentSerif-Regular.ttf", weight: "400", style: "normal" },
+    { path: "./fonts/InstrumentSerif-Italic.ttf", weight: "400", style: "italic" },
+  ],
+  variable: "--font-instrument",
+  display: "swap",
+});
+
 const description =
-  "Cuadra checks a restaurant's supplier invoices against the chef's order and the signed delivery note, and says what to pay, what to claim back and which invoices to hold. Every finding points to the line it was printed on. Built on the Clocked API.";
+  "Take a photo of the delivery note. Cuadra checks it against the chef's order and the supplier's invoice, line by line, and tells a small restaurant what to pay, what to claim back and what not to pay at all. Built on the Clocked API.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -35,7 +46,7 @@ const themeScript = `try{var t=localStorage.getItem("cuadra-theme");if(t==="ligh
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${display.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

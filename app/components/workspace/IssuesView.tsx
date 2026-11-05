@@ -59,7 +59,8 @@ function IssueCard({
 }) {
   const st = CLS_STYLE[issue.cls];
   const d = issue.decision;
-  const options: Resolution[] = issue.cls === "stop" ? ["hold", "accept"] : ["accept", "credit_note", "confirm", "hold"];
+  const photo = issue.type === "read_from_photo";
+  const options: Resolution[] = issue.cls === "stop" ? ["hold", "accept"] : photo ? ["confirm", "accept"] : ["accept", "credit_note", "confirm", "hold"];
   // Long passages (Compare can quote a whole table) stay out of the chips; short quotes are the useful ones.
   const evidence = dedupeEvidence(issue.evidence).filter((e) => e.quote.length <= 160);
   return (
@@ -97,13 +98,17 @@ function IssueCard({
           <p className="text-[12px] font-medium text-muted">Where it says so</p>
           <ul className="mt-1.5 flex flex-wrap gap-1.5">
             {evidence.slice(0, 8).map((e, i) => {
-              const clickable = (e.doc === "po" || e.doc === "delivery" || e.doc === "invoice") && e.start !== undefined;
-              const line = clickable ? lineOf(e.doc, e.start) : null;
+              const isDoc = e.doc === "po" || e.doc === "delivery" || e.doc === "invoice";
+              // A value read from a photo has no position: the chip opens the photo instead of a line.
+              const fromPicture = isDoc && e.start === undefined && /\((photo|scan)/.test(e.by);
+              const clickable = isDoc && (e.start !== undefined || fromPicture);
+              const line = isDoc && e.start !== undefined ? lineOf(e.doc, e.start) : null;
               const body = (
                 <>
                   <span className="shrink-0 font-medium text-ink">
                     {DOC_SHORT[e.doc] ?? e.doc}
                     {line ? <span className="font-normal text-muted">, line {line}</span> : null}
+                    {fromPicture ? <span className="font-normal text-muted">, photo</span> : null}
                   </span>
                   <span className="truncate text-ink-2">“{e.quote.length > 90 ? `${e.quote.slice(0, 88)}…` : e.quote}”</span>
                   <span className="shrink-0 font-mono text-[10.5px] text-muted">{e.by}</span>
@@ -116,7 +121,7 @@ function IssueCard({
                       type="button"
                       onClick={() => onEvidence({ doc: e.doc as DocKind, start: e.start, end: e.end, issueId: issue.id })}
                       className="inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-lg border border-line bg-paper px-2.5 py-1 text-left text-[12.5px] transition-colors hover:border-ink/30 hover:bg-surface-2"
-                      title={line ? `Show line ${line} of the ${(DOC_SHORT[e.doc] ?? e.doc).toLowerCase()}` : "Show in the document"}
+                      title={line ? `Show line ${line} of the ${(DOC_SHORT[e.doc] ?? e.doc).toLowerCase()}` : fromPicture ? "Show the photo (read without character positions)" : "Show in the document"}
                     >
                       {body}
                     </button>
@@ -155,6 +160,10 @@ function IssueCard({
             <p className="flex items-center gap-1.5 text-ink-2">
               <Icon name="lock" className="h-3.5 w-3.5 text-stop" /> Policy in code holds the payment. No model decides this.
             </p>
+          ) : photo ? (
+            <p className="flex items-center gap-1.5 text-ink-2">
+              <Icon name="lock" className="h-3.5 w-3.5 text-info" /> Never sent to Decide. Only you can release the payment, after looking at the photo.
+            </p>
           ) : (
             <p className="text-muted">Informational.</p>
           )}
@@ -167,7 +176,7 @@ function IssueCard({
         {issue.cls !== "info" ? (
           <div role="radiogroup" aria-label={`Action for ${issue.title}`} className="flex shrink-0 flex-wrap gap-1 rounded-full bg-surface-2 p-1">
             {options.map((o) => {
-              const label = issue.cls === "stop" ? (o === "hold" ? "Hold" : "I checked it") : ACTION_LABEL[o];
+              const label = issue.cls === "stop" ? (o === "hold" ? "Hold" : "I checked it") : photo ? (o === "confirm" ? "Not yet" : "I checked the photo") : ACTION_LABEL[o];
               const on = issue.resolution === o;
               return (
                 <button

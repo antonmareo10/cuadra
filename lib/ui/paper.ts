@@ -74,9 +74,16 @@ export function boxForSpan(doc: Pick<ReadDocument, "text">, page: PageLayout | u
     const i = lineText.indexOf(text, cursor);
     if (i < 0) continue;
     const a = from + Array.from(lineText.slice(0, i)).length;
-    const b = a + Array.from(text).length;
+    const n = Array.from(text).length;
+    const b = a + n;
     cursor = i + text.length;
-    if (a < end && b > start) cells.push([x0, y0, x1, y1]);
+    if (a < end && b > start) {
+      // A printed piece can hold two columns ("6,000 kg"): keep the part the span covers, by character share.
+      const s0 = Math.max(start, a) - a;
+      const s1 = Math.min(end, b) - a;
+      const w = x1 - x0;
+      cells.push(s0 === 0 && s1 === n ? [x0, y0, x1, y1] : [x0 + (w * s0) / n, y0, x0 + (w * s1) / n, y1]);
+    }
   }
   return { line, box: at.box, cells };
 }

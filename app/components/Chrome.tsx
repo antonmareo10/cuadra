@@ -24,10 +24,13 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           <Link href="/#cases" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink sm:inline-flex">
             Cases
           </Link>
-          <Link href="/#how" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink sm:inline-flex">
+          <Link href="/#how" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink md:inline-flex">
             How it works
           </Link>
-          <Link href="/check" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink md:inline-flex">
+          <Link href="/assistants" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink sm:inline-flex">
+            Assistants
+          </Link>
+          <Link href="/check" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink lg:inline-flex">
             Live run
           </Link>
           <a
@@ -72,8 +75,13 @@ export function SiteFooter() {
           </li>
           <li>
             <a className="inline-flex min-h-9 items-center hover:text-ink" href={SITE.video} target="_blank" rel="noreferrer">
-              Demo video, under a minute
+              Demo video, two minutes
             </a>
+          </li>
+          <li>
+            <Link className="inline-flex min-h-9 items-center hover:text-ink" href="/assistants">
+              Use it from an AI assistant (MCP)
+            </Link>
           </li>
           <li>
             <a className="inline-flex min-h-9 items-center hover:text-ink" href={SITE.failureHandling} target="_blank" rel="noreferrer">

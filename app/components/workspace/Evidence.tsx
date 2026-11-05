@@ -6,6 +6,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { normalizeIban } from "@/lib/engine/text";
 import type { DocKind, Issue, ReadDocument, RunResult, VerifiedClaim } from "@/lib/engine/types";
 import { marksFor, segmentLines } from "@/lib/ui/highlight";
+import { lineStarts } from "@/lib/ui/lines";
+import { boxForSpan, picturesFor, type CaseLayout } from "@/lib/ui/paper";
+import { PagePicture, type PictureMark } from "../paper/PagePicture";
 import { EASE, EndpointChip, ENDPOINT_NAME, Icon, ProbabilityBar, Reveal } from "../ui";
 import type { Focus } from "./Workspace";
 
@@ -82,9 +85,54 @@ function downloadBase64Pdf(b64: string, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-export function DocumentsView({ run, issues, focus }: { run: RunResult; issues: Issue[]; focus: Focus | null }) {
+/** What Extract read from a photo: rows without positions, and the corrections it saw written by hand. */
+function PhotoReading({ doc }: { doc: ReadDocument }) {
+  const photo = doc.photo!;
+  return (
+    <div className="max-h-[560px] overflow-auto rounded-xl bg-paper p-4 text-[13.5px] text-ink-2" tabIndex={0} aria-label={`${doc.label}: what Extract read from the ${photo.source}`}>
+      <p className="rounded-lg bg-info-soft px-3 py-2 text-[12.5px] text-info">
+        Read from the {photo.source} in image mode. No character positions, so no value here points to a line. Compare them with the picture before you pay.
+      </p>
+      <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[12.5px]">
+        {Object.entries(doc.header)
+          .filter(([, v]) => v.value)
+          .map(([k, v]) => (
+            <div key={k} className="contents">
+              <dt className="text-muted">{k.replace(/_/g, " ")}</dt>
+              <dd className="font-mono text-ink">{v.value}</dd>
+            </div>
+          ))}
+      </dl>
+      <p className="mt-4 text-[12px] font-medium uppercase tracking-wide text-muted">Lines</p>
+      <ol className="mt-1 space-y-1 font-mono text-[12.5px]">
+        {doc.lines.map((l) => (
+          <li key={l.index} className="rounded-md bg-surface px-2 py-1">
+            {[l.code.value, l.description.value, l.quantity.value, l.unit.value].filter(Boolean).join("  ·  ")}
+          </li>
+        ))}
+      </ol>
+      {photo.corrections.length ? (
+        <>
+          <p className="mt-4 text-[12px] font-medium uppercase tracking-wide text-muted">Corrected by hand</p>
+          <ul className="mt-1 space-y-1 text-[12.5px]">
+            {photo.corrections.map((c) => (
+              <li key={c.code} className="rounded-md bg-surface px-2 py-1">
+                <span className="font-mono">{c.code}</span>: printed <span className="font-mono line-through decoration-ink/50">{c.printed || "?"}</span>, written{" "}
+                <span className="font-mono font-semibold text-ink">{c.written}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+      {photo.unparsed.length ? <p className="mt-3 text-[12.5px] text-stop">{photo.unparsed.length} row(s) could not be split into columns and were left out.</p> : null}
+    </div>
+  );
+}
+
+export function DocumentsView({ run, issues, focus, layout = {} }: { run: RunResult; issues: Issue[]; focus: Focus | null; layout?: CaseLayout }) {
   const docs = DOC_ORDER.map((k) => run.documents.find((d) => d.kind === k)).filter((d): d is ReadDocument => Boolean(d));
-  const [tab, setTab] = useState<DocKind>(docs[0]?.kind ?? "invoice");
+  // A document read from a photo opens first: it is the one the owner has to look at.
+  const [tab, setTab] = useState<DocKind>(docs.find((d) => d.photo)?.kind ?? docs[0]?.kind ?? "invoice");
   const [shareSafe, setShareSafe] = useState(false);
   useEffect(() => {
     if (focus) {
@@ -93,7 +141,32 @@ export function DocumentsView({ run, issues, focus }: { run: RunResult; issues: 
     }
   }, [focus]);
   const doc = docs.find((d) => d.kind === tab) ?? docs[0];
+  const pictures = useMemo(() => picturesFor(run, layout), [run, layout]);
+  const page = doc ? layout[doc.kind] : undefined;
+  const starts = useMemo(() => (doc ? lineStarts(doc.text) : [0]), [doc]);
+  const marks = useMemo<PictureMark[]>(() => {
+    if (!doc || !page) return [];
+    const out: PictureMark[] = [];
+    const seen = new Set<string>();
+    for (const i of issues) {
+      if (i.cls === "info" || i.resolution === "accept") continue;
+      for (const e of i.evidence) {
+        if (e.doc !== doc.kind || e.start === undefined || e.end === undefined || e.quote.length > 160) continue;
+        const at = boxForSpan(doc, page, e.start, e.end, starts);
+        if (!at || seen.has(`${at.line}`)) continue;
+        seen.add(`${at.line}`);
+        out.push({ box: at.box, tone: i.cls === "stop" ? "stop" : i.cls === "money" ? "warn" : "info", title: `Line ${at.line}: ${i.title}` });
+      }
+    }
+    return out;
+  }, [doc, page, issues, starts]);
+  const focusAt = useMemo(() => {
+    if (!doc || !page || !focus || focus.doc !== doc.kind || focus.start === undefined || focus.end === undefined) return null;
+    const at = boxForSpan(doc, page, focus.start, focus.end, starts);
+    return at ? { box: at.box, cells: at.cells, nonce: focus.nonce } : null;
+  }, [doc, page, focus, starts]);
   if (!doc) return null;
+  const picture = pictures.find((p) => p.kind === doc.kind);
   const fields = Object.values(doc.header).filter((f) => f.value).length;
   const recorded = run.source.kind === "recorded";
 
@@ -101,11 +174,12 @@ export function DocumentsView({ run, issues, focus }: { run: RunResult; issues: 
     <section id="documents" className="scroll-mt-32" aria-labelledby="docs-h">
       <Reveal>
         <h2 id="docs-h" className="text-2xl font-semibold tracking-tight">
-          The documents, as Clocked read them
+          The documents, as they arrived and as Clocked read them
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
-          This is the PDF&apos;s own text layer, numbered line by line. Underlined: values Extract copied, by position. Boxed: personal data
-          Protect found. Amber and red: evidence behind an issue. Hover a mark to see who found it.
+          On the left, the document itself; the lines behind a finding are outlined on the page. On the right, the PDF&apos;s own text layer, numbered line by
+          line: underlined values were copied by Extract, by position; boxed ones are personal data Protect found. Click any quote in an issue and both sides
+          go to that line.
         </p>
       </Reveal>
       <div className="mt-6 rounded-2xl border border-line bg-surface p-3 sm:p-4">
@@ -125,10 +199,12 @@ export function DocumentsView({ run, issues, focus }: { run: RunResult; issues: 
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-2 text-ink-2">
-              <input type="checkbox" checked={shareSafe} onChange={(e) => setShareSafe(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
-              Share-safe copy
-            </label>
+            {doc.photo ? null : (
+              <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-2 text-ink-2">
+                <input type="checkbox" checked={shareSafe} onChange={(e) => setShareSafe(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
+                Share-safe copy
+              </label>
+            )}
             {recorded ? (
               <a
                 href={`/cases/${run.caseId}/${doc.fileName}`}
@@ -151,13 +227,20 @@ export function DocumentsView({ run, issues, focus }: { run: RunResult; issues: 
           </div>
         </div>
         <p className="mt-3 px-1 text-[12.5px] text-muted">
-          {doc.mode === "plain" ? "Plain text" : `PDF, ${doc.pages} page${doc.pages === 1 ? "" : "s"}, text layer`} · {fields} header values and {doc.lines.length}{" "}
-          lines read by Extract{doc.repairs ? ` · ${doc.repairs} empty cell${doc.repairs === 1 ? "" : "s"} re-read inside their line` : ""} · {doc.pii.length} personal-data
-          spans found by Protect
-          {doc.sanitized ? " · read with the flagged passage blanked out" : ""}
+          {doc.photo
+            ? `${doc.photo.source === "photo" ? "Phone photo" : "Scanned PDF"}, read in image mode · ${fields} header values and ${doc.lines.length} lines read by Extract, without positions · Guard: ${doc.guard?.verdict ?? "not run"} · Protect not run (it cannot blank out pixels)`
+            : `${doc.mode === "plain" ? "Plain text" : `PDF, ${doc.pages} page${doc.pages === 1 ? "" : "s"}, text layer`} · ${fields} header values and ${doc.lines.length} lines read by Extract${doc.repairs ? ` · ${doc.repairs} empty cell${doc.repairs === 1 ? "" : "s"} re-read inside their line` : ""} · ${doc.pii.length} personal-data spans found by Protect${doc.sanitized ? " · read with the flagged passage blanked out" : ""}`}
         </p>
-        <div className="mt-3">
-          <DocText doc={doc} issues={issues} focus={focus} shareSafe={shareSafe} />
+        <div className={clsx("mt-3 grid gap-4", picture && "lg:grid-cols-2")}>
+          {picture ? (
+            <figure className="min-w-0">
+              <PagePicture picture={picture} page={picture.form === "page" ? page : undefined} marks={marks} focus={focusAt} height={picture.form === "chat" ? 520 : 560} />
+              <figcaption className="mt-2 px-1 text-[12.5px] leading-relaxed text-muted">{picture.caption}</figcaption>
+            </figure>
+          ) : null}
+          <div className="min-w-0">
+            {doc.photo ? <PhotoReading doc={doc} /> : <DocText doc={doc} issues={issues} focus={focus} shareSafe={shareSafe} />}
+          </div>
         </div>
         {shareSafe ? (
           <p className="mt-2 px-1 text-[12.5px] text-muted">

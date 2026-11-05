@@ -9,6 +9,7 @@ import { computeVerdict } from "@/lib/engine/checks";
 import type { DocKind, Issue, Resolution, RunResult, Verdict } from "@/lib/engine/types";
 import { eur } from "@/lib/money";
 import { endpointsUsed } from "@/lib/ui/endpoints";
+import { picturesFor, type CaseLayout } from "@/lib/ui/paper";
 import { CountUp, EASE, EndpointChip, Icon } from "../ui";
 import { CallsTable, DocumentsView, EmailPanel, SafetyPanel } from "./Evidence";
 import { IssuesList, LinesTable } from "./IssuesView";
@@ -107,7 +108,9 @@ function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunRes
           <p className={clsx("text-[14px] font-medium", tone === "stop" && "text-stop", tone === "warn" && "text-warn", tone === "ok" && "text-ok")}>
             {verdict.kind === "hold"
               ? `Do not pay this invoice. ${stops.length} hard stop${stops.length === 1 ? "" : "s"}.`
-              : verdict.kind === "pay_adjusted"
+              : verdict.waitingForPhoto
+                ? "The delivery note was read from a photo. Nothing is paid until you have looked at it."
+                : verdict.kind === "pay_adjusted"
                 ? "Pay the undisputed part. Claim the rest."
                 : verdict.kind === "ready"
                   ? "Everything matches."
@@ -118,6 +121,11 @@ function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunRes
               <span className="text-stop">Hold payment</span>
             ) : verdict.kind === "unreadable" ? (
               <span className="text-stop">Could not read it</span>
+            ) : verdict.waitingForPhoto ? (
+              <>
+                <span className="text-muted">Check the photo, then pay </span>
+                <CountUp value={verdict.waitingForPhoto} format="eur" />
+              </>
             ) : (
               <>
                 {verdict.kind === "ready" ? "Ready to pay " : "Pay "}
@@ -136,7 +144,7 @@ function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunRes
           {[
             ["Invoice total", verdict.invoiceTotal ?? 0, "text-ink"],
             ["Claim back", verdict.disputed, verdict.disputed > 0 ? "text-warn" : "text-muted"],
-            ["Ask the kitchen", verdict.pending, verdict.pending > 0 ? "text-info" : "text-muted"],
+            [verdict.waitingForPhoto ? "Waiting for you" : "Ask the kitchen", verdict.pending, verdict.pending > 0 ? "text-info" : "text-muted"],
           ].map(([label, value, color]) => (
             <div key={label as string} className="rounded-2xl bg-surface/80 p-3 sm:p-4">
               <dt className="text-[12px] text-muted">{label as string}</dt>
@@ -153,6 +161,10 @@ function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunRes
           {verdict.kind === "hold" ? (
             <>
               <Icon name="lock" className="text-stop" /> Held by policy in code. Clear each stop yourself after checking with the supplier.
+            </>
+          ) : verdict.waitingForPhoto ? (
+            <>
+              <Icon name="review" className="text-info" /> Read without character positions. Look at the photo below, then mark it checked.
             </>
           ) : crossOk ? (
             <>
@@ -249,7 +261,53 @@ function SectionNav({ active }: { active: string }) {
   );
 }
 
-export function Workspace({ run }: { run: RunResult }) {
+/** The three documents as they arrived, small, at the top of the case. */
+function ArrivedStrip({ run, layout, onOpen }: { run: RunResult; layout: CaseLayout; onOpen: (doc: DocKind) => void }) {
+  const pics = picturesFor(run, layout);
+  if (!pics.length) return null;
+  const order: DocKind[] = ["po", "delivery", "invoice"];
+  return (
+    <section aria-label="The documents as they arrived" className="mt-8">
+      <p className="text-[13px] text-muted">As they arrived</p>
+      <ul className="mt-3 grid grid-cols-3 gap-3 sm:gap-5">
+        {order
+          .map((k) => pics.find((p) => p.kind === k))
+          .filter((p): p is NonNullable<typeof p> => Boolean(p))
+          .map((p) => {
+            const doc = run.documents.find((d) => d.kind === p.kind)!;
+            return (
+              <li key={p.kind} className="min-w-0">
+                <button
+                  type="button"
+                  onClick={() => onOpen(p.kind)}
+                  className="group block w-full overflow-hidden rounded-xl border border-line bg-surface text-left shadow-card transition-transform duration-300 hover:-translate-y-0.5"
+                >
+                  <span className="block aspect-[4/3] overflow-hidden bg-[#e9e5dc]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={p.src}
+                      alt=""
+                      aria-hidden
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                      style={{ objectPosition: p.form === "chat" ? "50% 60%" : p.form === "photo" ? "55% 40%" : "50% 0%" }}
+                    />
+                  </span>
+                  <span className="block px-3 py-2 text-[12.5px] leading-snug sm:text-[13.5px]">
+                    <span className="block truncate font-medium">{doc.label}</span>
+                    <span className="block truncate text-muted">{p.form === "photo" ? "phone photo, read in image mode" : p.form === "chat" ? "chat export, plain text" : "PDF with a text layer"}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+      </ul>
+    </section>
+  );
+}
+
+export function Workspace({ run, layout = {} }: { run: RunResult; layout?: CaseLayout }) {
   const [resolutions, setResolutions] = useState<Record<string, Resolution>>(() =>
     Object.fromEntries(run.issues.map((i) => [i.id, i.resolution])),
   );
@@ -299,6 +357,7 @@ export function Workspace({ run }: { run: RunResult }) {
       <VerdictHero verdict={verdict} run={run} onReplay={() => setReplayKey((k) => k + 1)} />
 
       {run.story ? <p className="mt-6 max-w-3xl text-[16px] leading-relaxed text-ink-2">{run.story}</p> : null}
+      <ArrivedStrip run={run} layout={layout} onOpen={(doc) => showEvidence({ doc })} />
       {run.errors.length ? (
         <div role="alert" className="mt-4 rounded-2xl border border-stop/30 bg-stop-soft p-4 text-[14px] text-stop">
           <p className="font-medium">Some steps did not complete. Nothing that failed was treated as passing.</p>
@@ -315,7 +374,7 @@ export function Workspace({ run }: { run: RunResult }) {
           <SectionNav active={active} />
           <IssuesList issues={issues} documents={run.documents} onEvidence={showEvidence} onResolve={setResolution} />
           <LinesTable run={run} issues={issues} />
-          <DocumentsView run={run} issues={issues} focus={focus} />
+          <DocumentsView run={run} issues={issues} focus={focus} layout={layout} />
           <SafetyPanel run={run} />
           <EmailPanel run={run} onCopy={() => toast.show("Copied to the clipboard")} />
           <CallsTable run={run} replayKey={replayKey} />
