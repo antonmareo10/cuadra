@@ -127,7 +127,8 @@ function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunRes
             )}
           </h1>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-ink-2">
-            {run.supplier.name} · invoice {invoice?.header.number?.value ?? "—"} of {invoice?.header.date?.value ?? "—"}
+            {run.supplier.name} · invoice {invoice?.header.number?.value ?? "(number not read)"}
+            {invoice?.header.date?.value ? ` of ${invoice.header.date.value}` : ""}
             {verdict.invoiceTotal !== null ? ` · total printed ${eur(verdict.invoiceTotal)}` : ""}
           </p>
         </div>

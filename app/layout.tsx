@@ -1,14 +1,26 @@
 import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import { SITE } from "@/lib/site";
 import { SmoothScroll } from "./components/SmoothScroll";
 import "./globals.css";
 
+const description =
+  "Cuadra checks a restaurant's supplier invoices against the chef's order and the signed delivery note, and says what to pay, what to claim back and which invoices to hold. Every finding points to the line it was printed on. Built on the Clocked API.";
+
 export const metadata: Metadata = {
-  title: "Cuadra · Three-way match for restaurants",
-  description:
-    "Cuadra reads the purchase order, the delivery note and the supplier invoice, checks every line and tells a small restaurant what to pay, what to claim and what not to touch. Built on the Clocked API.",
-  icons: { icon: "/icon.svg" },
+  metadataBase: new URL(SITE.url),
+  title: "Cuadra · Pay the right amount, to the right account",
+  description,
+  icons: { icon: "/icon.svg", apple: "/apple-icon.png" },
+  openGraph: {
+    type: "website",
+    siteName: "Cuadra",
+    title: "Cuadra · Pay the right amount, to the right account",
+    description,
+    url: SITE.url,
+  },
+  twitter: { card: "summary_large_image", title: "Cuadra · Pay the right amount, to the right account", description },
 };
 
 export const viewport: Viewport = {

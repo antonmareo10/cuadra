@@ -44,9 +44,9 @@ await b.theme("light");
 await b.send("Page.startScreencast", { format: "jpeg", quality: 82, maxWidth: 1440, maxHeight: 900, everyNthFrame: 1 });
 
 await b.goto(base + "/", 400);
-await caption("Restaurants pay supplier invoices without checking what actually arrived.");
+await caption("Restaurants pay supplier invoices without checking them against what arrived.");
 await sleep(3600);
-await caption("Cuadra reads the order, the delivery note and the invoice, and says what to pay.");
+await caption("Cuadra checks every line, and every finding points to the line it was printed on.");
 await b.scrollTo("#cases", 1600);
 await sleep(2400);
 
@@ -56,8 +56,8 @@ await sleep(4200);
 await b.scrollTo("#issues", 1400);
 await caption("Every discrepancy comes with its formula, its evidence and Decide's recommendation.");
 await sleep(3800);
-await b.click("#issues button[title='Show in the document']");
-await caption("Click a quote: it is highlighted in the document's own text, where Extract read it.");
+await b.click("#issues button[title^='Show']");
+await caption("Click a quote and the document opens at that line, where Extract read it.");
 await sleep(4200);
 await b.scrollTo("#email", 1600);
 await caption("Fill writes the email to the supplier. Verify checks every claim before you can copy it.");

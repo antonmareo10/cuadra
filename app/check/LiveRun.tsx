@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { CallRecord } from "@/lib/clocked/client";
 import type { DocKind, RunResult, RunStep } from "@/lib/engine/types";
@@ -131,93 +132,114 @@ export function LiveRun() {
     <div className="mx-auto max-w-4xl px-4 pb-24 pt-10 sm:px-6 sm:pt-14">
       <h1 className="text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.03em]">Run a live reconciliation</h1>
       <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-ink-2">
-        The same engine as the recorded cases, against Clocked in real time: 15 to 20 calls and 10 to 20 seconds. Files go to Clocked for reading and are not
-        stored by this app.
+        The same engine as the recorded cases, against Clocked in real time. The recorded runs took 15 to 19 calls and 11 to 24 seconds per invoice.
+        Files go to Clocked for reading and are not stored by this app.
       </p>
 
-      {status && !live ? (
-        <div className="mt-8 rounded-2xl border border-line bg-surface p-5">
+      {status === null ? (
+        <p className="mt-8 flex items-center gap-2 text-[14px] text-muted" aria-live="polite">
+          <span className="pulse-dot h-2 w-2 rounded-full bg-muted" /> Checking whether live runs are on…
+        </p>
+      ) : !live ? (
+        <div className="mt-8 rounded-2xl border border-line bg-surface p-5 sm:p-6">
           <p className="flex items-center gap-2 font-medium">
-            <Icon name="info" className="text-info" /> Live runs are not available here
+            <Icon name="info" className="text-info" /> Live runs are off on this public demo
           </p>
-          <p className="mt-2 text-[15px] text-ink-2">{status.reason} The recorded cases show real Clocked output and need nothing.</p>
-          <p className="mt-3 text-[14px] text-ink-2">To run live on your machine:</p>
-          <pre className="mt-2 overflow-x-auto rounded-xl bg-surface-2 p-3 font-mono text-[12.5px] text-ink-2">
-            {`echo CLOCKED_API_KEY=your-key > .env.local\nnpm install && npm run dev\n# open http://localhost:3000/check`}
+          <p className="mt-2 text-[15px] leading-relaxed text-ink-2">
+            {status.reason} That keeps a public page from spending anyone&apos;s credits. The recorded cases are real Clocked responses, replayed
+            through the same engine, and open instantly:
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {SAMPLES.map((s) => (
+              <li key={s.id}>
+                <Link
+                  href={`/case/${s.id}`}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-paper px-4 text-[14px] text-ink hover:bg-surface-2"
+                >
+                  {s.name} <Icon name="arrow" className="h-3.5 w-3.5" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 text-[14px] text-ink-2">To run it live on your machine with your own Clocked key:</p>
+          <pre tabIndex={0} aria-label="Commands to run it locally" className="mt-2 overflow-x-auto rounded-xl bg-surface-2 p-3 font-mono text-[12.5px] text-ink-2">
+            {`git clone https://github.com/antonmareo10/cuadra && cd cuadra\necho CLOCKED_API_KEY=your-key > .env.local\nnpm install && npm run dev\n# open http://localhost:3000/check`}
           </pre>
         </div>
       ) : null}
 
-      <fieldset disabled={!live || phase === "running"} className={clsx("mt-8 space-y-8", !live && "opacity-60")}>
-        <div>
-          <h2 className="text-[13px] font-medium uppercase tracking-wide text-muted">A sample case, live</h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {SAMPLES.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => start({ mode: "sample", caseId: s.id })}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface px-4 text-[14px] hover:bg-surface-2"
-              >
-                {s.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-[13px] font-medium uppercase tracking-wide text-muted">Or your own files</h2>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {SLOTS.map((s) => {
-              const f = files[s.kind];
-              return (
-                <label
-                  key={s.kind}
-                  className={clsx(
-                    "flex min-h-32 cursor-pointer flex-col justify-between rounded-2xl border border-dashed p-4 transition-colors hover:bg-surface",
-                    f ? "border-ok/50 bg-ok-soft/40" : "border-line",
-                  )}
+      {live ? (
+        <fieldset disabled={phase === "running"} className="mt-8 space-y-8">
+          <div>
+            <h2 className="text-[13px] font-medium uppercase tracking-wide text-muted">A sample case, live</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {SAMPLES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => start({ mode: "sample", caseId: s.id })}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface px-4 text-[14px] hover:bg-surface-2"
                 >
-                  <span>
-                    <span className="font-medium">{s.label}</span>
-                    {s.required ? <span className="ml-1 text-[12px] text-accent">required</span> : <span className="ml-1 text-[12px] text-muted">optional</span>}
-                    <span className="mt-1 block text-[13px] text-muted">{s.hint}</span>
-                  </span>
-                  <span className="mt-3 truncate text-[13px] text-ink-2">{f ? f.name : "Choose a file"}</span>
-                  <input
-                    type="file"
-                    accept={s.accept}
-                    className="sr-only"
-                    onChange={(e) => setFiles((prev) => ({ ...prev, [s.kind]: e.target.files?.[0] }))}
-                  />
-                </label>
-              );
-            })}
-          </div>
-          <label className="mt-4 block text-[14px]">
-            <span className="text-ink-2">Supplier record on file (agreed tariff, IBAN, phone)</span>
-            <select
-              value={supplierId}
-              onChange={(e) => setSupplierId(e.target.value)}
-              className="mt-1.5 block min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-[14px] sm:w-auto"
-            >
-              {SUPPLIERS.map((s) => (
-                <option key={s.id} value={s.id}>
                   {s.name}
-                </option>
+                </button>
               ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            disabled={!files.invoice}
-            onClick={runUpload}
-            className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-full bg-ink px-6 text-[15px] font-medium text-paper transition-transform active:scale-[0.97] disabled:opacity-40"
-          >
-            Reconcile live <Icon name="arrow" />
-          </button>
-        </div>
-      </fieldset>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-[13px] font-medium uppercase tracking-wide text-muted">Or your own files</h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {SLOTS.map((s) => {
+                const f = files[s.kind];
+                return (
+                  <label
+                    key={s.kind}
+                    className={clsx(
+                      "flex min-h-32 cursor-pointer flex-col justify-between rounded-2xl border border-dashed p-4 transition-colors hover:bg-surface",
+                      f ? "border-ok/50 bg-ok-soft/40" : "border-line",
+                    )}
+                  >
+                    <span>
+                      <span className="font-medium">{s.label}</span>
+                      {s.required ? <span className="ml-1 text-[12px] text-accent">required</span> : <span className="ml-1 text-[12px] text-muted">optional</span>}
+                      <span className="mt-1 block text-[13px] text-muted">{s.hint}</span>
+                    </span>
+                    <span className="mt-3 truncate text-[13px] text-ink-2">{f ? f.name : "Choose a file"}</span>
+                    <input
+                      type="file"
+                      accept={s.accept}
+                      className="sr-only"
+                      onChange={(e) => setFiles((prev) => ({ ...prev, [s.kind]: e.target.files?.[0] }))}
+                    />
+                  </label>
+                );
+              })}
+            </div>
+            <label className="mt-4 block text-[14px]">
+              <span className="text-ink-2">Supplier record on file (agreed tariff, IBAN, phone)</span>
+              <select
+                value={supplierId}
+                onChange={(e) => setSupplierId(e.target.value)}
+                className="mt-1.5 block min-h-11 w-full rounded-xl border border-line bg-surface px-3 text-[14px] sm:w-auto"
+              >
+                {SUPPLIERS.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              disabled={!files.invoice}
+              onClick={runUpload}
+              className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-full bg-ink px-6 text-[15px] font-medium text-paper transition-transform active:scale-[0.97] disabled:opacity-40"
+            >
+              Reconcile live <Icon name="arrow" />
+            </button>
+          </div>
+        </fieldset>
+      ) : null}
 
       <AnimatePresence>
         {phase === "running" || phase === "error" ? (

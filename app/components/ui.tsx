@@ -2,9 +2,10 @@
 
 import clsx from "clsx";
 import { animate, motion, useInView, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Endpoint } from "@/lib/clocked/client";
 import { eur } from "@/lib/money";
+import { RECEIPT, TICK } from "@/lib/ui/brand";
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -51,7 +52,7 @@ export function EndpointChip({ endpoint, count, className }: { endpoint: Endpoin
       )}
     >
       {ENDPOINT_NAME[endpoint]}
-      {count !== undefined && count > 1 ? <span className="opacity-70">×{count}</span> : null}
+      {count !== undefined && count > 1 ? <span className="font-normal">×{count}</span> : null}
     </span>
   );
 }
@@ -90,24 +91,54 @@ const FORMATS: Record<CountFormat, (n: number) => string> = {
   approx: (n) => `≈${Math.round(n)}`,
 };
 
-/** Counts up to the real value once visible. Reduced motion shows the value at once. */
+// False until the first page load has hydrated; later mounts come from client-side navigation.
+let pageHydrated = false;
+
+/**
+ * Shows the real value in the server HTML (so the page reads right without JavaScript and hydrates
+ * without a mismatch). It counts up from zero only where that cannot flash: numbers below the fold on
+ * the first load, and every number after a client-side navigation (reset before paint). A changed
+ * value counts from the old one. Reduced motion never animates.
+ */
 export function CountUp({ value, format: kind, className }: { value: number; format: CountFormat; className?: string }) {
   const format = FORMATS[kind];
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
   const reduce = useReducedMotion();
-  const [shown, setShown] = useState(reduce ? value : 0);
+  const [shown, setShown] = useState(value);
+  const last = useRef(value);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    const visibleNow = el ? el.getBoundingClientRect().top < window.innerHeight && el.getBoundingClientRect().bottom > 0 : false;
+    const firstLoad = !pageHydrated;
+    if (!reduce && (!firstLoad || !visibleNow)) {
+      last.current = 0;
+      setShown(0);
+    }
+    // Flip after the whole hydration commit, so every number visible on the first load keeps its value.
+    if (firstLoad) setTimeout(() => (pageHydrated = true), 0);
+    // Runs once on mount by design: it only decides where the first count starts.
+  }, []);
   useEffect(() => {
-    if (!inView) return;
     if (reduce) {
+      last.current = value;
       setShown(value);
       return;
     }
-    const controls = animate(0, value, { duration: 0.9, ease: EASE, onUpdate: setShown });
+    if (!inView || last.current === value) return;
+    const controls = animate(last.current, value, {
+      duration: 0.9,
+      ease: EASE,
+      onUpdate: (v) => {
+        last.current = v;
+        setShown(v);
+      },
+    });
     return () => controls.stop();
   }, [inView, value, reduce]);
   return (
-    <span ref={ref} className={clsx("tabular", className)} aria-label={format(value)}>
+    <span ref={ref} className={clsx("tabular", className)}>
+      <span className="sr-only">{format(value)}</span>
       <span aria-hidden>{format(shown)}</span>
     </span>
   );
@@ -248,8 +279,8 @@ export function Logo({ className }: { className?: string }) {
     <span className={clsx("inline-flex items-center gap-2 font-semibold tracking-tight", className)}>
       <svg viewBox="0 0 32 32" className="h-7 w-7" aria-hidden>
         <rect width="32" height="32" rx="8" className="fill-ink" />
-        <path d="M9 11h14M9 16h14M9 21h9" className="stroke-paper" strokeWidth="2.4" strokeLinecap="round" />
-        <circle cx="23" cy="21" r="2.6" className="fill-accent" />
+        <path d={RECEIPT} className="fill-paper" />
+        <path d={TICK} className="stroke-accent" fill="none" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <span className="text-[17px]">cuadra</span>
     </span>

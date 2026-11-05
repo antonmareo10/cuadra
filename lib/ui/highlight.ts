@@ -1,5 +1,6 @@
 import { cpToUtf16 } from "../engine/text";
 import type { Issue, ReadDocument } from "../engine/types";
+import { lineStarts } from "./lines";
 
 export type MarkKind = "field" | "pii" | "issue" | "stop";
 
@@ -44,6 +45,24 @@ export function marksFor(doc: ReadDocument, issues: Issue[]): Mark[] {
   }
   if (doc.guard?.flagged) for (const e of doc.guard.evidence) add(e.start, e.end, "stop", `Guard · ${doc.guard.category}`);
   return marks;
+}
+
+export interface TextLine {
+  /** 1-based, the same numbering the evidence chips use. */
+  n: number;
+  segments: Segment[];
+}
+
+/** Like `segment`, but grouped into lines (newlines dropped) so the document view can number them. */
+export function segmentLines(text: string, marks: Mark[], extraCuts: number[] = []): TextLine[] {
+  const breaks = lineStarts(text).slice(1);
+  const segs = segment(text, marks, [...extraCuts, ...breaks, ...breaks.map((b) => b - 1)]);
+  const lines: TextLine[] = [{ n: 1, segments: [] }];
+  for (const s of segs) {
+    if (s.text === "\n") lines.push({ n: lines.length + 1, segments: [] });
+    else lines[lines.length - 1].segments.push(s);
+  }
+  return lines;
 }
 
 /** Splits text into segments, each carrying every mark that covers it. */

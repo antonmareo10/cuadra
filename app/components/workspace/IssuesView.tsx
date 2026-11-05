@@ -2,10 +2,12 @@
 
 import clsx from "clsx";
 import { motion } from "motion/react";
+import { useMemo } from "react";
 import { dedupeEvidence } from "@/lib/engine/judge";
 import { normalizeCode } from "@/lib/engine/text";
 import type { DocKind, Issue, ReadDocument, Resolution, RunResult } from "@/lib/engine/types";
 import { eur } from "@/lib/money";
+import { lineNumberAt, lineStarts } from "@/lib/ui/lines";
 import { EASE, Icon, ProbabilityBar, Reveal, SourceChip } from "../ui";
 import type { Focus } from "./Workspace";
 
@@ -40,14 +42,18 @@ const CLS_STYLE = {
   info: { icon: "info" as const, ring: "border-line", badge: "bg-surface-2 text-muted", label: "Note" },
 };
 
+type LineOf = (doc: string, start: number | undefined) => number | null;
+
 function IssueCard({
   issue,
   index,
+  lineOf,
   onEvidence,
   onResolve,
 }: {
   issue: Issue;
   index: number;
+  lineOf: LineOf;
   onEvidence: (f: Omit<Focus, "nonce">) => void;
   onResolve: (id: string, r: Resolution) => void;
 }) {
@@ -84,7 +90,7 @@ function IssueCard({
       </div>
 
       <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{issue.detail}</p>
-      {issue.math ? <p className="tabular mt-3 overflow-x-auto rounded-lg bg-surface-2 px-3 py-2 font-mono text-[12.5px] text-ink-2">{issue.math}</p> : null}
+      {issue.math ? <p className="tabular mt-3 break-words rounded-lg bg-surface-2 px-3 py-2 font-mono text-[12.5px] text-ink-2">{issue.math}</p> : null}
 
       {evidence.length ? (
         <div className="mt-4">
@@ -92,9 +98,13 @@ function IssueCard({
           <ul className="mt-1.5 flex flex-wrap gap-1.5">
             {evidence.slice(0, 8).map((e, i) => {
               const clickable = (e.doc === "po" || e.doc === "delivery" || e.doc === "invoice") && e.start !== undefined;
+              const line = clickable ? lineOf(e.doc, e.start) : null;
               const body = (
                 <>
-                  <span className="font-medium text-ink">{DOC_SHORT[e.doc] ?? e.doc}</span>
+                  <span className="shrink-0 font-medium text-ink">
+                    {DOC_SHORT[e.doc] ?? e.doc}
+                    {line ? <span className="font-normal text-muted">, line {line}</span> : null}
+                  </span>
                   <span className="truncate text-ink-2">“{e.quote.length > 90 ? `${e.quote.slice(0, 88)}…` : e.quote}”</span>
                   <span className="shrink-0 font-mono text-[10.5px] text-muted">{e.by}</span>
                 </>
@@ -106,7 +116,7 @@ function IssueCard({
                       type="button"
                       onClick={() => onEvidence({ doc: e.doc as DocKind, start: e.start, end: e.end, issueId: issue.id })}
                       className="inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-lg border border-line bg-paper px-2.5 py-1 text-left text-[12.5px] transition-colors hover:border-ink/30 hover:bg-surface-2"
-                      title="Show in the document"
+                      title={line ? `Show line ${line} of the ${(DOC_SHORT[e.doc] ?? e.doc).toLowerCase()}` : "Show in the document"}
                     >
                       {body}
                     </button>
@@ -184,6 +194,7 @@ function IssueCard({
 
 export function IssuesList({
   issues,
+  documents,
   onEvidence,
   onResolve,
 }: {
@@ -194,6 +205,11 @@ export function IssuesList({
 }) {
   const main = issues.filter((i) => i.cls !== "info");
   const notes = issues.filter((i) => i.cls === "info");
+  const starts = useMemo(() => new Map(documents.map((d) => [d.kind as string, { text: d.text, starts: lineStarts(d.text) }])), [documents]);
+  const lineOf: LineOf = (doc, start) => {
+    const d = starts.get(doc);
+    return d && start !== undefined ? lineNumberAt(d.text, start, d.starts) : null;
+  };
   return (
     <section id="issues" className="scroll-mt-32" aria-labelledby="issues-h">
       <Reveal>
@@ -201,13 +217,14 @@ export function IssuesList({
           {main.length ? `${main.length} thing${main.length === 1 ? "" : "s"} to look at, most urgent first` : "Nothing to raise"}
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
-          Hard stops first, then Decide&apos;s priority, then money at stake. Change any action and the amount to pay updates.
+          Hard stops first, then Decide&apos;s priority, then money at stake. Click a quote to see its line in the document. Change any action and
+          the amount to pay updates.
         </p>
       </Reveal>
       {main.length ? (
         <ul className="mt-6 space-y-4">
           {main.map((i, n) => (
-            <IssueCard key={i.id} issue={i} index={n} onEvidence={onEvidence} onResolve={onResolve} />
+            <IssueCard key={i.id} issue={i} index={n} lineOf={lineOf} onEvidence={onEvidence} onResolve={onResolve} />
           ))}
         </ul>
       ) : (
@@ -266,7 +283,7 @@ export function LinesTable({ run, issues }: { run: RunResult; issues: Issue[] })
           supplier.
         </p>
       </Reveal>
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+      <div tabIndex={0} role="region" aria-label="Line by line table, scrolls sideways on small screens" className="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
         <table className="w-full min-w-[760px] text-left text-[13.5px]">
           <thead className="border-b border-line text-[12px] text-muted">
             <tr>

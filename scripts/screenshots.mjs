@@ -28,7 +28,7 @@ await b.scrollTo("#lines", 10);
 await sleep(1500);
 await save("lines-meat-1440.png");
 await b.scrollTo("#issues", 10);
-await b.click("#issues button[title='Show in the document']");
+await b.click("#issues button[title^='Show']");
 await sleep(2000);
 await save("documents-1440.png");
 await b.scrollTo("#email", 10);

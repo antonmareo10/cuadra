@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { normalizeIban } from "@/lib/engine/text";
 import type { DocKind, Issue, ReadDocument, RunResult, VerifiedClaim } from "@/lib/engine/types";
-import { marksFor, segment } from "@/lib/ui/highlight";
+import { marksFor, segmentLines } from "@/lib/ui/highlight";
 import { EASE, EndpointChip, ENDPOINT_NAME, Icon, ProbabilityBar, Reveal } from "../ui";
 import type { Focus } from "./Workspace";
 
@@ -17,8 +17,8 @@ function DocText({ doc, issues, focus, shareSafe }: { doc: ReadDocument; issues:
   const focused = focus && focus.doc === doc.kind ? focus : null;
   const fStart = focused?.start;
   const fEnd = focused?.end;
-  const segments = useMemo(
-    () => segment(doc.text, marks, fStart !== undefined && fEnd !== undefined ? [fStart, fEnd] : []),
+  const lines = useMemo(
+    () => segmentLines(doc.text, marks, fStart !== undefined && fEnd !== undefined ? [fStart, fEnd] : []),
     [doc.text, marks, fStart, fEnd],
   );
 
@@ -38,22 +38,34 @@ function DocText({ doc, issues, focus, shareSafe }: { doc: ReadDocument; issues:
       </div>
     );
   }
+  const inFocus = (s: { start: number; end: number }) => fStart !== undefined && fEnd !== undefined && s.start < fEnd && s.end > fStart;
   return (
-    <div ref={box} className="doc-text relative max-h-[520px] overflow-auto rounded-xl bg-paper p-4 text-ink-2" tabIndex={0} aria-label={`${doc.label} text`}>
-      {segments.map((s) => {
-        const isFocus = fStart !== undefined && fEnd !== undefined && s.start < fEnd && s.end > fStart;
-        if (!s.marks.length && !isFocus) return <span key={s.key}>{s.text}</span>;
-        const top = s.marks[0];
-        return (
-          <mark
-            key={s.key}
-            className={clsx(top && `m-${top.kind}`, isFocus && "m-focus")}
-            title={s.marks.length ? [...new Set(s.marks.map((m) => m.label))].join("\n") : undefined}
-          >
-            {s.text}
-          </mark>
-        );
-      })}
+    <div ref={box} className="doc-text relative max-h-[520px] overflow-auto rounded-xl bg-paper py-3 text-ink-2" tabIndex={0} aria-label={`${doc.label} text, with line numbers`}>
+      {lines.map((l) => (
+        <div key={l.n} className={clsx("doc-line", l.segments.some(inFocus) && "doc-line-focus")}>
+          <span className="doc-ln" aria-hidden>
+            {l.n}
+          </span>
+          <span className="min-w-0">
+            {l.segments.length
+              ? l.segments.map((s) => {
+                  const isFocus = inFocus(s);
+                  if (!s.marks.length && !isFocus) return <span key={s.key}>{s.text}</span>;
+                  const top = s.marks[0];
+                  return (
+                    <mark
+                      key={s.key}
+                      className={clsx(top && `m-${top.kind}`, isFocus && "m-focus")}
+                      title={s.marks.length ? [...new Set(s.marks.map((m) => m.label))].join("\n") : undefined}
+                    >
+                      {s.text}
+                    </mark>
+                  );
+                })
+              : "\u00a0"}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -92,8 +104,8 @@ export function DocumentsView({ run, issues, focus }: { run: RunResult; issues: 
           The documents, as Clocked read them
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
-          This is the PDF&apos;s own text layer. Underlined: values Extract copied, by position. Boxed: personal data Protect found. Amber and red:
-          evidence behind an issue. Hover a mark to see who found it.
+          This is the PDF&apos;s own text layer, numbered line by line. Underlined: values Extract copied, by position. Boxed: personal data
+          Protect found. Amber and red: evidence behind an issue. Hover a mark to see who found it.
         </p>
       </Reveal>
       <div className="mt-6 rounded-2xl border border-line bg-surface p-3 sm:p-4">
@@ -174,8 +186,8 @@ export function SafetyPanel({ run }: { run: RunResult }) {
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">Run on every document before anything else reads it. A flag here holds the payment in code.</p>
       </Reveal>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <Reveal className="rounded-2xl border border-line bg-surface p-5">
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Reveal className="min-w-0 rounded-2xl border border-line bg-surface p-5">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold tracking-tight">Instructions aimed at AI</h3>
             <EndpointChip endpoint="injection" />
@@ -209,7 +221,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
           ) : null}
         </Reveal>
 
-        <Reveal delay={0.05} className="rounded-2xl border border-line bg-surface p-5">
+        <Reveal delay={0.05} className="min-w-0 rounded-2xl border border-line bg-surface p-5">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold tracking-tight">Scripts inside PDFs</h3>
             <EndpointChip endpoint="script" />
@@ -232,7 +244,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
                   {d.inspect ? (
                     <>
                       <ProbabilityBar value={d.inspect.malicious} tone={d.inspect.flagged ? "stop" : "ok"} label="malicious probability" />
-                      <pre className="mt-2 overflow-x-auto rounded-lg bg-surface-2 p-3 font-mono text-[12px] leading-relaxed text-ink-2">
+                      <pre tabIndex={0} aria-label="Script found in the PDF" className="mt-2 overflow-x-auto rounded-lg bg-surface-2 p-3 font-mono text-[12px] leading-relaxed text-ink-2">
                         {d.inspect.evidence.map((e) => e.line).join("\n") || d.scripts[0]?.script}
                       </pre>
                     </>
@@ -243,7 +255,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
           <p className="mt-3 text-[12.5px] text-muted">Scripts are found in code without running them; only what is found is sent to Inspect.</p>
         </Reveal>
 
-        <Reveal className="rounded-2xl border border-line bg-surface p-5">
+        <Reveal className="min-w-0 rounded-2xl border border-line bg-surface p-5">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold tracking-tight">Personal data and bank details</h3>
             <EndpointChip endpoint="pii" />
@@ -283,7 +295,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
           </div>
         </Reveal>
 
-        <Reveal delay={0.05} className="rounded-2xl border border-line bg-surface p-5">
+        <Reveal delay={0.05} className="min-w-0 rounded-2xl border border-line bg-surface p-5">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold tracking-tight">Duplicates and contradictions</h3>
             <EndpointChip endpoint="compare" />
@@ -386,8 +398,8 @@ export function EmailPanel({ run, onCopy }: { run: RunResult; onCopy: () => void
       {!r ? (
         <p className="mt-6 rounded-2xl border border-line bg-surface p-5 text-[15px] text-muted">No record was filled for this run.</p>
       ) : (
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
-          <Reveal className="rounded-2xl border border-line bg-surface p-5">
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+          <Reveal className="min-w-0 rounded-2xl border border-line bg-surface p-5">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold tracking-tight">Reconciliation record</h3>
               <EndpointChip endpoint="fill" />
@@ -416,7 +428,7 @@ export function EmailPanel({ run, onCopy }: { run: RunResult; onCopy: () => void
             <p className="mt-4 text-[12px] text-muted">Generated text is marked as generated by Fill; amounts come from the checks.</p>
           </Reveal>
 
-          <Reveal delay={0.05} className="rounded-2xl border border-line bg-surface p-5">
+          <Reveal delay={0.05} className="min-w-0 rounded-2xl border border-line bg-surface p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-semibold tracking-tight">Email to {run.supplier.name}</h3>
               <span className="flex gap-1">
@@ -499,7 +511,7 @@ export function CallsTable({ run, replayKey }: { run: RunResult; replayKey: numb
           each response, counted against a hard cap before anything is sent.
         </p>
       </Reveal>
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+      <div tabIndex={0} role="region" aria-label="Table of Clocked calls, scrolls sideways on small screens" className="mt-6 overflow-x-auto rounded-2xl border border-line bg-surface">
         <table className="w-full min-w-[640px] text-left text-[13px]">
           <thead className="border-b border-line text-[12px] text-muted">
             <tr>
