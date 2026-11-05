@@ -164,9 +164,16 @@ export interface PoLine {
 
 export interface DeliveryLine {
   product: string;
+  /** Quantity actually delivered (ground truth). */
   qty: number;
   /** Extra text printed on the line, e.g. a substitution note. */
   note?: string;
+  /**
+   * Paper delivery notes only: the quantity the supplier's system printed before the
+   * goods were weighed at the door (defaults to qty), and what was written over it by hand.
+   */
+  printedQty?: number;
+  handwritten?: string;
 }
 
 export interface InvoiceLine {
@@ -204,6 +211,11 @@ export interface CaseDefinition {
     remarks: string[];
     driver: string;
     driverPhone: string;
+    /**
+     * "photo": the delivery note arrives as a phone photo of the paper copy (data/paper/<id>.jpg,
+     * drawn by scripts/assets from the printed note plus the handwriting). Default: a typed PDF.
+     */
+    format?: "pdf" | "photo";
   };
   invoice: {
     number: string;
@@ -532,6 +544,70 @@ export const CASES: CaseDefinition[] = [
           amount: 0,
           note: "Same delivery note AH-55120, same lines and amounts as F-2026-1131, paid on 28/10/2026. Paying again would pay twice.",
         },
+      ],
+    },
+  },
+  {
+    id: "meat-photo-delivery",
+    title: "Meat again, the delivery note is a phone photo",
+    story:
+      "The same meat order, but the delivery note came the usual way: a paper copy printed before the scale, with the real weights written over it by hand. The invoice copies the printed numbers.",
+    supplier: "gredos",
+    po: {
+      format: "whatsapp",
+      number: "WhatsApp 27/10/2026 18:42",
+      date: "27/10/2026",
+      deliveryDate: "29/10/2026",
+      lines: [
+        { text: "6 kg de solomillo", qty: 6, unit: "kg", product: "CSG-101" },
+        { text: "4 kg de secreto", qty: 4, unit: "kg", product: "CSG-118" },
+        { text: "3 pollos de corral", qty: 3, unit: "ud", product: "CSG-130" },
+        { text: "5 kg de costilla", qty: 5, unit: "kg", product: "CSG-142" },
+        { text: "2 cajas de hamburguesas de 180", qty: 2, unit: "caja", product: "CSG-155" },
+      ],
+      whatsapp:
+        "[27/10/2026, 18:42] Javier Ortega: Hola Raúl! Para el jueves 29 porfa: 6 kg de solomillo, 4 kg de secreto, 3 pollos de corral, 5 kg de costilla y 2 cajas de hamburguesas de 180. Gracias!\n" +
+        "[27/10/2026, 18:44] Raúl Sánchez (Sierra de Gredos): Hecho Javi, el jueves a primera hora 👍\n" +
+        "[27/10/2026, 18:45] Javier Ortega: Si me llamas, mejor al 612 000 004. Gracias!",
+    },
+    delivery: {
+      number: "ALB-2026-07731",
+      date: "29/10/2026",
+      format: "photo",
+      lines: [
+        { product: "CSG-101", qty: 5.2, printedQty: 6, handwritten: "5,2" },
+        { product: "CSG-118", qty: 4 },
+        { product: "CSG-130", qty: 2, printedQty: 3, handwritten: "2 (falta 1)" },
+        { product: "CSG-142", qty: 5.1 },
+        { product: "CSG-155", qty: 2 },
+        { product: "CSG-170", qty: 2 },
+      ],
+      remarks: ["Pesos según báscula en la entrega."],
+      driver: "Óscar Benítez",
+      driverPhone: "644 000 023",
+    },
+    invoice: {
+      number: "FV-26-04417",
+      date: "29/10/2026",
+      lines: [
+        { product: "CSG-101", qty: 6 },
+        { product: "CSG-118", qty: 4, price: 16.9 },
+        { product: "CSG-130", qty: 3 },
+        { product: "CSG-142", qty: 5.1 },
+        { product: "CSG-155", qty: 2 },
+        { product: "CSG-170", qty: 2 },
+      ],
+      note: "Precios actualizados según la nueva tarifa comunicada el 15/10/2026.",
+    },
+    history: [{ number: "FV-26-04290", date: "22/10/2026", status: "Pagada 22/10/2026" }],
+    expected: {
+      verdict: "pay_adjusted",
+      planted: [
+        { type: "billed_not_delivered", product: "CSG-101", amount: 25.43, note: "Printed 6,000 kg, corrected by hand to 5,2 kg at the scale; invoiced 6 kg: 0.8 kg × 28.90 € + 10% VAT." },
+        { type: "price_above_agreed", product: "CSG-118", amount: 6.6, note: "16.90 €/kg invoiced vs 15.40 €/kg agreed until 31/12: 4 kg × 1.50 € + 10% VAT." },
+        { type: "billed_not_delivered", product: "CSG-130", amount: 10.78, note: "Printed 3 chickens, corrected by hand to 2 (one missing); invoiced 3: 9.80 € + 10% VAT." },
+        { type: "not_ordered", product: "CSG-170", amount: 0, note: "2 kg chorizo criollo delivered and invoiced (18.70 € with VAT) but not in the WhatsApp order: ask the kitchen." },
+        { type: "read_from_photo", amount: 0, note: "The delivery note is a photo: read without character positions, so nothing is paid until the owner has looked at the photo." },
       ],
     },
   },

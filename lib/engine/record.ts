@@ -63,6 +63,16 @@ export async function checkSupplierClaims(
   return result;
 }
 
+/** For a delivery note read from a photo: what was read, said plainly (only present for photos). */
+function photoFacts(d: ReadDocument | undefined): string[] {
+  if (!d?.photo) return [];
+  const fixes = d.photo.corrections.map((c) => `${c.code} printed ${c.printed || "?"}, corrected by hand to ${c.written}`);
+  return [
+    `The delivery note arrived as a ${d.photo.source === "photo" ? "phone photo of the paper copy" : "scan"} and was read from the image.` +
+      (fixes.length ? ` Handwritten corrections on it: ${fixes.join("; ")}.` : ""),
+  ];
+}
+
 /** The facts Fill and Verify work from: produced by the checks, never by a model. */
 export function buildBrief(p: {
   restaurant: string;
@@ -81,13 +91,14 @@ export function buildBrief(p: {
     `Supplier: ${p.supplier.name} (tax ID ${p.supplier.taxId}). Phone on file: ${p.supplier.phoneOnFile}.`,
     `Invoice ${h.number?.value ?? "(number not read)"} dated ${h.date?.value ?? "?"}, printed total ${p.verdict.invoiceTotal !== null ? e(p.verdict.invoiceTotal) : "not read"}.`,
     p.delivery ? `Delivery note ${p.delivery.header.number?.value ?? "?"} dated ${p.delivery.header.date?.value ?? "?"}, signed on delivery.` : "No delivery note.",
+    ...photoFacts(p.delivery),
     p.po ? `Order: ${p.po.header.number?.value ?? p.po.label} of ${p.po.header.date?.value ?? "?"}.` : "No purchase order.",
     `Goods invoiced: ${p.invoice.lines.map((l) => l.description.value ?? l.code.value).filter(Boolean).join(", ")}.`,
     "",
   ];
   const relevant = p.issues.filter((i) => i.cls !== "info");
   const toRaise = relevant.filter((i) => i.resolution === "credit_note" || i.resolution === "hold");
-  const internal = relevant.filter((i) => i.resolution === "confirm");
+  const internal = relevant.filter((i) => i.resolution === "confirm" && i.type !== "read_from_photo");
   const accepted = relevant.filter((i) => i.resolution === "accept");
   const item = (i: Issue) => `${i.title}. ${i.detail}${i.math ? ` Computation: ${i.math}.` : ""}${i.amount > 0 ? ` Amount: ${e(i.amount)} including VAT.` : ""}`;
   lines.push(toRaise.length ? "To raise with the supplier:" : "To raise with the supplier: nothing.");
@@ -110,7 +121,9 @@ export function buildBrief(p: {
   else {
     lines.push(`Pay now: ${e(p.verdict.payNow)}.`);
     if (p.verdict.disputed > 0) lines.push(`Credit note to request: ${e(p.verdict.disputed)}.`);
-    if (p.verdict.pending > 0) lines.push(`Waiting for kitchen confirmation: ${e(p.verdict.pending)}.`);
+    const waitPhoto = p.verdict.waitingForPhoto ?? 0;
+    if (waitPhoto > 0) lines.push(`Waiting until the owner has checked the delivery note photo: ${e(waitPhoto)}.`);
+    if (round2(p.verdict.pending - waitPhoto) > 0) lines.push(`Waiting for kitchen confirmation: ${e(round2(p.verdict.pending - waitPhoto))}.`);
   }
   return lines.join("\n");
 }

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>paper</title>
+<link rel="stylesheet" href="common.css" />
+<style>
+  body { background: transparent; }
+  #stage { position: relative; overflow: hidden; }
+  .sheet-wrap { position: absolute; transform-origin: 50% 50%; }
+  .sheet { position: relative; overflow: hidden; }
+  .sheet > * { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .page { mix-blend-mode: multiply; }
+  .overlay { pointer-events: none; }
+  /* Steel kitchen pass, lit from the top left */
+  .bg-steel {
+    background:
+      radial-gradient(120% 80% at 18% 8%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%),
+      radial-gradient(90% 70% at 85% 95%, rgba(0,0,0,.28), rgba(0,0,0,0) 60%),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, rgba(0,0,0,.035) 1px 2px, rgba(255,255,255,0) 2px 4px),
+      linear-gradient(100deg, #858c92, #b2b8bc 35%, #9ea4a9 60%, #7a8187);
+  }
+  .bg-wood {
+    background:
+      radial-gradient(120% 90% at 20% 10%, rgba(255,240,220,.35), rgba(0,0,0,0) 60%),
+      radial-gradient(100% 80% at 90% 100%, rgba(0,0,0,.35), rgba(0,0,0,0) 60%),
+      repeating-linear-gradient(88deg, rgba(60,30,10,.10) 0 2px, rgba(255,255,255,.03) 2px 7px, rgba(60,30,10,.06) 7px 9px, rgba(0,0,0,0) 9px 23px),
+      linear-gradient(90deg, #8a5a36, #a06b43 30%, #8f5e39 55%, #7b4e2e);
+  }
+  .grade { position: absolute; inset: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true">
+  <defs>
+    <!-- Ballpoint: slightly uneven edges -->
+    <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="3" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="0.55" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <!-- Rubber stamp: ink voids and a rough edge -->
+    <filter id="stampInk" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="11" result="n" />
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 1.9" result="holes" />
+      <feComposite in="SourceGraphic" in2="holes" operator="in" result="s" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="5" result="n2" />
+      <feDisplacementMap in="s" in2="n2" scale="0.9" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <!-- Coffee: an irregular ring -->
+    <filter id="coffee" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="2" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G" result="d" />
+      <feGaussianBlur in="d" stdDeviation="0.6" />
+    </filter>
+  </defs>
+</svg>
+<div id="stage"></div>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+
+function grainSvg(seed, freq, opacity) {
+  return `url("data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='${freq}' numOctaves='3' seed='${seed}' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feColorMatrix type='matrix' values='0.34 0 0 0 0.68  0.34 0 0 0 0.68  0.34 0 0 0 0.68  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23g)' opacity='${opacity}'/></svg>`,
+  )}")`;
+}
+
+/** Ink layer in PDF points: ticks, strikes, handwriting, signature, stamp, coffee ring. */
+function inkLayer(spec) {
+  const { wPt, hPt } = spec.page;
+  const svg = el("svg", { viewBox: `0 0 ${wPt} ${hPt}`, class: "overlay" });
+  const blue = "#22357f";
+  if (spec.coffee) {
+    const { x, y, r } = spec.coffee;
+    const g = el("g", { filter: "url(#coffee)", opacity: "0.55" }, svg);
+    el("circle", { cx: x, cy: y, r, fill: "none", stroke: "rgba(126,82,38,.42)", "stroke-width": 2.4 }, g);
+    el("circle", { cx: x + 0.6, cy: y + 0.4, r: r - 2.2, fill: "none", stroke: "rgba(126,82,38,.16)", "stroke-width": 5 }, g);
+    el("path", { d: `M ${x - r * 0.9} ${y + r * 0.45} A ${r} ${r} 0 0 0 ${x + r * 0.2} ${y + r * 0.98}`, fill: "none", stroke: "rgba(110,70,30,.35)", "stroke-width": 1.6 }, g);
+  }
+  const ink = el("g", { filter: "url(#ink)" }, svg);
+  for (const t of spec.ticks ?? []) {
+    const s = t.s ?? 1;
+    el("path", {
+      d: `M ${t.x} ${t.y} q ${1.6 * s} ${2.2 * s} ${2.6 * s} ${3.6 * s} q ${2.6 * s} ${-6.5 * s} ${7.2 * s} ${-10.5 * s}`,
+      fill: "none", stroke: blue, "stroke-width": 0.95, "stroke-linecap": "round", "stroke-linejoin": "round", opacity: 0.86,
+    }, ink);
+  }
+  for (const k of spec.strikes ?? []) {
+    el("path", {
+      d: `M ${k.x0} ${k.y0} C ${(k.x0 * 2 + k.x1) / 3} ${k.y0 - 0.8}, ${(k.x0 + k.x1 * 2) / 3} ${k.y1 + 0.9}, ${k.x1} ${k.y1}`,
+      fill: "none", stroke: blue, "stroke-width": 1.1, "stroke-linecap": "round", opacity: 0.9,
+    }, ink);
+    if (k.double) el("path", { d: `M ${k.x0 + 1} ${k.y0 + 2.2} L ${k.x1 - 0.5} ${k.y1 + 1.4}`, fill: "none", stroke: blue, "stroke-width": 0.9, "stroke-linecap": "round", opacity: 0.85 }, ink);
+  }
+  for (const h of spec.hand ?? []) {
+    const t = el("text", {
+      x: h.x, y: h.y, "font-family": h.font ?? "Hand", "font-size": h.size ?? 15, "font-weight": h.weight ?? 600,
+      fill: blue, opacity: 0.92, transform: `rotate(${h.rot ?? -4} ${h.x} ${h.y})`, "text-anchor": h.anchor ?? "start",
+    }, ink);
+    t.textContent = h.text;
+    if (h.underline) el("path", { d: `M ${h.x - 1} ${h.y + 3} q ${h.underline / 2} 1.8 ${h.underline} -0.6`, fill: "none", stroke: blue, "stroke-width": 0.8, opacity: 0.8, transform: `rotate(${h.rot ?? -4} ${h.x} ${h.y})` }, ink);
+  }
+  if (spec.signature) {
+    const s = spec.signature;
+    const t = el("text", { x: s.x, y: s.y, "font-family": "Signature", "font-size": s.size ?? 30, fill: blue, opacity: 0.9, transform: `rotate(${s.rot ?? -5} ${s.x} ${s.y})` }, ink);
+    t.textContent = s.text;
+    el("path", { d: `M ${s.x + 4} ${s.y + 6} c 20 4 48 -3 ${s.tail ?? 78} -9`, fill: "none", stroke: blue, "stroke-width": 0.9, "stroke-linecap": "round", opacity: 0.85, transform: `rotate(${s.rot ?? -5} ${s.x} ${s.y})` }, ink);
+  }
+  if (spec.stamp) {
+    const st = spec.stamp;
+    const w = st.w ?? 150, h = st.h ?? 62;
+    const g = el("g", { filter: "url(#stampInk)", transform: `translate(${st.x} ${st.y}) rotate(${st.rot ?? -7} ${w / 2} ${h / 2})`, opacity: st.opacity ?? 0.8 }, svg);
+    const c = st.color ?? "#4b3f9b";
+    el("rect", { x: 0, y: 0, width: w, height: h, rx: 7, fill: "none", stroke: c, "stroke-width": 2.2 }, g);
+    el("rect", { x: 3.6, y: 3.6, width: w - 7.2, height: h - 7.2, rx: 5, fill: "none", stroke: c, "stroke-width": 0.8 }, g);
+    const lines = st.lines;
+    const sizes = st.sizes ?? [8.4, 15, 9.5];
+    let y = 15.5;
+    lines.forEach((line, i) => {
+      const t = el("text", {
+        x: w / 2, y, "text-anchor": "middle", "font-family": i === 1 ? "Arial Black, Arial, sans-serif" : "Arial, sans-serif",
+        "font-weight": i === 2 ? 700 : 800, "font-size": sizes[i] ?? 9, fill: c, "letter-spacing": i === 1 ? 2.2 : 0.8,
+      }, g);
+      t.textContent = line;
+      y += (sizes[i + 1] ?? 9) + 5.2;
+    });
+  }
+  return svg;
+}
+
+window.renderScene = async (spec) => {
+  await Promise.all(["600 16px Hand", "16px Signature", "16px Scrawl"].map((f) => document.fonts.load(f)));
+  const K = spec.K;
+  const { wPt, hPt } = spec.page;
+  const W = wPt * K, H = hPt * K;
+  const stage = document.getElementById("stage");
+  stage.innerHTML = "";
+
+  const sheet = document.createElement("div");
+  sheet.className = "sheet";
+  sheet.style.width = `${W}px`;
+  sheet.style.height = `${H}px`;
+  sheet.style.background = spec.paperTone ?? "#faf7f0";
+
+  const img = new Image();
+  img.className = "page";
+  img.src = spec.page.src;
+  await img.decode();
+  sheet.appendChild(img);
+  sheet.appendChild(inkLayer(spec));
+
+  // Paper: fine grain and slow blotches
+  const grain = document.createElement("div");
+  grain.className = "overlay";
+  grain.style.backgroundImage = `${grainSvg(spec.seed ?? 4, 0.85, 0.22)}, ${grainSvg((spec.seed ?? 4) + 9, 0.012, 0.12)}`;
+  grain.style.backgroundSize = "600px 600px, 1400px 1400px";
+  grain.style.mixBlendMode = "multiply";
+  grain.style.opacity = spec.mode === "photo" ? "0.55" : "0.5";
+  sheet.appendChild(grain);
+
+  // Folds: a letter folded in three, then opened
+  const folds = document.createElement("div");
+  folds.className = "overlay";
+  folds.style.background = (spec.folds ?? [])
+    .map((f) => `linear-gradient(180deg, rgba(0,0,0,0) ${f * 100 - 1.4}%, rgba(0,0,0,.07) ${f * 100 - 0.15}%, rgba(255,255,255,.55) ${f * 100 + 0.05}%, rgba(0,0,0,0) ${f * 100 + 1.2}%)`)
+    .join(",") || "none";
+  folds.style.mixBlendMode = "multiply";
+  sheet.appendChild(folds);
+
+  // Light falling across the sheet
+  const light = document.createElement("div");
+  light.className = "overlay";
+  light.style.background = spec.mode === "photo"
+    ? "linear-gradient(125deg, rgba(255,255,255,0) 0%, rgba(255,250,240,0) 45%, rgba(60,50,40,.10) 100%)"
+    : "linear-gradient(160deg, rgba(255,255,255,0) 50%, rgba(80,70,50,.05) 100%)";
+  light.style.mixBlendMode = "multiply";
+  sheet.appendChild(light);
+
+  if (spec.mode === "flat") {
+    stage.style.width = `${W}px`;
+    stage.style.height = `${H}px`;
+    stage.appendChild(sheet);
+  } else {
+    const sc = spec.scene;
+    stage.style.width = `${sc.w}px`;
+    stage.style.height = `${sc.h}px`;
+    stage.className = sc.background === "wood" ? "bg-wood" : "bg-steel";
+    if (spec.crumple) {
+      sheet.style.filter = "url(#crumple)";
+      const defs = document.querySelector("svg.defs defs");
+      defs.insertAdjacentHTML("beforeend", `
+        <filter id="crumple" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="${spec.crumple.freq ?? "0.0045 0.0065"}" numOctaves="4" seed="${spec.crumple.seed ?? 7}" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="${spec.crumple.warp ?? 12}" xChannelSelector="R" yChannelSelector="G" result="d"/>
+          <feDiffuseLighting in="n" surfaceScale="${spec.crumple.depth ?? 4}" lighting-color="#ffffff" diffuseConstant="1.15" result="light"><feDistantLight azimuth="225" elevation="${spec.crumple.elevation ?? 62}"/></feDiffuseLighting>
+          <feComponentTransfer in="light" result="light2"><feFuncR type="linear" slope="1.12" intercept="0.06"/><feFuncG type="linear" slope="1.12" intercept="0.06"/><feFuncB type="linear" slope="1.12" intercept="0.06"/></feComponentTransfer>
+          <feComposite in="d" in2="light2" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="lit"/>
+          <feComposite in="lit" in2="d" operator="in"/>
+        </filter>`);
+    }
+    const wrap = document.createElement("div");
+    wrap.className = "sheet-wrap";
+    wrap.style.left = `${sc.sheetX}px`;
+    wrap.style.top = `${sc.sheetY}px`;
+    wrap.style.width = `${W}px`;
+    wrap.style.height = `${H}px`;
+    wrap.style.transform = sc.transform;
+    wrap.style.filter = `drop-shadow(0 ${sc.shadowY ?? 26}px ${sc.shadowBlur ?? 34}px rgba(20,18,15,.38)) drop-shadow(0 3px 5px rgba(20,18,15,.25))`;
+    wrap.appendChild(sheet);
+    stage.appendChild(wrap);
+    for (const extra of sc.extras ?? []) stage.insertAdjacentHTML("beforeend", extra);
+    // Camera: vignette, warm cast, sensor noise
+    const grade = document.createElement("div");
+    grade.className = "grade";
+    grade.style.background = "radial-gradient(130% 100% at 45% 40%, rgba(0,0,0,0) 55%, rgba(0,0,0,.32) 100%)";
+    stage.appendChild(grade);
+    const warm = document.createElement("div");
+    warm.className = "grade";
+    warm.style.background = "linear-gradient(180deg, rgba(255,214,160,.10), rgba(255,190,120,.06))";
+    warm.style.mixBlendMode = "soft-light";
+    stage.appendChild(warm);
+    const noise = document.createElement("div");
+    noise.className = "grade";
+    noise.style.backgroundImage = grainSvg(21, 1.2, 0.5);
+    noise.style.backgroundSize = "300px 300px";
+    noise.style.mixBlendMode = "overlay";
+    noise.style.opacity = "0.16";
+    stage.appendChild(noise);
+    if (sc.blurTop) {
+      const dof = document.createElement("div");
+      dof.className = "grade";
+      dof.style.backdropFilter = `blur(${sc.blurTop}px)`;
+      dof.style.webkitMaskImage = "linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 22%)";
+      dof.style.maskImage = "linear-gradient(180deg, #000 0%, rgba(0,0,0,0) 22%)";
+      stage.appendChild(dof);
+    }
+  }
+  await document.fonts.ready;
+  const ok = ["Hand", "Signature"].every((f) => document.fonts.check(`16px ${f}`));
+  return { ok, w: stage.offsetWidth, h: stage.offsetHeight };
+};
+</script>
+</body>
+</html>

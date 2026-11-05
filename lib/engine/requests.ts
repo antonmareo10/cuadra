@@ -303,3 +303,76 @@ export function verifySupplierClaimRequest(notes: string[], docs: { id: string; 
     evidence: "all",
   };
 }
+
+/* ------------------------------------------------------------ photos and scans
+ * A delivery note or an order that arrives as a phone photo, or as a scanned PDF
+ * without a text layer, is read from its pixels. Clocked's image requests take no
+ * nested records and return no character offsets, so each table row comes back as
+ * one string with its columns separated by " | ", and the code splits it.
+ */
+
+export type ImageSource = { images: string[] } | { pdf: string; pdf_mode: "image"; pages: string };
+
+/** The pixels to send: a photo as a data URL, or the first pages (at most 4) of a scanned PDF. */
+export function imageSource(doc: { mime: string; data: string }, pdfPages = 1): ImageSource {
+  if (doc.mime === "application/pdf") {
+    const last = Math.max(1, Math.min(4, pdfPages));
+    return { pdf: doc.data, pdf_mode: "image", pages: last === 1 ? "1" : `1-${last}` };
+  }
+  return { images: [`data:${doc.mime};base64,${doc.data}`] };
+}
+
+export const PHOTO_READING =
+  "A photo or scan of a Spanish supplier or restaurant document on paper. Copy values exactly as printed or handwritten. " +
+  "Amounts use a decimal comma. Leave a field empty when the document does not state it.";
+
+export function photoExtractFields(kind: DocKind): Record<string, FieldDef> {
+  if (kind === "po") {
+    return {
+      number: "order number, if any",
+      date: { description: "order date", format: "date" },
+      lines: {
+        description: "one product ordered, written exactly as: product as written | quantity | unit | agreed unit price (leave a column empty if it is not written)",
+        list: true,
+        max_items: 32,
+      },
+    };
+  }
+  return {
+    number: "delivery note (albarán) number",
+    date: { description: "delivery date", format: "date" },
+    po_reference: "customer purchase order number",
+    received_by: "person who received the goods",
+    lines: {
+      description:
+        "one product line of the delivery table, written exactly as: code | product name and any note in brackets | quantity delivered | unit. " +
+        "If a printed quantity is crossed out and another one is written by hand, give the handwritten one.",
+      list: true,
+      max_items: 32,
+    },
+    corrections: {
+      description: "each quantity corrected by hand on the paper, written as: code | printed quantity | handwritten quantity",
+      list: true,
+      max_items: 16,
+    },
+    returns: {
+      description: "goods returned to the driver or rejected at delivery, as stated in the remarks, written as: product | quantity | reason",
+      list: true,
+      max_items: 8,
+    },
+  };
+}
+
+export function photoExtractRequest(source: ImageSource, kind: DocKind) {
+  return {
+    ...source,
+    fields: photoExtractFields(kind),
+    instructions:
+      PHOTO_READING +
+      (kind === "delivery" ? " Returns are only goods the remarks say were sent back or rejected; items still to be delivered later are not returns." : ""),
+  };
+}
+
+export function photoGuardRequest(source: ImageSource) {
+  return { ...source, instructions: GUARD_INSTRUCTIONS };
+}

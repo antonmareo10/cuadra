@@ -14,8 +14,8 @@ type Slot = { kind: DocKind; label: string; hint: string; required?: boolean; ac
 
 const SLOTS: Slot[] = [
   { kind: "invoice", label: "Invoice", hint: "PDF with a text layer", required: true, accept: "application/pdf" },
-  { kind: "delivery", label: "Delivery note", hint: "PDF with a text layer", accept: "application/pdf" },
-  { kind: "po", label: "Order", hint: "PDF, or a WhatsApp export (.txt)", accept: "application/pdf,text/plain,.txt" },
+  { kind: "delivery", label: "Delivery note", hint: "PDF, a scan, or a phone photo", accept: "application/pdf,image/jpeg,image/png,image/webp" },
+  { kind: "po", label: "Order", hint: "PDF, a photo, or a WhatsApp export (.txt)", accept: "application/pdf,image/jpeg,image/png,image/webp,text/plain,.txt" },
 ];
 
 const SUPPLIERS = [
@@ -35,11 +35,13 @@ const SAMPLES = [
 ];
 
 async function readFile(f: File): Promise<{ mime: string; data: string }> {
-  if (f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")) {
+  const name = f.name.toLowerCase();
+  const image = ["image/jpeg", "image/png", "image/webp"].includes(f.type) ? f.type : /\.(jpe?g)$/.test(name) ? "image/jpeg" : name.endsWith(".png") ? "image/png" : name.endsWith(".webp") ? "image/webp" : null;
+  if (f.type === "application/pdf" || name.endsWith(".pdf") || image) {
     const buf = new Uint8Array(await f.arrayBuffer());
     let bin = "";
     for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
-    return { mime: "application/pdf", data: btoa(bin) };
+    return { mime: image ?? "application/pdf", data: btoa(bin) };
   }
   return { mime: "text/plain", data: await f.text() };
 }

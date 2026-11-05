@@ -30,7 +30,8 @@ export function issueNarrative(i: Issue): string {
  * policy in code holds those payments regardless of any model output.
  */
 export async function judgeIssues(client: ClockedClient, issues: Issue[]): Promise<number> {
-  const items = issues.filter((i) => i.cls === "money" || i.cls === "review");
+  // A photo read is never sent: whether the owner has looked at the photo is not a model's call.
+  const items = issues.filter((i) => (i.cls === "money" || i.cls === "review") && i.type !== "read_from_photo");
   if (!items.length) return 0;
   const { data } = await client.call<any>(
     "decide",

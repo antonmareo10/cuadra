@@ -3,7 +3,8 @@
  *
  * Generates the synthetic sample documents from data/world.ts:
  *   data/cases/<id>/po.pdf | po.txt   purchase order (order sheet PDF or WhatsApp export)
- *   data/cases/<id>/delivery.pdf      delivery note (albarán)
+ *   data/cases/<id>/delivery.pdf      delivery note (albarán), or delivery.jpg when it arrives as a photo
+ *   data/paper/<id>-printed.pdf       for photo cases, the paper note as printed (before the handwriting)
  *   data/cases/<id>/invoice.pdf       supplier invoice (factura)
  *   data/cases/<id>/history/*.txt     earlier invoices already in the books
  *   data/cases/<id>/case.json         manifest the app loads
@@ -28,6 +29,8 @@ import {
 import { fmtEs, fmtQtyEs, round2 } from "../lib/money";
 
 const ROOT = path.join(process.cwd(), "data");
+/** Paper versions of documents (the printed note behind a photo, and the photo itself). */
+const PAPER = path.join(ROOT, "paper");
 const FIXED_DATE = new Date("2026-11-03T09:00:00Z");
 
 const INK = rgb(0.11, 0.11, 0.1);
@@ -251,9 +254,12 @@ async function deliveryNotePdf(c: CaseDefinition, s: Supplier): Promise<Uint8Arr
     `Su pedido: ${c.po.number}`,
   ]);
   customerBlock(ctx, "CLIENTE Y DIRECCIÓN DE ENTREGA", []);
+  // A paper note is printed before the goods are weighed: it shows printedQty, and the
+  // corrections are written over it by hand (drawn by scripts/assets, not here).
   const rows = c.delivery.lines.map((l) => {
     const p = product(s, l.product);
-    return [p.code, l.note ? `${p.name} (${l.note})` : p.name, fmtQtyEs(l.qty, p.unit), p.unit];
+    const qty = l.printedQty ?? l.qty;
+    return [p.code, l.note ? `${p.name} (${l.note})` : p.name, fmtQtyEs(qty, p.unit), p.unit];
   });
   table(
     ctx,
@@ -437,8 +443,18 @@ async function main() {
       fs.writeFileSync(path.join(dir, "po.pdf"), await purchaseOrderPdf(c, s));
       documents.push({ kind: "po", file: "po.pdf", mime: "application/pdf", label: "Purchase order" });
     }
-    fs.writeFileSync(path.join(dir, "delivery.pdf"), await deliveryNotePdf(c, s));
-    documents.push({ kind: "delivery", file: "delivery.pdf", mime: "application/pdf", label: "Delivery note" });
+    if (c.delivery.format === "photo") {
+      // The engine reads the photo (data/paper/<id>.jpg, made by `npm run assets` from this printed copy).
+      fs.mkdirSync(PAPER, { recursive: true });
+      fs.writeFileSync(path.join(PAPER, `${c.id}-printed.pdf`), await deliveryNotePdf(c, s));
+      const photo = path.join(PAPER, `${c.id}.jpg`);
+      if (fs.existsSync(photo)) fs.copyFileSync(photo, path.join(dir, "delivery.jpg"));
+      else console.warn(`${c.id}: no photo yet, run npm run assets -- --photo`);
+      documents.push({ kind: "delivery", file: "delivery.jpg", mime: "image/jpeg", label: "Delivery note (photo)" });
+    } else {
+      fs.writeFileSync(path.join(dir, "delivery.pdf"), await deliveryNotePdf(c, s));
+      documents.push({ kind: "delivery", file: "delivery.pdf", mime: "application/pdf", label: "Delivery note" });
+    }
     const inv = await invoicePdf(c, s);
     fs.writeFileSync(path.join(dir, "invoice.pdf"), inv.bytes);
     documents.push({ kind: "invoice", file: "invoice.pdf", mime: "application/pdf", label: "Invoice" });

@@ -2,7 +2,7 @@ import type { ClockedClient } from "../clocked/client";
 import { ClockedError } from "../clocked/errors";
 import { parseDocNumber } from "../money";
 import { findPdfScripts } from "./pdf-scripts";
-import { inspectRequest, intakePipeline, piiRequest, sanitizedExtract } from "./requests";
+import { imageSource, inspectRequest, intakePipeline, photoExtractRequest, photoGuardRequest, piiRequest, sanitizedExtract, type ImageSource } from "./requests";
 import { blankRanges, sliceCp } from "./text";
 import type {
   FieldRead,
@@ -10,6 +10,7 @@ import type {
   InputDocument,
   InspectResult,
   LineRead,
+  PhotoRead,
   PiiFinding,
   ReadDocument,
   ReturnRead,
@@ -195,6 +196,122 @@ function readability(doc: ReadDocument) {
   doc.readable = doc.lines.length > 0 && (doc.kind !== "invoice" || Boolean(doc.header.total?.value));
 }
 
+/** Splits one " | "-separated row from an image read. Missing trailing columns stay null. */
+export function splitRow(row: string, columns: number): (string | null)[] | null {
+  const parts = row.split("|").map((p) => p.trim());
+  if (parts.length < Math.min(3, columns)) return null;
+  return Array.from({ length: columns }, (_, i) => (parts[i] ? parts[i] : null));
+}
+
+const plainRead = (value: string | null): FieldRead => ({ value, number: parseDocNumber(value) });
+
+/** Applies an image-mode Extract result: plain values, no offsets. */
+export function applyPhotoExtraction(doc: ReadDocument, result: any) {
+  const r = result && typeof result === "object" ? result : {};
+  const photo = doc.photo as PhotoRead;
+  const header: Record<string, FieldRead> = {};
+  for (const [key, val] of Object.entries(r)) {
+    if (key === "lines" || key === "returns" || key === "corrections") continue;
+    header[key] = plainRead(typeof val === "string" ? val : val == null ? null : String(val));
+  }
+  doc.header = header;
+  const rows: string[] = Array.isArray(r.lines) ? r.lines.filter((x: unknown) => typeof x === "string" && x.trim()) : [];
+  doc.lines = [];
+  for (const row of rows) {
+    const c = splitRow(row, 4);
+    if (doc.kind === "po") {
+      if (!c || !c[0]) {
+        photo.unparsed.push(row);
+        continue;
+      }
+      doc.lines.push({
+        index: doc.lines.length,
+        code: { value: null },
+        description: { value: c[0] },
+        quantity: plainRead(c[1]),
+        unit: { value: c[2] },
+        unitPrice: plainRead(c[3]),
+        vatRate: { value: null },
+        amount: { value: null },
+      });
+    } else {
+      if (!c || !(c[0] || c[1])) {
+        photo.unparsed.push(row);
+        continue;
+      }
+      doc.lines.push({
+        index: doc.lines.length,
+        code: { value: c[0] },
+        description: { value: c[1] },
+        quantity: plainRead(c[2]),
+        unit: { value: c[3] },
+        unitPrice: { value: null },
+        vatRate: { value: null },
+        amount: { value: null },
+      });
+    }
+  }
+  const corrections: string[] = Array.isArray(r.corrections) ? r.corrections.filter((x: unknown) => typeof x === "string") : [];
+  photo.corrections = corrections
+    .map((row) => splitRow(row, 3))
+    .filter((c): c is (string | null)[] => Boolean(c && c[0] && c[2]))
+    .map((c) => ({ code: c[0]!, printed: c[1] ?? "", written: c[2]! }));
+  const returns: string[] = Array.isArray(r.returns) ? r.returns.filter((x: unknown) => typeof x === "string") : [];
+  doc.returns = returns
+    .map((row) => splitRow(row, 3))
+    .filter((c): c is (string | null)[] => Boolean(c && c[0]))
+    .map((c) => ({ product: { value: c[0] }, quantity: plainRead(c[1]), reason: { value: c[2] } }));
+  doc.notes = [];
+  if (photo.unparsed.length) doc.problems.push(`${photo.unparsed.length} row${photo.unparsed.length === 1 ? "" : "s"} read from the photo could not be split into columns.`);
+}
+
+/**
+ * A delivery note or an order read from pixels: a phone photo, or a scanned PDF.
+ *   1. Guard (/injection) on the image: a photo can carry instructions for AI assistants too.
+ *      If it fires, the photo is not read at all (there is no text to blank out).
+ *   2. Extract on the image. No offsets come back, so the document is marked as read from
+ *      a photo, and the checks hold the payment until the owner has looked at it.
+ * Protect is not called on a photo: on an image it can find personal data but cannot blank it out.
+ */
+async function readFromPixels(client: ClockedClient, doc: ReadDocument, source: ImageSource, how: PhotoRead["source"]): Promise<ReadDocument> {
+  doc.mode = "image";
+  doc.text = "";
+  doc.photo = { source: how, corrections: [], unparsed: [] };
+  const what = how === "photo" ? "photo" : "scan";
+  try {
+    const { data } = await client.call<any>("injection", photoGuardRequest(source), `Guard (${what}) · ${doc.label}`);
+    const r = data?.result ?? {};
+    const quotes = (Array.isArray(r.evidence) ? r.evidence : [])
+      .map((e: any) => (typeof e === "string" ? e : String(e?.quote ?? "")))
+      .filter((q: string) => q.trim());
+    doc.guard = {
+      verdict: String(r.verdict ?? "unknown"),
+      injection: 0,
+      category: String(r.category ?? ""),
+      severity: String(r.severity ?? ""),
+      evidence: [],
+      flagged: r.verdict !== undefined && r.verdict !== "benign",
+      reason: typeof r.reason === "string" ? r.reason : undefined,
+      imageQuotes: quotes,
+    };
+  } catch (err) {
+    doc.problems.push(`Guard failed on the ${what}: ${err instanceof ClockedError ? err.userMessage : String(err)}`);
+  }
+  if (doc.guard?.flagged) {
+    doc.problems.push(`Guard found text in the ${what} addressed to an automated assistant, so it was not read.`);
+    readability(doc);
+    return doc;
+  }
+  try {
+    const { data } = await client.call<any>("extract", photoExtractRequest(source, doc.kind), `Extract (${what}) · ${doc.label}`);
+    applyPhotoExtraction(doc, data?.result);
+  } catch (err) {
+    doc.problems.push(`Reading the ${what} failed: ${err instanceof ClockedError ? err.userMessage : String(err)}`);
+  }
+  readability(doc);
+  return doc;
+}
+
 /**
  * Reads one document:
  *   1. Protect (/pii) on the original file: personal data, a share-safe copy, and
@@ -205,13 +322,14 @@ function readability(doc: ReadDocument) {
  */
 export async function readDocument(client: ClockedClient, input: InputDocument): Promise<ReadDocument> {
   const isPdf = input.mime === "application/pdf";
+  const isImage = input.mime.startsWith("image/");
   const doc: ReadDocument = {
     kind: input.kind,
     label: input.label,
     fileName: input.fileName,
     mime: input.mime,
-    text: isPdf ? "" : input.data,
-    mode: isPdf ? "text" : "plain",
+    text: isPdf || isImage ? "" : input.data,
+    mode: isImage ? "image" : isPdf ? "text" : "plain",
     pages: 1,
     pageOffsets: [0],
     pii: [],
@@ -227,6 +345,17 @@ export async function readDocument(client: ClockedClient, input: InputDocument):
     problems: [],
     repairs: 0,
   };
+
+  // Photos never go through the text path. Invoices are only accepted as text: an invoice is
+  // what gets paid, and every number on it must point to the line it was printed on.
+  if (isImage) {
+    if (input.kind === "invoice") {
+      doc.problems.push("This invoice is a photo. Cuadra only pays invoices it can read with character positions: ask the supplier for the PDF.");
+      readability(doc);
+      return doc;
+    }
+    return readFromPixels(client, doc, imageSource(input), "photo");
+  }
 
   // 1. Protect: personal data + text layer
   try {
@@ -248,8 +377,13 @@ export async function readDocument(client: ClockedClient, input: InputDocument):
   }
 
   if (isPdf && doc.mode === "image") {
-    doc.problems.push("This PDF is a scan without a text layer. This version reads typed PDFs; scanned pages are not reconciled.");
-    return doc;
+    if (input.kind === "invoice") {
+      doc.problems.push("This invoice is a scan without a text layer. Cuadra only pays invoices it can read with character positions: ask the supplier for the PDF.");
+      return doc;
+    }
+    // A scanned delivery note or order: its pages are read as images. Protect's findings on
+    // the scan are kept; its text layer is empty.
+    return readFromPixels(client, doc, imageSource(input, doc.pages), "scan");
   }
   if (!doc.text.trim()) {
     if (!doc.problems.length) doc.problems.push("The document has no readable text.");

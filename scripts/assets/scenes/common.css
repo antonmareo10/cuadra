@@ -1,0 +1,32 @@
+/* Shared by the asset scenes in this folder. Rendered by scripts/assets/render.ts in headless Chrome. */
+@font-face {
+  font-family: "Hand";
+  src: url("../fonts/Caveat.ttf") format("truetype");
+  font-weight: 400 700;
+}
+@font-face {
+  font-family: "Scrawl";
+  src: url("../fonts/ReenieBeanie.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Signature";
+  src: url("../fonts/MrsSaintDelafield.ttf") format("truetype");
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+svg.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}

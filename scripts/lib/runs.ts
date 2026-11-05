@@ -38,7 +38,7 @@ export function writeIndex(): void {
       credits: r.totals.credits,
       recordedAt: r.source.recordedAt,
     }));
-  const order = ["meat-short-weight", "fish-bank-change", "drinks-vat-return", "veg-duplicate", "clean-substitution"];
+  const order = ["meat-short-weight", "meat-photo-delivery", "fish-bank-change", "drinks-vat-return", "veg-duplicate", "clean-substitution"];
   items.sort((a, b) => (order.indexOf(a.caseId) + 99) % 99 - (order.indexOf(b.caseId) + 99) % 99);
   fs.writeFileSync(path.join(runs, "index.json"), JSON.stringify(items, null, 2) + "\n");
 }

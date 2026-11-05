@@ -6,14 +6,14 @@ import { FileLedger } from "./clocked/ledger-file";
 import { hasApiKey } from "./clocked/live";
 import { DATA_DIR, listCaseIds, loadCase, loadSupplier } from "./cases";
 import { reconcile, type RunEvent } from "./engine/run";
-import type { CaseInput, DocKind, InputDocument, SupplierMaster } from "./engine/types";
+import { IMAGE_MIMES, type CaseInput, type DocKind, type ImageMime, type InputDocument, type SupplierMaster } from "./engine/types";
 
 /**
  * Server-side live runs, with guardrails for a public deployment:
  *  - off unless the server has CLOCKED_API_KEY, and in production also LIVE_RUNS=1;
  *  - one live run at a time per server, and a per-IP limit;
  *  - the same hard credit cap as the scripts (CLOCKED_CREDIT_CAP);
- *  - uploads validated (PDF magic bytes, ~2.5 MB per PDF, 60k characters per text file).
+ *  - uploads validated (magic bytes, ~2.5 MB per PDF, 2.4 MB per photo, 60k characters per text file).
  */
 
 export function liveStatus(env = process.env): { live: boolean; reason: string | null } {
@@ -55,6 +55,15 @@ export function admit(ip: string): string | null {
 
 const MAX_PDF_BYTES = 2_500_000;
 const MAX_TEXT_CHARS = 60_000;
+/** Clocked's limit for the images of one request, decoded. */
+const MAX_IMAGE_BYTES = 2_400_000;
+
+/** True when the bytes really are the image type claimed (JPEG, PNG or WebP). */
+export function imageMagicOk(bytes: Buffer, mime: ImageMime): boolean {
+  if (mime === "image/jpeg") return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (mime === "image/png") return bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  return bytes.subarray(0, 4).toString("latin1") === "RIFF" && bytes.subarray(8, 12).toString("latin1") === "WEBP";
+}
 const KINDS: DocKind[] = ["po", "delivery", "invoice"];
 const LABELS: Record<DocKind, string> = { po: "Order", delivery: "Delivery note", invoice: "Invoice" };
 
@@ -100,8 +109,22 @@ export function buildInput(body: UploadBody | SampleBody): CaseInput {
       if (!text.trim()) throw new Error(`${name} is empty.`);
       if (text.length > MAX_TEXT_CHARS) throw new Error(`${name}: text files up to 60,000 characters.`);
       docs.push({ kind: d.kind, label: d.kind === "po" ? "Order" : LABELS[d.kind], fileName: name, mime: "text/plain", data: text });
+    } else if ((IMAGE_MIMES as readonly string[]).includes(d.mime)) {
+      // Photos are read for delivery notes and orders. An invoice must be a PDF with a text
+      // layer, so every number that gets paid points to the line it was printed on.
+      if (d.kind === "invoice") throw new Error(`${name}: send the invoice as a PDF. Photos are read for delivery notes and orders.`);
+      const bytes = Buffer.from(String(d.data ?? ""), "base64");
+      if (bytes.length > MAX_IMAGE_BYTES) throw new Error(`${name}: photos up to 2.4 MB (Clocked's image limit). Resize it and try again.`);
+      if (!imageMagicOk(bytes, d.mime as ImageMime)) throw new Error(`${name} is not a ${d.mime.slice(6).toUpperCase()} image.`);
+      docs.push({
+        kind: d.kind,
+        label: d.kind === "po" ? "Order (photo)" : `${LABELS[d.kind]} (photo)`,
+        fileName: name,
+        mime: d.mime as ImageMime,
+        data: bytes.toString("base64"),
+      });
     } else {
-      throw new Error(`${name}: use a PDF with a text layer, or a .txt file (for example a WhatsApp export).`);
+      throw new Error(`${name}: use a PDF, a photo (JPEG, PNG or WebP) of a delivery note or order, or a .txt file (for example a WhatsApp export).`);
     }
   }
   if (!seen.has("invoice")) throw new Error("An invoice is required.");

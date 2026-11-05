@@ -12,10 +12,14 @@ export interface InputDocument {
   kind: DocKind;
   label: string;
   fileName: string;
-  mime: "application/pdf" | "text/plain";
-  /** base64 for PDFs, UTF-8 text for text files */
+  mime: InputMime;
+  /** base64 for PDFs and photos, UTF-8 text for text files */
   data: string;
 }
+
+export const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp"] as const;
+export type ImageMime = (typeof IMAGE_MIMES)[number];
+export type InputMime = "application/pdf" | "text/plain" | ImageMime;
 
 export interface TariffProduct {
   code: string;
@@ -97,6 +101,9 @@ export interface GuardResult {
   severity: string;
   evidence: { quote: string; start: number; end: number; confidence: number }[];
   flagged: boolean;
+  /** Image reads only: Guard's reason and quotes (a photo has no character offsets). */
+  reason?: string;
+  imageQuotes?: string[];
 }
 
 export interface ScriptFinding {
@@ -140,6 +147,19 @@ export interface ReadDocument {
   problems: string[];
   /** Cells re-read inside their own line after the first read left them empty. */
   repairs: number;
+  /**
+   * Set when the document was read from pixels (a phone photo, or a scanned PDF without a
+   * text layer): values come without character offsets, so nothing points to a line.
+   */
+  photo?: PhotoRead;
+}
+
+export interface PhotoRead {
+  source: "photo" | "scan";
+  /** Quantities written over the printed ones by hand, as Extract read them. */
+  corrections: { code: string; printed: string; written: string }[];
+  /** Rows Extract returned that could not be split into columns. */
+  unparsed: string[];
 }
 
 export interface RerankLevels {
@@ -184,7 +204,8 @@ export type IssueType =
   | "bank_details_changed"
   | "injection"
   | "active_content"
-  | "unreadable";
+  | "unreadable"
+  | "read_from_photo";
 
 export type IssueClass = "money" | "review" | "stop" | "info";
 
@@ -267,6 +288,11 @@ export interface Verdict {
   pending: number;
   /** Independent recomputation of what should be paid, as a cross-check. */
   expectedPayable: number | null;
+  /**
+   * What would be paid now, held until the owner has looked at a document that was read
+   * from a photo (it is already counted in `pending`). Absent when nothing was read from a photo.
+   */
+  waitingForPhoto?: number;
 }
 
 export interface RunStep {

@@ -17,14 +17,45 @@ export interface ReturnMatch {
   invoiceLine: number | null;
 }
 
+/** "Extract" for text reads, "Extract (photo)" when the value was read from pixels, without a position. */
+const byFor = (doc: ReadDocument, by: string) => (doc.photo ? `${by} (${doc.photo.source})` : by);
+
 function ev(doc: ReadDocument, f: { value: string | null; start?: number; end?: number } | undefined, by: string): Evidence[] {
   if (!f?.value) return [];
-  return [{ doc: doc.kind, quote: f.value, start: f.start, end: f.end, by }];
+  return [{ doc: doc.kind, quote: f.value, start: f.start, end: f.end, by: byFor(doc, by) }];
 }
 
 function lineEv(doc: ReadDocument, line: LineRead, by: string): Evidence {
   const quote = [line.code.value, line.description.value, line.quantity.value, line.unit.value].filter(Boolean).join(" ");
-  return { doc: doc.kind, quote, start: line.start, end: line.end, by };
+  return { doc: doc.kind, quote, start: line.start, end: line.end, by: byFor(doc, by) };
+}
+
+/**
+ * A document read from a photo has no character positions, so nothing on it can point to
+ * a line. The checks still run on what Extract read, but this issue keeps the whole payment
+ * waiting (computeVerdict) until the owner has looked at the photo. Decide never sees it.
+ */
+function photoIssue(doc: ReadDocument, id: string): Issue {
+  const photo = doc.photo!;
+  const what = photo.source === "photo" ? "photo" : "scan";
+  const fixes = photo.corrections.map((c) => `${c.code} printed ${c.printed || "?"}, written ${c.written}`);
+  return {
+    id,
+    type: "read_from_photo",
+    cls: "review",
+    title: `${doc.label} read from a ${what}: look at it before paying`,
+    detail:
+      `Extract read ${doc.lines.length} line${doc.lines.length === 1 ? "" : "s"} from the ${what}, without character positions, so they cannot be traced to a printed line.` +
+      (fixes.length ? ` It read ${fixes.length} quantit${fixes.length === 1 ? "y" : "ies"} corrected by hand: ${fixes.join("; ")}.` : "") +
+      ` Nothing that depends on this ${what} is paid until you have checked it.`,
+    amount: 0,
+    evidence: [
+      ...photo.corrections.map((c) => ({ doc: doc.kind, quote: `${c.code} | ${c.printed} | ${c.written}`, by: `Extract (${what}, handwriting)` })),
+      ...doc.lines.map((l) => lineEv(doc, l, "Extract")),
+    ],
+    sources: ["Extract"],
+    resolution: "confirm",
+  };
 }
 
 function qtyStr(n: number, unit: string | null): string {
@@ -290,9 +321,13 @@ export function runChecks(p: {
         type: "injection",
         cls: "stop",
         title: `${d.label}: hidden instructions for AI assistants`,
-        detail: `Guard: ${d.guard.category} (${Math.round(d.guard.injection * 100)}%, severity ${d.guard.severity}). The passage was removed before the document was read, and nothing in it can approve this invoice.`,
+        detail: d.photo
+          ? `Guard read the ${d.photo.source} and flagged it: ${d.guard.category}${d.guard.reason ? `. ${d.guard.reason}` : ""}. It was not read, and nothing in it can approve this invoice.`
+          : `Guard: ${d.guard.category} (${Math.round(d.guard.injection * 100)}%, severity ${d.guard.severity}). The passage was removed before the document was read, and nothing in it can approve this invoice.`,
         amount: 0,
-        evidence: d.guard.evidence.map((e) => ({ doc: d.kind, quote: e.quote, start: e.start, end: e.end, by: "Guard" })),
+        evidence: d.photo
+          ? (d.guard.imageQuotes ?? []).map((q) => ({ doc: d.kind, quote: q, by: `Guard (${d.photo!.source})` }))
+          : d.guard.evidence.map((e) => ({ doc: d.kind, quote: e.quote, start: e.start, end: e.end, by: "Guard" })),
         sources: ["Guard"],
         resolution: "hold",
       });
@@ -313,6 +348,8 @@ export function runChecks(p: {
       });
     }
   }
+
+  for (const d of [delivery, po]) if (d?.photo) issues.push(photoIssue(d, id()));
 
   if (!invoice.readable) {
     issues.push({
@@ -353,6 +390,21 @@ export function computeVerdict(invoice: ReadDocument, issues: Issue[], expectedP
     };
   }
   const payNow = round2(total - disputed - pending);
+  // A document read from a photo keeps everything that would be paid now waiting for the
+  // owner's look. Only the owner can release it (by accepting that issue), never a model.
+  const photoGate = issues.some((i) => i.type === "read_from_photo" && i.resolution === "confirm");
+  if (photoGate && payNow > 0) {
+    return {
+      kind: "pay_adjusted",
+      headline: "Look at the photo, then pay",
+      invoiceTotal: total,
+      payNow: 0,
+      disputed,
+      pending: round2(pending + payNow),
+      expectedPayable,
+      waitingForPhoto: payNow,
+    };
+  }
   if (disputed + pending <= 0.0001) {
     return { kind: "ready", headline: "Ready to pay", invoiceTotal: total, payNow, disputed, pending, expectedPayable };
   }

@@ -45,7 +45,7 @@ export function loadCase(id: string): CaseInput {
       label: d.label,
       fileName: d.file,
       mime: d.mime,
-      data: d.mime === "application/pdf" ? raw.toString("base64") : raw.toString("utf8").trimEnd(),
+      data: d.mime === "text/plain" ? raw.toString("utf8").trimEnd() : raw.toString("base64"),
     };
   });
   const history = m.history.map((h) => ({

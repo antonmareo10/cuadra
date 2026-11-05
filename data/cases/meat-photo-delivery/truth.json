@@ -1,0 +1,37 @@
+{
+  "id": "meat-photo-delivery",
+  "verdict": "pay_adjusted",
+  "invoiceComputedTotal": 426.93,
+  "invoicePrintedTotal": 426.93,
+  "planted": [
+    {
+      "type": "billed_not_delivered",
+      "product": "CSG-101",
+      "amount": 25.43,
+      "note": "Printed 6,000 kg, corrected by hand to 5,2 kg at the scale; invoiced 6 kg: 0.8 kg × 28.90 € + 10% VAT."
+    },
+    {
+      "type": "price_above_agreed",
+      "product": "CSG-118",
+      "amount": 6.6,
+      "note": "16.90 €/kg invoiced vs 15.40 €/kg agreed until 31/12: 4 kg × 1.50 € + 10% VAT."
+    },
+    {
+      "type": "billed_not_delivered",
+      "product": "CSG-130",
+      "amount": 10.78,
+      "note": "Printed 3 chickens, corrected by hand to 2 (one missing); invoiced 3: 9.80 € + 10% VAT."
+    },
+    {
+      "type": "not_ordered",
+      "product": "CSG-170",
+      "amount": 0,
+      "note": "2 kg chorizo criollo delivered and invoiced (18.70 € with VAT) but not in the WhatsApp order: ask the kitchen."
+    },
+    {
+      "type": "read_from_photo",
+      "amount": 0,
+      "note": "The delivery note is a photo: read without character positions, so nothing is paid until the owner has looked at the photo."
+    }
+  ]
+}

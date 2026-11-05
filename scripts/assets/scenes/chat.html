@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>chat</title>
+<link rel="stylesheet" href="common.css" />
+<style>
+  body { background: transparent; width: 430px; height: 760px; }
+  .phone { position: absolute; inset: 0; border-radius: 58px; background: #16171a; padding: 11px; box-shadow: inset 0 0 0 1.5px #3a3c41, inset 0 0 0 3px #0c0c0e; }
+  .screen { position: relative; width: 100%; height: 100%; border-radius: 48px; overflow: hidden; background: #ece4d8; display: flex; flex-direction: column; }
+  .island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 104px; height: 30px; border-radius: 20px; background: #050506; z-index: 5; }
+  .status { height: 50px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 30px 8px 36px; font: 600 15px/1 "Segoe UI", system-ui; color: #111; background: #f7f5f2; }
+  .status .icons { display: flex; gap: 6px; align-items: center; }
+  .head { display: flex; align-items: center; gap: 10px; padding: 8px 14px 10px 8px; background: #f7f5f2; border-bottom: 1px solid rgba(0,0,0,.07); }
+  .back { width: 26px; height: 26px; color: #1f7a55; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #b4513c, #8e3a2b); color: #fff; display: grid; place-items: center; font: 600 14px/1 "Segoe UI"; letter-spacing: .3px; }
+  .who { flex: 1; min-width: 0; }
+  .who b { display: block; font: 600 15.5px/1.2 "Segoe UI"; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who span { font: 400 12.5px/1.3 "Segoe UI"; color: #6b6b6b; }
+  .head .tools { display: flex; gap: 16px; color: #1f7a55; }
+  .wall { flex: 1; position: relative; padding: 14px 12px 10px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end;
+    background-color: #ece4d8;
+    background-image: radial-gradient(rgba(120,100,70,.10) 1.2px, transparent 1.4px), radial-gradient(rgba(120,100,70,.07) 1px, transparent 1.2px);
+    background-size: 26px 26px, 26px 26px; background-position: 0 0, 13px 13px; }
+  .day { margin: 4px auto 12px; width: max-content; padding: 5px 12px; border-radius: 8px; background: rgba(255,255,255,.88); font: 500 12.5px/1.2 "Segoe UI"; color: #555; box-shadow: 0 1px 1px rgba(0,0,0,.06); }
+  .note { margin: 0 auto 14px; max-width: 86%; text-align: center; padding: 6px 10px; border-radius: 8px; background: #fbf1c9; font: 400 11.5px/1.35 "Segoe UI"; color: #6a5d2c; }
+  .msg { position: relative; max-width: 82%; margin: 0 0 8px; padding: 7px 10px 20px; border-radius: 12px; font: 400 15.5px/1.38 "Segoe UI"; color: #141414; box-shadow: 0 1px 1px rgba(0,0,0,.08); word-wrap: break-word; }
+  .msg.in { background: #fff; border-top-left-radius: 3px; }
+  .msg.out { background: #dcf5c8; margin-left: auto; border-top-right-radius: 3px; }
+  .msg.in { margin-right: auto; }
+  .msg .meta { position: absolute; right: 9px; bottom: 5px; font: 400 11.5px/1 "Segoe UI"; color: #6f7a6a; display: inline-flex; gap: 3px; align-items: center; }
+  .msg.in .meta { color: #8a8a8a; }
+  .msg .name { display: block; font: 600 13px/1.3 "Segoe UI"; color: #b4513c; margin-bottom: 1px; }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 8px 10px 30px; background: #f7f5f2; }
+  .field { flex: 1; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; border-radius: 22px; background: #fff; color: #9a9a9a; font: 400 16px/1 "Segoe UI"; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+  .field .sp { flex: 1; }
+  .mic { width: 44px; height: 44px; border-radius: 50%; background: #1f8a5e; display: grid; place-items: center; color: #fff; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<div class="phone"><div class="screen" id="screen"></div><div class="island"></div></div>
+<script>
+const icon = {
+  back: '<svg class="back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  video: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="6.5" width="12.5" height="11" rx="2.5"/><path d="M15.5 10.5l5-3v9l-5-3z"/></svg>',
+  phone: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M6.6 3.5h2.8l1.6 4.2-2 1.4a11 11 0 0 0 5.9 5.9l1.4-2 4.2 1.6v2.8a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg>',
+  ticks: '<svg width="17" height="11" viewBox="0 0 17 11" fill="none" stroke="#3d9ad6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6l3 3 6.5-7.5"/><path d="M7.5 8.6l.9.9 6.6-7.6"/></svg>',
+  smile: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b8b8b" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.2c1.8 2 5.2 2 7 0" stroke-linecap="round"/><circle cx="9" cy="10" r=".9" fill="#8b8b8b"/><circle cx="15" cy="10" r=".9" fill="#8b8b8b"/></svg>',
+  clip: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b8b8b" stroke-width="1.7" stroke-linecap="round"><path d="M16.5 7.5l-7.6 7.6a2.2 2.2 0 0 0 3.1 3.1l7.9-7.9a4 4 0 0 0-5.7-5.7L6.4 12.4a5.8 5.8 0 0 0 8.2 8.2l6-6"/></svg>',
+  cam: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8b8b8b" stroke-width="1.7" stroke-linejoin="round"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>',
+  mic: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>',
+  signal: '<svg width="18" height="12" viewBox="0 0 18 12" fill="#111"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="5" y="5.5" width="3" height="6.5" rx=".8"/><rect x="10" y="3" width="3" height="9" rx=".8"/><rect x="15" y="0" width="3" height="12" rx=".8"/></svg>',
+  wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a9.5 9.5 0 0 1 13 0M4 7a6 6 0 0 1 8 0"/><circle cx="8" cy="10" r="1.2" fill="#111" stroke="none"/></svg>',
+  battery: '<svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".7" y=".7" width="21.6" height="10.6" rx="3" stroke="#111" stroke-opacity=".45" stroke-width="1.2"/><rect x="2.4" y="2.4" width="15" height="7.2" rx="1.6" fill="#111"/><path d="M24 4v4" stroke="#111" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/></svg>',
+};
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+
+window.renderScene = async ({ text, me, date }) => {
+  const msgs = text.split("\n").map((l) => {
+    const m = l.match(/^\[(\d{2}\/\d{2}\/\d{4}), (\d{2}:\d{2})\] ([^:]+): (.*)$/);
+    return m ? { date: m[1], time: m[2], who: m[3], text: m[4] } : null;
+  }).filter(Boolean);
+  const other = msgs.find((m) => m.who !== me)?.who ?? "";
+  const initials = other.replace(/\(.*\)/, "").trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("");
+  const [d, mo, y] = date.split("/").map(Number);
+  const day = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" }).format(new Date(y, mo - 1, d));
+  const last = msgs.at(-1)?.time ?? "18:46";
+  const clock = `${last.slice(0, 3)}${String(Number(last.slice(3)) + 1).padStart(2, "0")}`;
+  document.getElementById("screen").innerHTML = `
+    <div class="status"><span>${clock}</span><span class="icons">${icon.signal}${icon.wifi}${icon.battery}</span></div>
+    <div class="head">${icon.back}<div class="avatar">${initials}</div>
+      <div class="who"><b>${esc(other)}</b><span>en línea</span></div>
+      <div class="tools">${icon.video}${icon.phone}</div></div>
+    <div class="wall">
+      <div class="day">${day.charAt(0).toUpperCase() + day.slice(1)}</div>
+      ${msgs.map((m) => `<div class="msg ${m.who === me ? "out" : "in"}">${esc(m.text)}<span class="meta">${m.time}${m.who === me ? icon.ticks : ""}</span></div>`).join("")}
+    </div>
+    <div class="bar"><div class="field">${icon.smile}<span class="sp">Mensaje</span>${icon.clip}${icon.cam}</div><div class="mic">${icon.mic}</div></div>`;
+  await document.fonts.ready;
+  return { ok: true, w: 430, h: 760 };
+};
+</script>
+</body>
+</html>

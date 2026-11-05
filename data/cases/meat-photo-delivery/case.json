@@ -1,0 +1,35 @@
+{
+  "id": "meat-photo-delivery",
+  "title": "Meat again, the delivery note is a phone photo",
+  "story": "The same meat order, but the delivery note came the usual way: a paper copy printed before the scale, with the real weights written over it by hand. The invoice copies the printed numbers.",
+  "supplier": "gredos",
+  "restaurant": "Taberna La Encina",
+  "documents": [
+    {
+      "kind": "po",
+      "file": "po.txt",
+      "mime": "text/plain",
+      "label": "Order (WhatsApp)"
+    },
+    {
+      "kind": "delivery",
+      "file": "delivery.jpg",
+      "mime": "image/jpeg",
+      "label": "Delivery note (photo)"
+    },
+    {
+      "kind": "invoice",
+      "file": "invoice.pdf",
+      "mime": "application/pdf",
+      "label": "Invoice"
+    }
+  ],
+  "history": [
+    {
+      "number": "FV-26-04290",
+      "date": "22/10/2026",
+      "status": "Pagada 22/10/2026",
+      "file": "history/FV-26-04290.txt"
+    }
+  ]
+}
