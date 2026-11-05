@@ -20,9 +20,12 @@
     "smoke": "tsx --env-file-if-exists=.env.local scripts/smoke.ts",
     "record": "tsx --env-file-if-exists=.env.local scripts/record.ts",
     "runs": "tsx scripts/build-runs.ts",
-    "credits": "tsx scripts/credits.ts"
+    "credits": "tsx scripts/credits.ts",
+    "mcp": "tsx mcp/server.ts",
+    "mcp:demo": "node scripts/mcp-demo.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
     "clsx": "2.1.1",
     "geist": "1.8.1",
     "lenis": "1.3.27",
@@ -30,7 +33,8 @@
     "next": "16.4.2",
     "pdf-lib": "1.17.1",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",

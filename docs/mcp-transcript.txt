@@ -1,0 +1,63 @@
+# MCP session with cuadra 2.0.0 over stdio (replay mode: real Clocked recordings, no network)
+
+> tools/list
+  list_sample_cases: List the sample cases
+  check_documents: Check a supplier invoice
+  explain_finding: Explain one finding
+  draft_supplier_claim: Draft the claim to the supplier
+
+> tools/call check_documents {"case_id":"meat-short-weight"}
+  Cárnicas Sierra de Gredos S.L., invoice FV-26-04417, printed total €426.93.
+  Decision: Pay €365.42 now. Claim €42.81 back with a credit note. Check €18.70 with the kitchen or the supplier before paying it.
+  Source: recorded run, replayed (real Clocked responses recorded 3 Nov 2026, 21:16 Madrid time; no new calls were made).
+  
+  Findings (most urgent first):
+  - [i1] SOLOMILLO DE TERNERA: billed 6 kg, delivered 5.2 kg (€25.43): ask the supplier for a credit note. Decide: credit_note (99%), priority medium.
+      Invoice, line 13: CSG-101 SOLOMILLO DE TERNERA 6,000 kg 28,90 10% 173,40  [6,000] (Extract)
+      Delivery note, line 12: CSG-101 SOLOMILLO DE TERNERA 5,200 kg  [5,200] (Extract · Compare)
+  - [i4] CHORIZO CRIOLLO: delivered and invoiced, not on the order (€18.70): check with the kitchen or the supplier before paying this part. Decide: confirm (90%), priority medium.
+      Invoice, line 18: CSG-170 CHORIZO CRIOLLO 2,000 kg 8,50 10% 17,00 (Extract)
+      Delivery note, line 17: CSG-170 CHORIZO CRIOLLO 2,000 kg (Extract)
+  - [i3] POLLO DE CORRAL ENTERO: billed 3 ud, delivered 2 ud (€10.78): ask the supplier for a credit note. Decide: credit_note (95%), priority medium.
+      Invoice, line 15: CSG-130 POLLO DE CORRAL ENTERO 3 ud 9,80 10% 29,40  [3] (Extract)
+      Delivery note, line 14: CSG-130 POLLO DE CORRAL ENTERO (1 ud pendiente de servir (sin stock)) 2 ud  [2] (Extract)
+  - [i2] SECRETO IBÉRICO DE CEBO: €16.90 invoiced, €15.40 agreed (€6.60): ask the supplier for a credit note. Decide: credit_note (99%), priority medium.
+      Invoice, line 14: CSG-118 SECRETO IBÉRICO DE CEBO 4,000 kg 16,90 10% 67,60  [16,90] (Extract)
+      Agreed tariff on file: CSG-118 · SECRETO IBÉRICO DE CEBO · 15,40 € (tariff on file)
+      Supplier's statement on the invoice: “Precios actualizados según la nueva tarifa comunicada el 15/10/2026” is not stated in the agreed tariff or the order (98%) (Verify)
+  
+  Safety: no hidden instructions or scripts flagged. No change of bank account found.
+  Clocked: 19 calls, 202 credits, Protect, Pipeline, Extract, Rerank, Compare, Verify, Decide, Fill.
+  
+  run_id: meat-short-weight-1. Use explain_finding with a finding id, or draft_supplier_claim.
+
+> tools/call explain_finding {"run_id":"meat-short-weight-1","finding_id":"i1"}
+  [i1] SOLOMILLO DE TERNERA: billed 6 kg, delivered 5.2 kg
+  The invoice bills 0.8 kg more than the signed delivery note shows.
+  Formula: (6,000 − 5,200) × 28,90 + IVA 10% = 25,43
+  At stake: €25.43 including VAT.
+  Action: ask the supplier for a credit note (Decide: credit_note (99%), priority medium).
+  Decide probabilities: accept 0%, credit_note 99%, confirm 0%, hold 0%.
+  
+  Evidence:
+  - Invoice, line 13: CSG-101 SOLOMILLO DE TERNERA 6,000 kg 28,90 10% 173,40  [6,000] (Extract)
+  - Delivery note, line 12: CSG-101 SOLOMILLO DE TERNERA 5,200 kg  [5,200] (Extract · Compare)
+  - Invoice, line 12: Código Descripción Cantidad Ud. Precio IVA Importe  [Precio IVA Importe…] (Compare)
+  
+  What to do: Ask for a credit note of €25.43 and pay the rest.
+
+> tools/call draft_supplier_claim {"run_id":"meat-short-weight-1"}
+  Decision: Pay €365.42 now. Claim €42.81 back with a credit note. Check €18.70 with the kitchen or the supplier before paying it.
+  Advice: Send the email, pay €365.42 now and keep €61.51 until the credit note or the confirmation arrives.
+  
+  To raise:
+  - [i1] SOLOMILLO DE TERNERA: billed 6 kg, delivered 5.2 kg (€25.43): ask the supplier for a credit note
+  - [i4] CHORIZO CRIOLLO: delivered and invoiced, not on the order (€18.70): check with the kitchen or the supplier before paying this part
+  - [i3] POLLO DE CORRAL ENTERO: billed 3 ud, delivered 2 ud (€10.78): ask the supplier for a credit note
+  - [i2] SECRETO IBÉRICO DE CEBO: €16.90 invoiced, €15.40 agreed (€6.60): ask the supplier for a credit note
+  
+  Email to the supplier (written by Clocked Fill, in Spanish):
+  Estimados señores de Cárnicas Sierra de Gredos S.L., me pongo en contacto con ustedes en relación a la factura FV-26-04417 para solicitar una nota de crédito por los siguientes errores detectados: en el concepto SOLOMILLO DE TERNERA se han facturado 6 kg cuando según el albarán ALB-2026-07731 se entregaron 5,2 kg, lo que supone una diferencia de 25,43 EUR con IVA incluido; en el concepto POLLO DE CORRAL ENTERO se han facturado 3 unidades cuando se entregaron 2 unidades, por un importe de 10,78 EUR con IVA incluido; y en el concepto SECRETO IBÉRICO DE CEBO se ha aplicado un precio de 16,90 €/kg en lugar de los 15,40 €/kg acordados en la tarifa vigente, lo que supone una diferencia de 6,60 EUR con IVA incluido. Quedamos a la espera de la recepción de dicha nota de crédito. Un saludo, Lucía Herrero
+  
+  Verify checked every claim in it: grounded (93% grounded).
+
