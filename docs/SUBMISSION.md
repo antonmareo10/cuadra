@@ -22,7 +22,7 @@ https://cuadra-alpha-blush.vercel.app
 
 ## Demo video
 
-(the new YouTube link, once uploaded; the old one is https://youtu.be/5Lf3TDWYG40)
+https://youtu.be/t61FEZJxbMQ
 
 Narration: my voice, generated from my own recordings with an open voice model; the screen recording is the real app.
 
