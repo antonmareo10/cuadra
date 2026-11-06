@@ -170,7 +170,7 @@ export default function Home() {
                   <Icon name="arrow" className="transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <a href={SITE.video} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-2 text-[15px] font-medium text-ink-2 underline decoration-line underline-offset-4 hover:text-ink hover:decoration-ink">
-                  Watch the two-minute video <Icon name="external" className="h-3.5 w-3.5" />
+                  Watch the demo video <Icon name="external" className="h-3.5 w-3.5" />
                 </a>
               </div>
               <p className="anim-fade-up mt-4 text-[13px] text-muted" style={{ animationDelay: "320ms" }}>

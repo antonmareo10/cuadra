@@ -334,7 +334,8 @@ export function Workspace({ run, layout = {} }: { run: RunResult; layout?: CaseL
 
   const showEvidence = useCallback((f: Omit<Focus, "nonce">) => {
     setFocus({ ...f, nonce: Date.now() });
-    document.getElementById("documents")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Land on the picture and the text side by side, not on the section's heading.
+    (document.getElementById("doc-view") ?? document.getElementById("documents"))?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   const setResolution = useCallback(

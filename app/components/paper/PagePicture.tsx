@@ -61,13 +61,15 @@ export function PagePicture({
     y: Math.min(0, Math.max(vh - imgH * z, y)),
   });
 
-  const zoomTo = (cx: number, cy: number, z: number) => setView(clamp(z, w / 2 - cx * z, vh / 2 - cy * z));
+  // A focused line is always centred, even near the edge of the page (the margin shows around it).
+  const zoomTo = (cx: number, cy: number, z: number, keepInside = true) =>
+    setView(keepInside ? clamp(z, w / 2 - cx * z, vh / 2 - cy * z) : { z, x: w / 2 - cx * z, y: vh / 2 - cy * z });
 
   useEffect(() => {
     if (!focus || !page || !w) return;
     const b = focus.cells[0] ?? focus.box;
     const z = w < 520 ? 2.3 : 1.7;
-    zoomTo(((b[0] + b[2]) / 2) * pt, ((b[1] + b[3]) / 2) * pt, z);
+    zoomTo(((b[0] + b[2]) / 2) * pt, ((b[1] + b[3]) / 2) * pt, z, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focus?.nonce, w]);
 

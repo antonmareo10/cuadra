@@ -75,7 +75,7 @@ export function SiteFooter() {
           </li>
           <li>
             <a className="inline-flex min-h-9 items-center hover:text-ink" href={SITE.video} target="_blank" rel="noreferrer">
-              Demo video, two minutes
+              Demo video
             </a>
           </li>
           <li>

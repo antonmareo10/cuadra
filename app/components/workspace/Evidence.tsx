@@ -182,7 +182,7 @@ export function DocumentsView({ run, issues, focus, layout = {} }: { run: RunRes
           go to that line.
         </p>
       </Reveal>
-      <div className="mt-6 rounded-2xl border border-line bg-surface p-3 sm:p-4">
+      <div id="doc-view" className="mt-6 scroll-mt-32 rounded-2xl border border-line bg-surface p-3 sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div role="tablist" aria-label="Documents" className="flex flex-wrap gap-1 rounded-full bg-surface-2 p-1">
             {docs.map((d) => (

@@ -113,7 +113,9 @@ export async function launch({ width = 1440, height = 900, port = 9333 } = {}) {
       } catch {
         /* already closed */
       }
-      proc.kill();
+      // proc.kill() leaves Chrome's child processes behind on Windows: end the whole tree.
+      if (process.platform === "win32" && proc.pid) spawn("taskkill", ["/PID", String(proc.pid), "/T", "/F"], { stdio: "ignore" });
+      else proc.kill();
     },
   };
 }
