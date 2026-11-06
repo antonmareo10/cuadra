@@ -9,7 +9,7 @@ What makes it different:
 - Paper is fine. A delivery note can be a phone photo or a scan, handwritten weights included. A photo has no character positions, so Cuadra reads it and checks it, then pays nothing until you have looked at it.
 - It works from an AI assistant too: an MCP server gives Claude Desktop or any MCP client the same answer, the same lines and the same holds.
 
-Live demo: https://cuadra-alpha-blush.vercel.app (six recorded cases open instantly, no key or sign-up) · Video: https://youtu.be/5Lf3TDWYG40 · [docs/video/cuadra-demo.mp4](docs/video/cuadra-demo.mp4)
+Live demo: https://cuadra-alpha-blush.vercel.app (six recorded cases open instantly, no key or sign-up) · Video: https://youtu.be/5Lf3TDWYG40 · [docs/video/cuadra-demo.mp4](docs/video/cuadra-demo.mp4) (narration: synthetic voice, Kokoro-82M)
 
 ![Landing page: the chef's chat, the signed delivery note and the invoice, the two lines that disagree marked on the paper, and one decision](docs/screenshots/v2/home-1440-fold.png)
 
