@@ -1,8 +1,12 @@
 # Estado · Cuadra (Clocked Build Challenge)
 
+## 6-nov-2026: v2 en la rama `v2` (sin publicar; incluye el pulido)
+
+Documentos «como llegaron» (albarán en papel firmado, chat del pedido, factura PDF, foto de un albarán corregido a mano) dibujados desde los mismos datos sintéticos (`npm run assets`); portada nueva en 3 pasos; páginas de caso con la página al lado del texto y la línea marcada en el documento; albaranes en foto o escaneo leídos con Guard y Extract en modo imagen, sin pagar nada hasta que el dueño mira la foto (caso nuevo grabado `meat-photo-delivery`, 220 créditos); servidor MCP con 4 herramientas y página `/assistants`; logo nuevo (dirección B) desde `lib/ui/brand.ts`; vídeo nuevo de 1:46 (voz provisional; Antón la regraba con `docs/video/VOZ_ANTON.md`). 65 pruebas pasan, axe-core 0 fallos en 40 vistas. Textos del formulario en `docs/SUBMISSION.md`. Detalle y pasos: `OneDrive/anton/competiciones/clocked/V2.md`. Publicar con `bash /c/Users/anton/data/clocked/desplegar-v2.sh <enlace del vídeo>`.
+
 ## 5-nov-2026: pulido en la rama `pulido` (sin publicar)
 
-Portada nueva con dos hallazgos reales en su línea exacta, números de línea en las citas y en los documentos, logo de factura con check, imagen social, arreglos (desborde en móvil del caso del pescado, error de hidratación con «reducir movimiento», 404 propia), accesibilidad AA sin fallos de axe, textos del formulario v2 en `docs/SUBMISSION.md` (v1 en `docs/SUBMISSION-v1.md`) y guion del vídeo con subtítulos nuevos (falta grabarlo con el PC libre; el vídeo del repo sigue siendo el del 3-nov). 34 pruebas pasan. Detalle y pasos para Antón: `OneDrive/anton/competiciones/clocked/PULIDO.md`. Publicar con `bash /c/Users/anton/data/clocked/desplegar-pulido.sh`.
+Portada nueva con dos hallazgos reales en su línea exacta, números de línea en las citas y en los documentos, logo de factura con check, imagen social, arreglos (desborde en móvil del caso del pescado, error de hidratación con «reducir movimiento», 404 propia), accesibilidad AA sin fallos de axe, textos del formulario v2 (ahora en `docs/SUBMISSION-v2.md`; v1 en `docs/SUBMISSION-v1.md`) y guion del vídeo con subtítulos nuevos (falta grabarlo con el PC libre; el vídeo del repo sigue siendo el del 3-nov). 34 pruebas pasan. Detalle y pasos para Antón: `OneDrive/anton/competiciones/clocked/PULIDO.md`. Publicar con `bash /c/Users/anton/data/clocked/desplegar-pulido.sh`.
 
 Lo de abajo es el estado del 3-nov.
 

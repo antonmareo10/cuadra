@@ -1,0 +1,246 @@
+{
+  "base": "http://localhost:3100",
+  "axe": "4.10.2",
+  "results": [
+    {
+      "page": "/",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-short-weight",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-photo-delivery",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/fish-bank-change",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/drinks-vat-return",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/veg-duplicate",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/clean-substitution",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/assistants",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/check",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/no-such-page",
+      "width": 1440,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-short-weight",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-photo-delivery",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/fish-bank-change",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/drinks-vat-return",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/veg-duplicate",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/clean-substitution",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/assistants",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/check",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/no-such-page",
+      "width": 1440,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-short-weight",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-photo-delivery",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/fish-bank-change",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/drinks-vat-return",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/veg-duplicate",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/case/clean-substitution",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/assistants",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/check",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/no-such-page",
+      "width": 390,
+      "theme": "light",
+      "violations": []
+    },
+    {
+      "page": "/",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-short-weight",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/meat-photo-delivery",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/fish-bank-change",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/drinks-vat-return",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/veg-duplicate",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/case/clean-substitution",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/assistants",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/check",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    },
+    {
+      "page": "/no-such-page",
+      "width": 390,
+      "theme": "dark",
+      "violations": []
+    }
+  ]
+}

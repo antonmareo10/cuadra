@@ -1,0 +1,110 @@
+[
+  {
+    "page": "home",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-meat",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-photo",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-fish",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-drinks",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-duplicate",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-substitution",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "assistants",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "check",
+    "width": "1440",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "home",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-meat",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-photo",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-fish",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-drinks",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-duplicate",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "case-substitution",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "assistants",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  },
+  {
+    "page": "check",
+    "width": "390",
+    "overflow": 0,
+    "errors": []
+  }
+]
