@@ -17,7 +17,7 @@ Cuadra checks a small restaurant's supplier invoices before anyone pays them. Gi
 Try it, no sign-up: https://cuadra-alpha-blush.vercel.app
 Code (MIT): https://github.com/antonmareo10/cuadra
 
-Narration: synthetic voice (Kokoro-82M, open model); the screen recording is the real app. The app scenes are recorded from the web app replaying real Clocked runs (recorded on 3 and 5 November 2026). The documents are synthetic; the close-ups of them and the assistant scene are drawn from the same data.
+Narration: my voice, generated from my own recordings with an open voice model; the screen recording is the real app. The app scenes are recorded from the web app replaying real Clocked runs (recorded on 3 and 5 November 2026). The documents are synthetic; the close-ups of them and the assistant scene are drawn from the same data.
 
 Built for the Clocked Build Challenge 2026. #ClockedChallenge
 

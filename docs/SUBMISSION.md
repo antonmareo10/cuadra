@@ -24,9 +24,8 @@ https://cuadra-alpha-blush.vercel.app
 
 (the new YouTube link, once uploaded; the old one is https://youtu.be/5Lf3TDWYG40)
 
-Narration: synthetic voice (Kokoro-82M, open model); the screen recording is the real app.
+Narration: my voice, generated from my own recordings with an open voice model; the screen recording is the real app.
 
-(If the video is rebuilt with the cloned voice, use this line instead: "Narration: my voice, generated from my own recordings with an open voice model; the screen recording is the real app." The YouTube title and description are in `docs/video/YOUTUBE.md`, or in `C:\Users\anton\data\clocked\video\youtube-anton.md` after the rebuild.)
 
 ## Source repository
 
