@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>document close-up</title>
+<style>
+  @font-face { font-family: "Instrument Serif"; src: url("/app/fonts/InstrumentSerif-Regular.ttf"); }
+  @font-face { font-family: "Instrument Serif"; font-style: italic; src: url("/app/fonts/InstrumentSerif-Italic.ttf"); }
+  html, body { margin: 0; width: 1440px; height: 810px; overflow: hidden; background: #ece7dc; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; }
+  #stage { position: absolute; inset: 0; overflow: hidden;
+    background: radial-gradient(120% 90% at 30% 20%, #f7f3ea, #e4ddcf 70%, #d9d1c1); }
+  #cam { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+  #cam img { display: block; }
+  .sheet { box-shadow: 0 2px 4px rgba(27,26,23,.12), 0 40px 80px -30px rgba(27,26,23,.55); background: #fff; }
+  .phone { filter: drop-shadow(0 40px 50px rgba(27,26,23,.35)); }
+  .photo { box-shadow: 0 50px 90px -30px rgba(27,26,23,.6); border-radius: 10px; }
+  .mark { position: absolute; border-radius: 10px; border: 4px solid #c8432a; background: rgba(251,231,163,.35); opacity: 0; transform: scale(1.25); transition: opacity .45s ease, transform .6s cubic-bezier(.22,1,.36,1); }
+  .mark.on { opacity: 1; transform: none; }
+  .tag { position: absolute; left: 64px; top: 52px; padding: 12px 20px; border-radius: 999px; background: rgba(255,253,248,.92); color: #1b1a17;
+    font: 500 22px/1.2 "Segoe UI", system-ui; box-shadow: 0 10px 30px -12px rgba(27,26,23,.35); opacity: 0; transform: translateY(8px); transition: all .5s ease; }
+  .tag.on { opacity: 1; transform: none; }
+  .tag b { font-weight: 600; }
+  .note { position: absolute; font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: 40px; color: #1b1a17; opacity: 0; transition: opacity .6s ease; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+  .note.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="cam"></div></div>
+<script>
+/*
+  window.play(spec): spec = {
+    img, w, h, kind: "sheet"|"phone"|"photo", place: { x, y, s }   (image placed at x,y with scale s in stage px)
+    shots: [{ at, cx, cy, z, dur }]   camera moves (centre in image px, zoom), at = seconds from start
+    marks: [{ at, x, y, w, h }]       boxes in image px
+    tag: { at, html }, notes: [{ at, x, y, text }]
+  }
+*/
+window.play = async (spec) => {
+  const cam = document.getElementById("cam");
+  const img = new Image();
+  img.src = spec.img;
+  img.className = spec.kind;
+  img.width = spec.w * spec.place.s;
+  img.height = spec.h * spec.place.s;
+  await img.decode();
+  cam.innerHTML = "";
+  const holder = document.createElement("div");
+  holder.style.cssText = `position:absolute;left:${spec.place.x}px;top:${spec.place.y}px;width:${img.width}px;height:${img.height}px`;
+  holder.appendChild(img);
+  cam.appendChild(holder);
+  const S = spec.place.s;
+  for (const m of spec.marks ?? []) {
+    const d = document.createElement("div");
+    d.className = "mark";
+    d.style.cssText += `left:${m.x * S - 8}px;top:${m.y * S - 8}px;width:${m.w * S + 16}px;height:${m.h * S + 16}px`;
+    holder.appendChild(d);
+    setTimeout(() => d.classList.add("on"), m.at * 1000);
+  }
+  for (const n of spec.notes ?? []) {
+    const d = document.createElement("div");
+    d.className = "note";
+    d.style.left = `${n.x}px`;
+    d.style.top = `${n.y}px`;
+    d.textContent = n.text;
+    document.getElementById("stage").appendChild(d);
+    setTimeout(() => d.classList.add("on"), n.at * 1000);
+  }
+  if (spec.tag) {
+    const t = document.createElement("div");
+    t.className = "tag";
+    t.innerHTML = spec.tag.html;
+    document.getElementById("stage").appendChild(t);
+    setTimeout(() => t.classList.add("on"), spec.tag.at * 1000);
+  }
+  const W = 1440, H = 810;
+  const at = (s) => {
+    const cx = spec.place.x + s.cx * S, cy = spec.place.y + s.cy * S;
+    return `translate(${W / 2 - cx * s.z}px, ${H / 2 - cy * s.z}px) scale(${s.z})`;
+  };
+  const [first, ...rest] = spec.shots;
+  cam.style.transition = "none";
+  cam.style.transform = at(first);
+  cam.getBoundingClientRect();
+  for (const s of rest) {
+    setTimeout(() => {
+      cam.style.transition = `transform ${s.dur}s cubic-bezier(.45,.05,.25,1)`;
+      cam.style.transform = at(s);
+    }, s.at * 1000);
+  }
+  await document.fonts.ready;
+  return true;
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>end card</title>
+<style>
+  @font-face { font-family: "Instrument Serif"; src: url("/app/fonts/InstrumentSerif-Regular.ttf"); }
+  @font-face { font-family: "Instrument Serif"; font-style: italic; src: url("/app/fonts/InstrumentSerif-Italic.ttf"); }
+  html, body { margin: 0; width: 1440px; height: 810px; overflow: hidden; background: #f5f2ea; color: #1b1a17; font-family: "Segoe UI", system-ui, sans-serif; }
+  .glow { position: absolute; left: -220px; top: -260px; width: 820px; height: 820px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,67,42,.14), rgba(200,67,42,0) 65%); filter: blur(30px); }
+  .wrap { position: absolute; left: 120px; top: 120px; right: 120px; }
+  .in { opacity: 0; transform: translateY(14px); }
+  body.go .in { animation: in .8s cubic-bezier(.22,1,.36,1) forwards; }
+  @keyframes in { to { opacity: 1; transform: none; } }
+  #logo svg { height: 92px; width: auto; display: block; }
+  h1 { margin: 46px 0 0; font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 88px; line-height: .98; letter-spacing: -1px; }
+  h1 em { color: #c8432a; }
+  .url { margin-top: 44px; display: inline-block; padding: 16px 28px; border-radius: 999px; background: #1b1a17; color: #f5f2ea; font: 600 30px/1 "Segoe UI", system-ui; }
+  .facts { margin-top: 34px; display: flex; gap: 34px; font-size: 21px; color: #3a3832; }
+  .facts span::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: #c8432a; vertical-align: middle; }
+  .photo { position: absolute; right: -40px; top: 170px; width: 520px; transform: rotate(4deg); border-radius: 10px; box-shadow: 0 40px 80px -30px rgba(27,26,23,.55); }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<img class="photo in" style="animation-delay:.5s" src="/public/paper/meat-photo-delivery/delivery.jpg" alt="" />
+<div class="wrap">
+  <div id="logo" class="in"></div>
+  <h1 class="in" style="animation-delay:.15s">Pay the right amount,<br /><em>to the right account.</em></h1>
+  <div class="url in" id="url" style="animation-delay:.35s"></div>
+  <div class="facts in" style="animation-delay:.55s" id="facts"></div>
+</div>
+<script>
+window.play = async ({ logo, url, facts }) => {
+  document.getElementById("logo").innerHTML = logo;
+  document.getElementById("url").textContent = url;
+  document.getElementById("facts").innerHTML = facts.map((f) => `<span>${f}</span>`).join("");
+  await document.fonts.ready;
+  document.body.classList.add("go");
+  return true;
+};
+</script>
+</body>
+</html>

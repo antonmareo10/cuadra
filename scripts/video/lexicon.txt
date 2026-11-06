@@ -1,0 +1,22 @@
+# Pronunciation respellings applied by narrate.mjs before synthesis (whole word, case-insensitive).
+# Format: Word=Respelling   (keep the real spelling in your script; only the audio changes)
+# Checked with eSpeak phonemes (node phon.mjs <word>) and a Whisper round-trip (node asr.mjs <wav>).
+Qloo=Clue
+Tavily=Tavvily
+Nebius=Nebbius
+# Nemotron: default eSpeak reading is "NEM-uh-tron". Uncomment for "NEE-muh-tron" (as in NVIDIA NeMo = "NEE-mo"):
+Nemotron=Neemotron
+# Supplora: default reads "suh-PLOR-uh" but Whisper hears it as "Sephora". Uncomment for a crisper first syllable:
+# Supplora=Suh-plora
+Gjelina=Juh-leena
+# Conforme (meta hackathon)
+Conforme=Con-for-meh
+Gijón=Hee-hone
+Cantábrico=Kan-tabrico
+Musel=Moo-sell
+SAM=Sam
+Answerable=Answer able
+Baseten=Base-ten
+# Cuadra video
+Cuadra=Kwahdra
+endpoints=end-points

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>assistant session</title>
+<style>
+  @font-face { font-family: "Instrument Serif"; src: url("/app/fonts/InstrumentSerif-Regular.ttf"); }
+  html, body { margin: 0; width: 1440px; height: 810px; overflow: hidden; }
+  body { background: radial-gradient(120% 100% at 20% 0%, #2a2924, #171612 70%); color: #f5f2ea; font-family: "Segoe UI", system-ui, sans-serif; }
+  .wrap { position: absolute; left: 50%; top: 48px; width: 1040px; transform: translateX(-50%); }
+  .title { font-family: "Instrument Serif", Georgia, serif; font-size: 44px; letter-spacing: -0.3px; color: #f5f2ea; opacity: .92; }
+  .title small { font-family: "Segoe UI"; font-size: 18px; color: rgba(245,242,234,.55); margin-left: 14px; letter-spacing: 0; }
+  .panel { margin-top: 22px; border-radius: 22px; border: 1px solid rgba(255,255,255,.12); background: #24231e; padding: 26px 30px 22px; min-height: 560px; box-shadow: 0 40px 80px -40px #000; }
+  .row { opacity: 0; transform: translateY(10px); transition: opacity .45s ease, transform .55s cubic-bezier(.22,1,.36,1); }
+  .row.on { opacity: 1; transform: none; }
+  .user { margin-left: auto; width: fit-content; max-width: 78%; background: rgba(255,255,255,.1); padding: 14px 20px; border-radius: 20px 20px 6px 20px; font-size: 22px; line-height: 1.4; }
+  .chip { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16); font: 500 17px/1 "Cascadia Mono", Consolas, monospace; color: rgba(245,242,234,.75); }
+  .chip .st { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(245,242,234,.35); border-top-color: #f3c777; animation: spin .8s linear infinite; }
+  .chip.done .st { animation: none; border-color: #8dbb72; background: #8dbb72; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ans { margin-top: 14px; font-size: 21px; line-height: 1.5; color: rgba(245,242,234,.92); }
+  .src { margin-top: 10px; padding: 12px 16px; border-radius: 12px; background: rgba(0,0,0,.3); font: 16.5px/1.6 "Cascadia Mono", Consolas, monospace; color: rgba(245,242,234,.85); }
+  .src em { font-style: normal; color: #f3c777; }
+  .mail { margin-top: 10px; padding: 12px 16px; border-left: 3px solid #f0694b; background: rgba(255,255,255,.04); font-size: 18px; line-height: 1.5; color: rgba(245,242,234,.82); font-style: italic; }
+  .ok { color: #8dbb72; font-weight: 600; }
+  .foot { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); font-size: 15px; color: rgba(245,242,234,.5); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">Cuadra from an AI assistant <small>MCP server, stdio</small></div>
+  <div class="panel" id="panel"></div>
+</div>
+<div class="foot">Real MCP tool calls and answers in replay mode (npm run mcp:demo). The question is an example of what you would type.</div>
+<script>
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+window.play = async ({ question, decision, sources, emailStart, verdict }) => {
+  const p = document.getElementById("panel");
+  const rows = [
+    [0.3, `<div class="user">${esc(question)}</div>`],
+    [1.4, `<div class="chip" id="c1"><span class="st"></span>cuadra · check_documents</div>`],
+    [2.6, `<div class="ans">${esc(decision)}</div>`],
+    [3.6, `<div class="src">${sources.map((s) => `${esc(s.where)}: ${esc(s.before)}<em>${esc(s.match)}</em>${esc(s.after)}`).join("<br>")}</div>`],
+    [6.2, `<div class="chip" id="c2"><span class="st"></span>cuadra · draft_supplier_claim</div>`],
+    [7.4, `<div class="ans">Here is the email Fill wrote. Verify checked every claim in it: <span class="ok">${esc(verdict)}</span>.</div>`],
+    [8.2, `<div class="mail">${esc(emailStart)}</div>`],
+  ];
+  p.innerHTML = rows.map(([, h], i) => `<div class="row" id="r${i}">${h}</div>`).join("");
+  rows.forEach(([t], i) => setTimeout(() => document.getElementById(`r${i}`).classList.add("on"), t * 1000));
+  setTimeout(() => document.getElementById("c1").classList.add("done"), 2400);
+  setTimeout(() => document.getElementById("c2").classList.add("done"), 7200);
+  await document.fonts.ready;
+  return true;
+};
+</script>
+</body>
+</html>
