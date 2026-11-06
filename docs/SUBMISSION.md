@@ -1,6 +1,6 @@
 # Entry form texts for Cuadra v2 (6 Nov 2026)
 
-Ready to paste into the fields of clocked.rezolve.ai/challenge. First person, Antón's voice, plain English. Earlier versions: [SUBMISSION-v1.md](SUBMISSION-v1.md) (pasted on 4 Nov) and [SUBMISSION-v2.md](SUBMISSION-v2.md) (5 Nov). Every figure below comes from the recorded runs in `public/runs/` or from `npm test`.
+Pasted into the fields of clocked.rezolve.ai/challenge on 6 Nov, 19:47 (overview ≤ 2,000 and integration ≤ 3,000 characters). First person, Antón's voice, plain English. Earlier versions: [SUBMISSION-v1.md](SUBMISSION-v1.md) (pasted on 4 Nov) and [SUBMISSION-v2.md](SUBMISSION-v2.md) (5 Nov). Every figure below comes from the recorded runs in `public/runs/` or from `npm test`.
 
 ## Project name
 
@@ -8,13 +8,13 @@ Cuadra
 
 ## Overview (what it does, who it is for, what problem it solves)
 
-Cuadra checks a small restaurant's supplier invoices before anyone pays them. You give it the chef's order (often a WhatsApp message), the delivery note the kitchen signed (a phone photo of the paper is fine) and the supplier's invoice. It reads all three with Clocked, checks every line against the other two and gives one decision: what to pay now, what to claim back and what not to pay at all.
+Cuadra checks a small restaurant's supplier invoices before anyone pays them. You give it the chef's order (often a WhatsApp message), the delivery note the kitchen signed (a phone photo is fine) and the supplier's invoice. It reads all three with Clocked, checks every line against the other two and gives one decision: what to pay now, what to claim back and what not to pay at all.
 
-It is for the owner of a small restaurant. They get dozens of supplier invoices a month and pay most of them without a line-by-line check, because the check takes longer than the money seems worth. I build software that reads restaurant delivery notes, so I have seen the leaks up close: meat billed by the order instead of by the scale, a price rise nobody agreed to, water billed at the alcohol VAT rate, a box sent back at the door and still invoiced, the same delivery invoiced twice. And now invoices that add up perfectly but ask to be paid into a new bank account, with text hidden for whatever AI reads them.
+It is for the owner of a small restaurant, who pays dozens of supplier invoices a month without a line-by-line check, because the check takes longer than the money seems worth. My other app, Supplora, has read about 700 real delivery notes for a restaurant since March and flagged 103 price rises against earlier invoices, €1,876 in total. So I have seen the leaks up close: meat billed by the order instead of by the scale, a price rise nobody agreed to, water billed at the alcohol VAT rate, a box sent back at the door and still invoiced, the same delivery invoiced twice. And now invoices that add up perfectly but ask to be paid into a new bank account, with text hidden for whatever AI reads them.
 
-What makes it different. Every finding points to the exact line it came from, on the document itself: "Invoice, line 13: 6,000 kg" against "Delivery note, line 12: 5,200 kg", outlined on the page so the owner can check it in seconds. The decisions about money and fraud are made in code from Clocked's evidence, never by a model on its own: uncertain calls go to the owner, and only the owner can clear a hold. A delivery note can be a phone photo, handwritten weights included; since a photo has no character positions, nothing that depends on it is paid until the owner has looked at it. And it works from an AI assistant: an MCP server gives Claude Desktop or any MCP client the same answer, the same lines and the same holds.
+What makes it different. Every finding points to the exact line it came from, outlined on the document itself: "Invoice, line 13: 6,000 kg" against "Delivery note, line 12: 5,200 kg". Decisions about money and fraud are made in code from Clocked's evidence, never by a model on its own, and only the owner can clear a hold. Nothing read from a photo is paid until the owner has looked at it. And it works from an AI assistant: an MCP server gives Claude Desktop or any MCP client the same answer, the same lines and the same holds.
 
-The demo has six synthetic cases with planted problems, one of them with the delivery note as a phone photo. All six verdicts are right, every planted amount is found to the cent, and nothing else is claimed. They are real Clocked recordings from 3 and 5 November, replayed through the same engine and labelled as recorded, so the demo never waits.
+The demo has six synthetic cases with planted problems, one with the delivery note as a phone photo. All six verdicts are right and every planted amount is found to the cent. They are real Clocked recordings from 3 and 5 November, replayed and labelled as recorded.
 
 ## Demo
 
@@ -33,21 +33,21 @@ https://github.com/antonmareo10/cuadra
 
 ## Clocked endpoints used and how they work together
 
-I use all ten. Each one changes what the app does or shows, and the order matters: safety first, then reading, then matching, then checks, then the decision and the email.
+I use all ten. Each one changes what the app does or shows, and the order matters: safety first, then reading, matching and checks, and finally the decision and the email.
 
-- Pipeline runs Guard and then Extract on every text document in one request. Guard has stop: true, so a document that addresses AI assistants is never read as it is.
-- Guard (/injection) caught white, 1-point text in the fake fish invoice telling "automated accounts payable assistants" to mark a new bank account as verified and keep quiet about it. That is a hard stop. The flagged lines are blanked out, with offsets kept, before Extract reads the document again. On a photo, Guard reads the image first; if it fires, the photo is not read at all.
-- Protect (/pii) finds the bank account printed on the invoice, and code compares it with the IBAN on file. A different one holds the payment. Protect also returns a redacted PDF and a share-safe copy for sending the pack outside the restaurant.
-- Inspect (/script) only runs when a PDF contains JavaScript, which I find with pdf-lib without running it. The fake invoice's script came back as malicious, data exfiltration.
-- Extract reads the header and every line of the three documents as lists of records, plus the goods the delivery note says were returned. Every value comes back as a span of the document's text, and the app keeps those offsets all the way to the screen and onto the picture of the page: that is how each finding shows its line. An empty cell is re-read inside its own line; if it is still empty, it stays missing. For a photo or a scan, Extract runs in image mode: each row comes back as one string that my code splits into columns, plus the quantities corrected by hand, and the case is marked as read without positions.
+- Pipeline runs Guard and then Extract on every text document in one request, with stop: true, so a document that addresses AI assistants is never read as it is.
+- Guard (/injection) caught white, 1-point text in the fake fish invoice telling "automated accounts payable assistants" to mark a new bank account as verified and keep quiet about it. That is a hard stop: the flagged lines are blanked out, offsets kept, before Extract reads the document again. On a photo, Guard reads the image first; if it fires, the photo is not read at all.
+- Protect (/pii) finds the bank account printed on the invoice; code compares it with the IBAN on file, and a different one holds the payment. It also returns a redacted PDF and a share-safe copy.
+- Inspect (/script) runs only when a PDF contains JavaScript, which I find with pdf-lib without running it. The fake invoice's script came back as malicious: data exfiltration.
+- Extract reads the header and every line of the three documents as records, plus the goods returned at the door. Every value comes back as a span of the document's text, and the app keeps those offsets all the way to the screen and onto the picture of the page: that is how each finding shows its line. For a photo, Extract runs in image mode, my code splits each row into columns, and the case is marked as read without positions.
 - Rerank matches each invoiced product to the chef's order, which has no supplier codes, and says when a near match is a different product (tomate rama is not tomate pera).
-- Then plain code does the arithmetic: billed against delivered and returned, price against the agreed tariff, VAT against the tariff, lines against totals. Every euro withheld has a formula and an independent recomputation that must agree.
+- Then plain code does the arithmetic: billed against delivered and returned, price and VAT against the tariff, lines against totals. Every euro withheld has a formula and an independent recomputation that must agree.
 - Compare reads every pair of documents plus the supplier's earlier invoices in one request. "Same" against an invoice already paid holds the new one as a duplicate.
-- Verify (/grounding) checks what the supplier wrote on the invoice ("prices updated per the new tariff communicated on 15/10") against my tariff and order: not stated. It also checks every claim of the email Fill writes before the owner can copy it.
-- Decide triages all the discrepancies in one request, one document per discrepancy with two questions each, action and priority. If it is less than 60% sure, Cuadra does not apply the action and asks the owner. Whether the owner has looked at a photo is never sent to it.
-- Fill writes the reconciliation record: status, credit note yes or no, bookkeeping category, a short summary for the owner and the email to the supplier.
+- Verify (/grounding) checks the supplier's note ("prices updated per the new tariff communicated on 15/10") against my tariff and order: not stated. It also checks every claim of the email Fill writes before the owner can copy it.
+- Decide triages all the discrepancies in one request, action and priority for each. Below 60% confidence, Cuadra asks the owner instead of acting.
+- Fill writes the reconciliation record (status, credit note, bookkeeping category, a short summary) and the email to the supplier.
 
-A run takes 15 to 19 calls, 133 to 220 credits and 11 to 24 seconds per invoice in the recordings. Every call is listed on the case page with its credits and model time, read from the X-Clocked-Credits and X-Clocked-Model-Ms headers. The MCP server's tools call the same engine and the same client, under the same credit cap.
+A run takes 15 to 19 calls, 133 to 220 credits and 11 to 24 seconds per invoice in the recordings. Every call is listed on the case page with its credits and model time, read from the X-Clocked-Credits and X-Clocked-Model-Ms headers. The MCP server's tools use the same engine, client and credit cap.
 
 ## What I learned (optional)
 
