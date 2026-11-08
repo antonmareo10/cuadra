@@ -87,7 +87,7 @@ export function PagePicture({
         onClick={onClick}
         style={{ height: w ? vh : undefined, aspectRatio: w ? undefined : `${picture.width} / ${Math.min(picture.height, (picture.width * height) / 600)}` }}
         className={clsx(
-          "relative overflow-hidden rounded-xl bg-[#e9e5dc] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.06)]",
+          "relative overflow-hidden rounded-xl bg-[#dfe2ea] shadow-[inset_0_0_0_1px_rgb(0_0_0/0.06)]",
           zoomed ? "cursor-zoom-out" : "cursor-zoom-in",
         )}
       >
@@ -127,7 +127,7 @@ export function PagePicture({
         <button
           type="button"
           onClick={() => (zoomed ? setView({ z: 1, x: 0, y: 0 }) : zoomTo(w / 2, vh / 3, 2))}
-          className="pointer-events-auto inline-flex min-h-9 items-center rounded-full bg-surface/90 px-3 text-[12.5px] text-ink-2 shadow-card backdrop-blur hover:text-ink"
+          className="pointer-events-auto inline-flex min-h-9 items-center rounded-[2px] bg-surface/90 px-3 text-[12.5px] text-ink-2 shadow-card backdrop-blur hover:text-ink"
         >
           {zoomed ? "Whole width" : "Zoom in"}
         </button>
@@ -135,7 +135,7 @@ export function PagePicture({
           href={picture.src}
           target="_blank"
           rel="noreferrer"
-          className="pointer-events-auto inline-flex min-h-9 items-center rounded-full bg-surface/90 px-3 text-[12.5px] text-ink-2 shadow-card backdrop-blur hover:text-ink"
+          className="pointer-events-auto inline-flex min-h-9 items-center rounded-[2px] bg-surface/90 px-3 text-[12.5px] text-ink-2 shadow-card backdrop-blur hover:text-ink"
         >
           Full size
         </a>

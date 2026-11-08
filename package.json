@@ -23,6 +23,7 @@
     "credits": "tsx scripts/credits.ts",
     "brand": "tsx scripts/brand.ts",
     "assets": "tsx scripts/assets/render.ts",
+    "landing-assets": "tsx scripts/assets/landing.ts",
     "mcp": "tsx mcp/server.ts",
     "mcp:demo": "node scripts/mcp-demo.mjs"
   },

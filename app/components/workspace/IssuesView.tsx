@@ -8,7 +8,8 @@ import { normalizeCode } from "@/lib/engine/text";
 import type { DocKind, Issue, ReadDocument, Resolution, RunResult } from "@/lib/engine/types";
 import { eur } from "@/lib/money";
 import { lineNumberAt, lineStarts } from "@/lib/ui/lines";
-import { EASE, Icon, ProbabilityBar, Reveal, SourceChip } from "../ui";
+import { EASE, Icon, Reveal, SourceChip } from "../ui";
+import { ProbabilityBar } from "../ui-motion";
 import type { Focus } from "./Workspace";
 
 const DOC_SHORT: Record<string, string> = {
@@ -36,10 +37,10 @@ const ACTION_SENTENCE: Record<string, string> = {
 };
 
 const CLS_STYLE = {
-  stop: { icon: "stop" as const, ring: "border-stop/35", badge: "bg-stop-soft text-stop", label: "Hard stop" },
-  money: { icon: "money" as const, ring: "border-warn/35", badge: "bg-warn-soft text-warn", label: "Money" },
-  review: { icon: "review" as const, ring: "border-info/35", badge: "bg-info-soft text-info", label: "Needs a look" },
-  info: { icon: "info" as const, ring: "border-line", badge: "bg-surface-2 text-muted", label: "Note" },
+  stop: { icon: "stop" as const, ring: "border-l-stop", badge: "bg-stop-soft text-stop", label: "Hard stop" },
+  money: { icon: "money" as const, ring: "border-l-warn", badge: "bg-warn-soft text-warn", label: "Money" },
+  review: { icon: "review" as const, ring: "border-l-info", badge: "bg-info-soft text-info", label: "Needs a look" },
+  info: { icon: "info" as const, ring: "border-l-line", badge: "bg-surface-2 text-muted", label: "Note" },
 };
 
 type LineOf = (doc: string, start: number | undefined) => number | null;
@@ -70,15 +71,15 @@ function IssueCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "0px 0px -6% 0px" }}
       transition={{ duration: 0.45, ease: EASE, delay: Math.min(index, 6) * 0.05 }}
-      className={clsx("rounded-2xl border bg-surface p-4 shadow-card sm:p-5", st.ring, issue.resolution === "accept" && issue.cls !== "info" && "opacity-80")}
+      className={clsx("border border-l-[5px] border-line bg-surface p-4 shadow-card sm:p-5", st.ring, issue.resolution === "accept" && issue.cls !== "info" && "opacity-80")}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 gap-3">
-          <span className={clsx("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full", st.badge)}>
+          <span className={clsx("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px]", st.badge)}>
             <Icon name={st.icon} />
           </span>
           <div className="min-w-0">
-            <p className="text-[12px] font-medium uppercase tracking-wide text-muted">{st.label}</p>
+            <p className="font-mono text-[11px] font-medium uppercase text-muted">{st.label}</p>
             <h3 className="mt-0.5 text-[16px] font-semibold leading-snug tracking-tight sm:text-[17px]">{issue.title}</h3>
           </div>
         </div>
@@ -142,7 +143,7 @@ function IssueCard({
               <p className="text-ink-2">
                 <span className="font-medium text-ink">Decide:</span> {ACTION_SENTENCE[d.action] ?? d.action}
                 <span className="text-muted"> · priority {d.priorityLabel.toLowerCase()}</span>
-                {d.uncertain ? <span className="ml-1 rounded-full bg-info-soft px-2 py-0.5 text-[11px] text-info">unsure, your call</span> : null}
+                {d.uncertain ? <span className="ml-1 rounded-[2px] bg-info-soft px-2 py-0.5 text-[11px] text-info">unsure, your call</span> : null}
               </p>
               <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
                 {Object.entries(d.probabilities)
@@ -174,7 +175,7 @@ function IssueCard({
           </div>
         </div>
         {issue.cls !== "info" ? (
-          <div role="radiogroup" aria-label={`Action for ${issue.title}`} className="flex shrink-0 flex-wrap gap-1 rounded-full bg-surface-2 p-1">
+          <div role="radiogroup" aria-label={`Action for ${issue.title}`} className="flex shrink-0 flex-wrap gap-1 rounded-[2px] bg-surface-2 p-1">
             {options.map((o) => {
               const label = issue.cls === "stop" ? (o === "hold" ? "Hold" : "I checked it") : photo ? (o === "confirm" ? "Not yet" : "I checked the photo") : ACTION_LABEL[o];
               const on = issue.resolution === o;
@@ -186,7 +187,7 @@ function IssueCard({
                   aria-checked={on}
                   onClick={() => onResolve(issue.id, o)}
                   className={clsx(
-                    "relative min-h-9 rounded-full px-3 text-[13px] transition-colors",
+                    "relative min-h-9 rounded-[2px] px-3 text-[13px] transition-colors",
                     on ? "bg-ink text-paper" : "text-ink-2 hover:text-ink",
                   )}
                 >
@@ -222,7 +223,7 @@ export function IssuesList({
   return (
     <section id="issues" className="scroll-mt-32" aria-labelledby="issues-h">
       <Reveal>
-        <h2 id="issues-h" className="text-2xl font-semibold tracking-tight">
+        <h2 id="issues-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">
           {main.length ? `${main.length} thing${main.length === 1 ? "" : "s"} to look at, most urgent first` : "Nothing to raise"}
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
@@ -284,7 +285,7 @@ export function LinesTable({ run, issues }: { run: RunResult; issues: Issue[] })
   return (
     <section id="lines" className="scroll-mt-32" aria-labelledby="lines-h">
       <Reveal>
-        <h2 id="lines-h" className="text-2xl font-semibold tracking-tight">
+        <h2 id="lines-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">
           Line by line
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
@@ -349,14 +350,14 @@ export function LinesTable({ run, issues }: { run: RunResult; issues: Issue[] })
                     {worst ? (
                       <span
                         className={clsx(
-                          "inline-flex rounded-full px-2 py-0.5 text-[12px]",
+                          "inline-flex rounded-[2px] px-2 py-0.5 text-[12px]",
                           worst.resolution === "accept" ? "bg-ok-soft text-ok" : worst.cls === "money" ? "bg-warn-soft text-warn" : worst.cls === "stop" ? "bg-stop-soft text-stop" : "bg-info-soft text-info",
                         )}
                       >
                         {worst.resolution === "accept" ? "accepted" : worst.type.replace(/_/g, " ")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-[12px] text-ok">
+                      <span className="inline-flex items-center gap-1 rounded-[2px] bg-ok-soft px-2 py-0.5 text-[12px] text-ok">
                         <Icon name="check" className="h-3 w-3" /> matches
                       </span>
                     )}

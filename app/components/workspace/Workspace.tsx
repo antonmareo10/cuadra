@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { AnimatePresence, LayoutGroup, motion } from "motion/react";
+import { AnimatePresence, LayoutGroup, MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Endpoint } from "@/lib/clocked/client";
@@ -10,7 +10,8 @@ import type { DocKind, Issue, Resolution, RunResult, Verdict } from "@/lib/engin
 import { eur } from "@/lib/money";
 import { endpointsUsed } from "@/lib/ui/endpoints";
 import { picturesFor, type CaseLayout } from "@/lib/ui/paper";
-import { CountUp, EASE, EndpointChip, Icon } from "../ui";
+import { EASE, EndpointChip, Icon, Stamp } from "../ui";
+import { CountUp } from "../ui-motion";
 import { CallsTable, DocumentsView, EmailPanel, SafetyPanel } from "./Evidence";
 import { IssuesList, LinesTable } from "./IssuesView";
 
@@ -49,7 +50,7 @@ function useToast() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.3, ease: EASE }}
-            className="rounded-full bg-ink px-4 py-2.5 text-[14px] text-paper shadow-card"
+            className="rounded-[2px] bg-ink px-4 py-2.5 text-[14px] text-paper shadow-card"
           >
             {msg}
           </motion.div>
@@ -58,6 +59,15 @@ function useToast() {
     </div>
   );
   return { show, node };
+}
+
+/** The stamp for a verdict: what a bookkeeper would press on the invoice. */
+function verdictStamp(verdict: Verdict): { text: string; sub: string; tone: "accent" | "ok" | "info" } {
+  if (verdict.kind === "hold") return { text: "Do not pay", sub: "held in code", tone: "accent" };
+  if (verdict.kind === "unreadable") return { text: "Unreadable", sub: "nothing approved", tone: "accent" };
+  if (verdict.waitingForPhoto) return { text: "Look first", sub: "read from a photo", tone: "info" };
+  if (verdict.kind === "pay_adjusted") return { text: "Claim", sub: `${eur(verdict.disputed)} back`, tone: "accent" };
+  return { text: "OK to pay", sub: "every line matches", tone: "ok" };
 }
 
 function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunResult; onReplay: () => void }) {
@@ -77,113 +87,126 @@ function VerdictHero({ verdict, run, onReplay }: { verdict: Verdict; run: RunRes
   });
   const crossOk =
     verdict.expectedPayable !== null && verdict.kind !== "hold" && Math.abs(verdict.payNow + verdict.pending - verdict.expectedPayable) < 0.06;
+  // The double-ruled total is drawn only when the column really adds up.
+  const sums =
+    verdict.invoiceTotal !== null && verdict.kind !== "hold" && verdict.kind !== "unreadable" && !verdict.waitingForPhoto &&
+    Math.abs(verdict.invoiceTotal - verdict.disputed - verdict.pending - verdict.payNow) < 0.01;
+  const stamp = verdictStamp(verdict);
 
   return (
-    <section
-      aria-label="Verdict"
-      className={clsx(
-        "relative overflow-hidden rounded-3xl border p-5 shadow-card sm:p-8",
-        tone === "stop" && "border-stop/30 bg-stop-soft/60",
-        tone === "warn" && "border-warn/30 bg-warn-soft/60",
-        tone === "ok" && "border-ok/30 bg-ok-soft/60",
-      )}
-    >
-      <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/80 px-2.5 py-1">
-          <span className={clsx("pulse-dot h-1.5 w-1.5 rounded-full", recorded ? "bg-ok" : "bg-accent")} />
-          {recorded ? `Recorded run · ${when}` : `Live run · ${when}`}
-        </span>
-        {recorded ? <span className="rounded-full bg-surface/80 px-2.5 py-1">replayed instantly, no network</span> : null}
-        <button
-          type="button"
-          onClick={onReplay}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 py-1 text-ink-2 hover:bg-surface/80 hover:text-ink"
-        >
-          <Icon name="replay" className="h-3.5 w-3.5" /> Replay the calls
-        </button>
-      </div>
+    <div className="relative z-10 mt-5 -mb-28 sm:mt-6">
+      <section aria-label="Verdict" className="perf-top bg-surface px-5 pb-6 pt-8 text-ink shadow-[0_44px_60px_-40px_rgb(4_8_40/0.8)] sm:px-8 sm:pt-10 lg:px-10">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pr-24 font-mono text-[11.5px] text-muted sm:pr-48">
+          <span className="inline-flex items-center gap-2">
+            <span className={clsx("pulse-dot h-1.5 w-1.5 rounded-full", recorded ? "bg-ok" : "bg-accent")} />
+            {recorded ? `Recorded run · ${when}` : `Live run · ${when}`}
+          </span>
+          {recorded ? <span>replayed instantly, no network</span> : null}
+          <button
+            type="button"
+            onClick={onReplay}
+            className="inline-flex min-h-9 items-center gap-1.5 border border-line px-2.5 text-ink-2 transition-colors hover:border-ink hover:text-ink"
+          >
+            <Icon name="replay" className="h-3.5 w-3.5" /> Replay the calls
+          </button>
+        </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-end">
-        <div>
-          <p className={clsx("text-[14px] font-medium", tone === "stop" && "text-stop", tone === "warn" && "text-warn", tone === "ok" && "text-ok")}>
-            {verdict.kind === "hold"
-              ? `Do not pay this invoice. ${stops.length} hard stop${stops.length === 1 ? "" : "s"}.`
-              : verdict.waitingForPhoto
-                ? "The delivery note was read from a photo. Nothing is paid until you have looked at it."
-                : verdict.kind === "pay_adjusted"
-                ? "Pay the undisputed part. Claim the rest."
-                : verdict.kind === "ready"
-                  ? "Everything matches."
-                  : "Nothing is approved without a readable invoice."}
-          </p>
-          <h1 className="mt-2 text-[clamp(2.2rem,6vw,4.2rem)] font-semibold leading-[1] tracking-[-0.03em]">
+        <div className="mt-6 grid gap-8 lg:mt-8 lg:grid-cols-12 lg:items-end lg:gap-x-6">
+          <div className="min-w-0 lg:col-span-8">
+            <p className={clsx("text-[14.5px] font-semibold", tone === "stop" && "text-stop", tone === "warn" && "text-warn", tone === "ok" && "text-ok")}>
+              {verdict.kind === "hold"
+                ? `Do not pay this invoice. ${stops.length} hard stop${stops.length === 1 ? "" : "s"}.`
+                : verdict.waitingForPhoto
+                  ? "The delivery note was read from a photo. Nothing is paid until you have looked at it."
+                  : verdict.kind === "pay_adjusted"
+                    ? "Pay the undisputed part. Claim the rest."
+                    : verdict.kind === "ready"
+                      ? "Everything matches."
+                      : "Nothing is approved without a readable invoice."}
+            </p>
+            <h1 className="mt-3 font-display text-[clamp(2.3rem,4.7vw,4.6rem)] leading-[0.92]">
+              {verdict.kind === "hold" ? (
+                <span className="text-stop">Hold payment</span>
+              ) : verdict.kind === "unreadable" ? (
+                <span className="text-stop">Could not read it</span>
+              ) : verdict.waitingForPhoto ? (
+                <>
+                  <span className="text-muted">Check the photo, then pay </span>
+                  <CountUp value={verdict.waitingForPhoto} format="eur" />
+                </>
+              ) : (
+                <>
+                  {verdict.kind === "ready" ? "Ready to pay " : "Pay "}
+                  <CountUp value={verdict.payNow} format="eur" />
+                  {verdict.kind === "pay_adjusted" ? <span className="text-muted"> now</span> : null}
+                </>
+              )}
+            </h1>
+            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-ink-2">
+              {run.supplier.name} · invoice {invoice?.header.number?.value ?? "(number not read)"}
+              {invoice?.header.date?.value ? ` of ${invoice.header.date.value}` : ""}
+              {verdict.invoiceTotal !== null ? ` · total printed ${eur(verdict.invoiceTotal)}` : ""}
+            </p>
+          </div>
+          <dl className="font-mono text-[13px] lg:col-span-4">
+            {[
+              ["Invoice total", verdict.invoiceTotal ?? 0, "text-ink", ""],
+              ["Claim back", verdict.disputed, verdict.disputed > 0 ? "text-warn" : "text-muted", sums ? "− " : ""],
+              [verdict.waitingForPhoto ? "Waiting for you" : "Ask the kitchen", verdict.pending, verdict.pending > 0 ? "text-info" : "text-muted", sums ? "− " : ""],
+            ].map(([label, value, color, sign]) => (
+              <div key={label as string} className="flex items-baseline justify-between gap-4 border-b border-dashed border-line py-2.5">
+                <dt className="font-sans text-[14px] text-ink-2">{label as string}</dt>
+                <dd className={clsx("text-[16px] font-semibold sm:text-[18px]", color as string)}>
+                  {sign as string}
+                  <CountUp value={value as number} format="eur" />
+                </dd>
+              </div>
+            ))}
+            {sums ? (
+              <div className="dbl-top mt-1 flex items-baseline justify-between gap-4 border-ink pt-2.5">
+                <dt className="font-sans text-[14px] font-semibold">Pay now</dt>
+                <dd className="text-[18px] font-bold sm:text-[20px]">
+                  <CountUp value={verdict.payNow} format="eur" />
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </div>
+
+        <div className="mt-7 flex flex-col gap-3 border-t border-line pt-4 text-[13px] text-ink-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <p className="flex items-center gap-2">
             {verdict.kind === "hold" ? (
-              <span className="text-stop">Hold payment</span>
-            ) : verdict.kind === "unreadable" ? (
-              <span className="text-stop">Could not read it</span>
+              <>
+                <Icon name="lock" className="text-stop" /> Held by policy in code. Clear each stop yourself after checking with the supplier.
+              </>
             ) : verdict.waitingForPhoto ? (
               <>
-                <span className="text-muted">Check the photo, then pay </span>
-                <CountUp value={verdict.waitingForPhoto} format="eur" />
+                <Icon name="review" className="text-info" /> Read without character positions. Look at the photo below, then mark it checked.
               </>
-            ) : (
+            ) : crossOk ? (
               <>
-                {verdict.kind === "ready" ? "Ready to pay " : "Pay "}
-                <CountUp value={verdict.payNow} format="eur" />
-                {verdict.kind === "pay_adjusted" ? <span className="text-muted"> now</span> : null}
+                <Icon name="check" className="text-ok" /> Independent recomputation at agreed prices: {eur(verdict.expectedPayable!)} = pay now
+                {verdict.pending > 0 ? " + waiting" : ""}.
               </>
-            )}
-          </h1>
-          <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-ink-2">
-            {run.supplier.name} · invoice {invoice?.header.number?.value ?? "(number not read)"}
-            {invoice?.header.date?.value ? ` of ${invoice.header.date.value}` : ""}
-            {verdict.invoiceTotal !== null ? ` · total printed ${eur(verdict.invoiceTotal)}` : ""}
+            ) : verdict.expectedPayable !== null ? (
+              <>
+                <Icon name="info" className="text-info" /> Recomputation at agreed prices: {eur(verdict.expectedPayable)} (your choices below change
+                what is paid).
+              </>
+            ) : null}
+          </p>
+          <p className="tabular font-mono text-[11.5px] text-muted">
+            {run.totals.calls} Clocked calls · {run.totals.credits} credits · {(run.totals.modelMs / 1000).toFixed(1)} s model time · {endpoints.length}{" "}
+            endpoints
           </p>
         </div>
-        <dl className="grid grid-cols-3 gap-3">
-          {[
-            ["Invoice total", verdict.invoiceTotal ?? 0, "text-ink"],
-            ["Claim back", verdict.disputed, verdict.disputed > 0 ? "text-warn" : "text-muted"],
-            [verdict.waitingForPhoto ? "Waiting for you" : "Ask the kitchen", verdict.pending, verdict.pending > 0 ? "text-info" : "text-muted"],
-          ].map(([label, value, color]) => (
-            <div key={label as string} className="rounded-2xl bg-surface/80 p-3 sm:p-4">
-              <dt className="text-[12px] text-muted">{label as string}</dt>
-              <dd className={clsx("mt-1 text-lg font-semibold tracking-tight sm:text-2xl", color as string)}>
-                <CountUp value={value as number} format="eur" />
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-
-      <div className="mt-6 flex flex-col gap-3 border-t border-ink/10 pt-5 text-[13px] text-ink-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <p className="flex items-center gap-2">
-          {verdict.kind === "hold" ? (
-            <>
-              <Icon name="lock" className="text-stop" /> Held by policy in code. Clear each stop yourself after checking with the supplier.
-            </>
-          ) : verdict.waitingForPhoto ? (
-            <>
-              <Icon name="review" className="text-info" /> Read without character positions. Look at the photo below, then mark it checked.
-            </>
-          ) : crossOk ? (
-            <>
-              <Icon name="check" className="text-ok" /> Independent recomputation at agreed prices: {eur(verdict.expectedPayable!)} = pay now
-              {verdict.pending > 0 ? " + waiting" : ""}.
-            </>
-          ) : verdict.expectedPayable !== null ? (
-            <>
-              <Icon name="info" className="text-info" /> Recomputation at agreed prices: {eur(verdict.expectedPayable)} (your choices below change
-              what is paid).
-            </>
-          ) : null}
-        </p>
-        <p className="tabular font-mono text-[12px] text-muted">
-          {run.totals.calls} Clocked calls · {run.totals.credits} credits · {(run.totals.modelMs / 1000).toFixed(1)} s model time · {endpoints.length}{" "}
-          endpoints
-        </p>
-      </div>
-    </section>
+      </section>
+      <span className="pointer-events-none absolute -top-4 right-3 text-[clamp(1.15rem,3.2vw,2.4rem)] sm:right-8 lg:-top-6">
+        <Stamp key={`${verdict.kind}-${verdict.disputed}-${verdict.pending}`} rotate={-7} delay={380} tone={stamp.tone} sub={stamp.sub}>
+          {stamp.text}
+        </Stamp>
+      </span>
+    </div>
   );
 }
 
@@ -210,7 +233,7 @@ function RunTimeline({ run, replayKey }: { run: RunResult; replayKey: number }) 
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 380, damping: 20, delay: 0.25 + i * 0.12 }}
             className={clsx(
-              "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+              "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[2px]",
               s.status === "done" && "bg-ok-soft text-ok",
               s.status === "skipped" && "bg-surface-2 text-muted",
               s.status === "failed" && "bg-stop-soft text-stop",
@@ -224,7 +247,7 @@ function RunTimeline({ run, replayKey }: { run: RunResult; replayKey: number }) 
               {(byStep[s.id] ?? []).map((e) => (
                 <EndpointChip key={e} endpoint={e} count={s.id === "intake" || s.id === "match" ? counts[e] : undefined} />
               ))}
-              {s.id === "checks" ? <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[11px] text-muted">code</span> : null}
+              {s.id === "checks" ? <span className="rounded-[2px] border border-line px-2 py-0.5 font-mono text-[11px] text-muted">code</span> : null}
             </div>
             <p className="mt-1 text-[12px] leading-relaxed text-muted">{s.note}</p>
           </div>
@@ -237,19 +260,17 @@ function RunTimeline({ run, replayKey }: { run: RunResult; replayKey: number }) 
 function SectionNav({ active }: { active: string }) {
   return (
     <LayoutGroup id="section-nav">
-      <nav aria-label="Sections" className="sticky top-16 z-30 -mx-4 border-b border-line/70 bg-paper/85 px-4 backdrop-blur-md sm:mx-0 sm:rounded-full sm:border sm:px-1.5">
-        <ul className="flex gap-1 overflow-x-auto py-1.5 [scrollbar-width:none]">
+      <nav aria-label="Sections" className="sticky top-14 z-30 -mx-[var(--gutter)] border-b border-ink/15 bg-paper/95 px-[calc(var(--gutter)-0.75rem)] backdrop-blur-md sm:top-16 lg:mx-0 lg:px-0">
+        <ul className="flex overflow-x-auto [scrollbar-width:none]">
           {SECTIONS.map((s) => (
             <li key={s.id} className="relative shrink-0">
               {active === s.id ? (
-                <motion.span layoutId="pill" className="absolute inset-0 rounded-full bg-ink" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
+                <motion.span layoutId="tab-rule" className="absolute inset-x-3 -bottom-px h-[3px] bg-accent" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
               ) : null}
               <a
                 href={`#${s.id}`}
-                className={clsx(
-                  "relative inline-flex min-h-9 items-center rounded-full px-3.5 text-[14px] transition-colors",
-                  active === s.id ? "text-paper" : "text-ink-2 hover:text-ink",
-                )}
+                aria-current={active === s.id ? "true" : undefined}
+                className={clsx("relative inline-flex min-h-12 items-center px-3 text-[14px] transition-colors", active === s.id ? "font-semibold text-ink" : "text-muted hover:text-ink")}
               >
                 {s.label}
               </a>
@@ -268,21 +289,21 @@ function ArrivedStrip({ run, layout, onOpen }: { run: RunResult; layout: CaseLay
   const order: DocKind[] = ["po", "delivery", "invoice"];
   return (
     <section aria-label="The documents as they arrived" className="mt-8">
-      <p className="text-[13px] text-muted">As they arrived</p>
-      <ul className="mt-3 grid grid-cols-3 gap-3 sm:gap-5">
+      <p className="font-mono text-[11.5px] text-muted">As they arrived</p>
+      <ul className="mt-3 grid grid-cols-3 gap-2 sm:gap-5">
         {order
           .map((k) => pics.find((p) => p.kind === k))
           .filter((p): p is NonNullable<typeof p> => Boolean(p))
-          .map((p) => {
+          .map((p, i) => {
             const doc = run.documents.find((d) => d.kind === p.kind)!;
             return (
               <li key={p.kind} className="min-w-0">
                 <button
                   type="button"
                   onClick={() => onOpen(p.kind)}
-                  className="group block w-full overflow-hidden rounded-xl border border-line bg-surface text-left shadow-card transition-transform duration-300 hover:-translate-y-0.5"
+                  className="group block w-full text-left transition-transform duration-300 hover:-translate-y-1"
                 >
-                  <span className="block aspect-[4/3] overflow-hidden bg-[#e9e5dc]">
+                  <span className="block aspect-[4/3] overflow-hidden bg-[#dfe2ea] shadow-card">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={p.src}
@@ -294,9 +315,11 @@ function ArrivedStrip({ run, layout, onOpen }: { run: RunResult; layout: CaseLay
                       style={{ objectPosition: p.form === "chat" ? "50% 60%" : p.form === "photo" ? "55% 40%" : "50% 0%" }}
                     />
                   </span>
-                  <span className="block px-3 py-2 text-[12.5px] leading-snug sm:text-[13.5px]">
-                    <span className="block truncate font-medium">{doc.label}</span>
-                    <span className="block truncate text-muted">{p.form === "photo" ? "phone photo, read in image mode" : p.form === "chat" ? "chat export, plain text" : "PDF with a text layer"}</span>
+                  <span className="block pt-2.5 text-[12.5px] leading-snug sm:text-[13.5px]">
+                    <span className="block truncate font-semibold">
+                      <span className="font-mono text-[11px] font-normal text-accent">{String(i + 1).padStart(2, "0")}</span> {doc.label}
+                    </span>
+                    <span className="hidden truncate font-mono text-[11px] text-muted sm:block">{p.form === "photo" ? "phone photo, read in image mode" : p.form === "chat" ? "chat export, plain text" : "PDF with a text layer"}</span>
                   </span>
                 </button>
               </li>
@@ -347,17 +370,21 @@ export function Workspace({ run, layout = {} }: { run: RunResult; layout?: CaseL
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <Link href="/#cases" className="inline-flex min-h-11 items-center gap-2 rounded-full pr-3 text-[14px] text-ink-2 hover:text-ink">
-          <Icon name="back" /> All cases
-        </Link>
-        <p className="text-[13px] text-muted">{run.title}</p>
+    // reducedMotion="user": with prefers-reduced-motion, motion skips movement and keeps plain fades.
+    <MotionConfig reducedMotion="user">
+    <div className="desk-grid text-on-desk">
+      <div className="shell pt-4 sm:pt-6">
+        <div className="flex flex-wrap items-center justify-between gap-x-4">
+          <Link href="/#cases" className="-ml-1 inline-flex min-h-11 items-center gap-2 px-1 text-[14px] font-medium text-white decoration-[1.5px] underline-offset-[6px] hover:underline">
+            <Icon name="back" /> All cases
+          </Link>
+          <p className="font-mono text-[11.5px] text-white/80">{run.title}</p>
+        </div>
+        <VerdictHero verdict={verdict} run={run} onReplay={() => setReplayKey((k) => k + 1)} />
       </div>
-
-      <VerdictHero verdict={verdict} run={run} onReplay={() => setReplayKey((k) => k + 1)} />
-
-      {run.story ? <p className="mt-6 max-w-3xl text-[16px] leading-relaxed text-ink-2">{run.story}</p> : null}
+    </div>
+    <div className="shell pb-24 pt-36">
+      {run.story ? <p className="max-w-3xl text-[17px] leading-relaxed text-ink-2 sm:text-[19px]">{run.story}</p> : null}
       <ArrivedStrip run={run} layout={layout} onOpen={(doc) => showEvidence({ doc })} />
       {run.errors.length ? (
         <div role="alert" className="mt-4 rounded-2xl border border-stop/30 bg-stop-soft p-4 text-[14px] text-stop">
@@ -370,7 +397,7 @@ export function Workspace({ run, layout = {} }: { run: RunResult; layout?: CaseL
         </div>
       ) : null}
 
-      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-12">
         <div className="min-w-0 space-y-14">
           <SectionNav active={active} />
           <IssuesList issues={issues} documents={run.documents} onEvidence={showEvidence} onResolve={setResolution} />
@@ -381,8 +408,8 @@ export function Workspace({ run, layout = {} }: { run: RunResult; layout?: CaseL
           <CallsTable run={run} replayKey={replayKey} />
         </div>
         <aside className="hidden lg:block">
-          <div className="sticky top-24 rounded-2xl border border-line bg-surface p-5">
-            <h2 className="text-[13px] font-medium uppercase tracking-wide text-muted">This run</h2>
+          <div className="perf-top torn-bottom sticky top-24 bg-surface px-5 pb-9 pt-7 shadow-card">
+            <h2 className="font-mono text-[11.5px] text-muted">This run · {run.totals.calls} Clocked calls</h2>
             <div className="mt-4">
               <RunTimeline run={run} replayKey={replayKey} />
             </div>
@@ -391,5 +418,6 @@ export function Workspace({ run, layout = {} }: { run: RunResult; layout?: CaseL
       </div>
       {toast.node}
     </div>
+    </MotionConfig>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { CallRecord } from "@/lib/clocked/client";
@@ -132,8 +132,9 @@ export function LiveRun() {
 
   const live = status?.live;
   return (
+    <MotionConfig reducedMotion="user">
     <div className="mx-auto max-w-4xl px-4 pb-24 pt-10 sm:px-6 sm:pt-14">
-      <h1 className="text-[clamp(2rem,5vw,3.2rem)] font-semibold leading-[1.05] tracking-[-0.03em]">Run a live reconciliation</h1>
+      <h1 className="font-display text-[clamp(2rem,5vw,3.4rem)] leading-[0.95]">Run a live reconciliation</h1>
       <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-ink-2">
         The same engine as the recorded cases, against Clocked in real time. The recorded runs took 15 to 19 calls and 11 to 24 seconds per invoice.
         Files go to Clocked for reading and are not stored by this app.
@@ -157,7 +158,7 @@ export function LiveRun() {
               <li key={s.id}>
                 <Link
                   href={`/case/${s.id}`}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-paper px-4 text-[14px] text-ink hover:bg-surface-2"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[2px] border border-line bg-paper px-4 text-[14px] text-ink hover:bg-surface-2"
                 >
                   {s.name} <Icon name="arrow" className="h-3.5 w-3.5" />
                 </Link>
@@ -174,14 +175,14 @@ export function LiveRun() {
       {live ? (
         <fieldset disabled={phase === "running"} className="mt-8 space-y-8">
           <div>
-            <h2 className="text-[13px] font-medium uppercase tracking-wide text-muted">A sample case, live</h2>
+            <h2 className="font-mono text-[11.5px] text-muted">A sample case, live</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {SAMPLES.map((s) => (
                 <button
                   key={s.id}
                   type="button"
                   onClick={() => start({ mode: "sample", caseId: s.id })}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface px-4 text-[14px] hover:bg-surface-2"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[2px] border border-line bg-surface px-4 text-[14px] hover:bg-surface-2"
                 >
                   {s.name}
                 </button>
@@ -190,7 +191,7 @@ export function LiveRun() {
           </div>
 
           <div>
-            <h2 className="text-[13px] font-medium uppercase tracking-wide text-muted">Or your own files</h2>
+            <h2 className="font-mono text-[11.5px] text-muted">Or your own files</h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               {SLOTS.map((s) => {
                 const f = files[s.kind];
@@ -236,7 +237,7 @@ export function LiveRun() {
               type="button"
               disabled={!files.invoice}
               onClick={runUpload}
-              className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-full bg-ink px-6 text-[15px] font-medium text-paper transition-transform active:scale-[0.97] disabled:opacity-40"
+              className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-[2px] bg-ink px-6 text-[15px] font-medium text-paper transition-transform active:scale-[0.97] disabled:opacity-40"
             >
               Reconcile live <Icon name="arrow" />
             </button>
@@ -280,5 +281,6 @@ export function LiveRun() {
         ) : null}
       </AnimatePresence>
     </div>
+    </MotionConfig>
   );
 }

@@ -46,7 +46,7 @@ const CONFIG = `{
 
 function Code({ children, label }: { children: string; label: string }) {
   return (
-    <pre tabIndex={0} aria-label={label} className="overflow-x-auto rounded-xl bg-[#1b1a17] p-4 font-mono text-[12.5px] leading-relaxed text-[#f5f2ea]">
+    <pre tabIndex={0} aria-label={label} className="overflow-x-auto rounded-xl bg-[#0b0f2e] p-4 font-mono text-[12.5px] leading-relaxed text-[#eef0f4]">
       {children}
     </pre>
   );
@@ -63,7 +63,7 @@ export default function AssistantsPage() {
     <>
       <SiteHeader />
       <main id="main" className="mx-auto max-w-4xl px-4 pb-20 pt-8 sm:px-6 sm:pt-14">
-        <Link href="/" className="inline-flex min-h-11 items-center gap-2 rounded-full pr-3 text-[14px] text-ink-2 hover:text-ink">
+        <Link href="/" className="inline-flex min-h-11 items-center gap-2 rounded-[2px] pr-3 text-[14px] text-ink-2 hover:text-ink">
           <Icon name="back" /> Home
         </Link>
         <h1 className="mt-4 font-display text-[clamp(2.4rem,8vw,4rem)] leading-[1] tracking-[-0.01em]">Use Cuadra from your AI assistant</h1>
@@ -74,7 +74,7 @@ export default function AssistantsPage() {
         </p>
 
         <section aria-labelledby="setup-h" className="mt-12">
-          <h2 id="setup-h" className="text-2xl font-semibold tracking-tight">Set it up</h2>
+          <h2 id="setup-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">Set it up</h2>
           <ol className="mt-5 space-y-6 text-[15.5px] leading-relaxed text-ink-2">
             <li>
               <p>
@@ -104,7 +104,7 @@ export default function AssistantsPage() {
         </section>
 
         <section aria-labelledby="modes-h" className="mt-12 rounded-2xl border border-line bg-surface p-5 sm:p-6">
-          <h2 id="modes-h" className="text-xl font-semibold tracking-tight">Replay or live</h2>
+          <h2 id="modes-h" className="font-display text-[1.35rem] leading-none">Replay or live</h2>
           <ul className="mt-3 space-y-3 text-[15px] leading-relaxed text-ink-2">
             <li>
               <span className="font-medium text-ink">Replay, no key.</span> With <span className="font-mono text-[13.5px]">CUADRA_MCP_MODE=replay</span>, or without a
@@ -121,7 +121,7 @@ export default function AssistantsPage() {
         </section>
 
         <section aria-labelledby="tools-h" className="mt-12">
-          <h2 id="tools-h" className="text-2xl font-semibold tracking-tight">The four tools</h2>
+          <h2 id="tools-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">The four tools</h2>
           <div className="mt-5 grid gap-4">
             {TOOLS.map((t) => (
               <article key={t.name} className="rounded-2xl border border-line bg-surface p-5">
@@ -135,7 +135,7 @@ export default function AssistantsPage() {
 
         {transcript ? (
           <section aria-labelledby="transcript-h" className="mt-12">
-            <h2 id="transcript-h" className="text-2xl font-semibold tracking-tight">A real session</h2>
+            <h2 id="transcript-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">A real session</h2>
             <p className="mt-2 text-[15px] leading-relaxed text-ink-2">
               Recorded with the SDK&apos;s own MCP client over stdio, in replay mode (<span className="font-mono text-[13.5px]">npm run mcp:demo</span>). These are the
               tool calls an assistant makes and exactly what it gets back.

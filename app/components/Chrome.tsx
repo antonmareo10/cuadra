@@ -12,36 +12,35 @@ function GitHubMark({ className }: { className?: string }) {
   );
 }
 
+const navLink = "min-h-11 items-center px-3 decoration-[1.5px] underline-offset-[7px] hover:underline";
+
+/** The header is the coloured band printed across the top of a delivery note. */
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-paper/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/" className="rounded-md" aria-label="Cuadra home">
-          <Logo />
+    <header className="sticky top-0 z-40 bg-desk text-on-desk">
+      <div className="shell flex h-14 items-center justify-between gap-3 sm:h-16">
+        <Link href="/" prefetch={false} className="-ml-1 inline-flex min-h-11 items-center px-1" aria-label="Cuadra home">
+          <Logo on="desk" size="h-[24px] sm:h-[26px]" />
         </Link>
         {children}
-        <nav aria-label="Main" className="flex items-center gap-1 text-[14px]">
-          <Link href="/#cases" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink sm:inline-flex">
+        <nav aria-label="Main" className="flex items-center text-[14px] font-medium">
+          <Link href="/#cases" className={`${navLink} hidden sm:inline-flex`}>
             Cases
           </Link>
-          <Link href="/#how" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink md:inline-flex">
+          <Link href="/#how" className={`${navLink} hidden md:inline-flex`}>
             How it works
           </Link>
-          <Link href="/assistants" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink sm:inline-flex">
+          <Link href="/assistants" className={`${navLink} hidden sm:inline-flex`}>
             Assistants
           </Link>
-          <Link href="/check" className="hidden rounded-full px-3 py-2 text-ink-2 hover:bg-surface-2 hover:text-ink lg:inline-flex">
+          <Link href="/check" className={`${navLink} hidden lg:inline-flex`}>
             Live run
           </Link>
-          <a
-            href={SITE.repo}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-ink-2 hover:bg-surface-2 hover:text-ink"
-          >
+          <a href={SITE.repo} target="_blank" rel="noreferrer" className={`${navLink} inline-flex gap-1.5`}>
             <GitHubMark className="h-4 w-4" />
             Code
           </a>
+          <span aria-hidden className="mx-1 hidden h-5 w-px bg-white/25 sm:block" />
           <ThemeToggle />
         </nav>
       </div>
@@ -49,51 +48,61 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
   );
 }
 
+const footLink = "group inline-flex min-h-10 items-center gap-2 text-white decoration-[1.5px] underline-offset-[6px] hover:underline";
+
 export function SiteFooter() {
   return (
-    <footer className="mt-10 border-t border-line">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-10 text-[13px] text-muted sm:px-6 md:grid-cols-[1.3fr_1fr]">
-        <div className="space-y-3">
-          <Logo />
-          <p className="max-w-md leading-relaxed">
-            Built by Antonio González for the Clocked Build Challenge 2026. The sample documents are synthetic: the restaurant, the suppliers, the
-            people and the bank accounts are made up.
-          </p>
-          <p className="max-w-md leading-relaxed">
-            Uses all ten endpoints of the{" "}
-            <a className="underline underline-offset-2 hover:text-ink" href={SITE.clockedDocs} target="_blank" rel="noreferrer">
-              Clocked API
-            </a>{" "}
-            by rezolve.ai: <span className="font-mono text-[12px] text-ink-2">{ENDPOINTS.join(" · ")}</span>.
-          </p>
+    <footer className="desk-grid text-on-desk">
+      <div className="shell pb-6 pt-16 sm:pt-20">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="space-y-4 text-[14px] leading-relaxed text-white/80 lg:col-span-5">
+            <p>
+              Built by Antonio González for the Clocked Build Challenge 2026. The sample documents are synthetic: the restaurant, the suppliers, the people
+              and the bank accounts are made up.
+            </p>
+            <p>
+              Uses all ten endpoints of the{" "}
+              <a className="text-white underline underline-offset-4" href={SITE.clockedDocs} target="_blank" rel="noreferrer">
+                Clocked API
+              </a>{" "}
+              by rezolve.ai: <span className="font-mono text-[11.5px] text-white">{ENDPOINTS.join(" · ")}</span>.
+            </p>
+          </div>
+          <ul className="space-y-1 text-[15px] lg:col-span-5 lg:col-start-8">
+            <li>
+              <a className={footLink} href={SITE.repo} target="_blank" rel="noreferrer">
+                <GitHubMark className="h-4 w-4" /> Source code and setup (MIT)
+              </a>
+            </li>
+            <li>
+              <a className={footLink} href={SITE.video} target="_blank" rel="noreferrer">
+                Demo video
+              </a>
+            </li>
+            <li>
+              <Link className={footLink} href="/assistants">
+                Use it from an AI assistant (MCP)
+              </Link>
+            </li>
+            <li>
+              <a className={footLink} href={SITE.failureHandling} target="_blank" rel="noreferrer">
+                How it handles uncertain results and failed requests
+              </a>
+            </li>
+            <li>
+              <Link className={footLink} href="/check">
+                Live run with your own files
+              </Link>
+            </li>
+          </ul>
         </div>
-        <ul className="space-y-2 md:justify-self-end">
-          <li>
-            <a className="inline-flex min-h-9 items-center gap-2 hover:text-ink" href={SITE.repo} target="_blank" rel="noreferrer">
-              <GitHubMark className="h-3.5 w-3.5" /> Source code and setup (MIT)
-            </a>
-          </li>
-          <li>
-            <a className="inline-flex min-h-9 items-center hover:text-ink" href={SITE.video} target="_blank" rel="noreferrer">
-              Demo video
-            </a>
-          </li>
-          <li>
-            <Link className="inline-flex min-h-9 items-center hover:text-ink" href="/assistants">
-              Use it from an AI assistant (MCP)
-            </Link>
-          </li>
-          <li>
-            <a className="inline-flex min-h-9 items-center hover:text-ink" href={SITE.failureHandling} target="_blank" rel="noreferrer">
-              How it handles uncertain results and failed requests
-            </a>
-          </li>
-          <li>
-            <Link className="inline-flex min-h-9 items-center hover:text-ink" href="/check">
-              Live run with your own files
-            </Link>
-          </li>
-        </ul>
+        <div aria-hidden className="mt-16 sm:mt-24">
+          <Logo on="desk" size="h-auto w-full" />
+        </div>
+        <p className="mt-5 flex flex-wrap justify-between gap-2 font-mono text-[11px] text-white/75">
+          <span>Pay the right amount, to the right account.</span>
+          <span>Clocked Build Challenge · 2026</span>
+        </p>
       </div>
     </footer>
   );

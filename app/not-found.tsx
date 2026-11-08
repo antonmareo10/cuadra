@@ -17,7 +17,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/#cases"
-          className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-ink px-6 text-[15px] font-medium text-paper shadow-card hover:bg-ink-2"
+          className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-[2px] bg-ink px-6 text-[15px] font-medium text-paper shadow-card hover:bg-ink-2"
         >
           See the five cases <Icon name="arrow" />
         </Link>

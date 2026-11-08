@@ -1,11 +1,9 @@
 "use client";
 
 import clsx from "clsx";
-import { animate, motion, useInView, useReducedMotion } from "motion/react";
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createElement, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Endpoint } from "@/lib/clocked/client";
-import { eur } from "@/lib/money";
-import { WORDMARK } from "@/lib/ui/brand";
+import { BRAND, WORDMARK } from "@/lib/ui/brand";
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -46,7 +44,7 @@ export function EndpointChip({ endpoint, count, className }: { endpoint: Endpoin
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[11px] font-medium leading-5 tracking-tight",
+        "inline-flex items-center gap-1 rounded-[2px] px-1.5 py-px font-mono text-[10.5px] font-medium leading-5 tracking-[-0.01em]",
         GROUP_CLASS[ENDPOINT_GROUP[endpoint]],
         className,
       )}
@@ -62,103 +60,44 @@ export function SourceChip({ source }: { source: string }) {
   const ep = (Object.entries(ENDPOINT_NAME).find(([, name]) => name === source)?.[0] ?? null) as Endpoint | null;
   if (ep) return <EndpointChip endpoint={ep} />;
   return (
-    <span className="inline-flex items-center rounded-full border border-line px-2 py-0.5 font-mono text-[11px] leading-5 text-muted">
+    <span className="inline-flex items-center rounded-[2px] border border-line px-1.5 py-px font-mono text-[10.5px] leading-5 text-muted">
       {source === "checks" ? "arithmetic" : source}
     </span>
   );
 }
 
-export function Reveal({ children, delay = 0, className, as = "div" }: { children: ReactNode; delay?: number; className?: string; as?: "div" | "section" | "li" }) {
-  const Comp = motion[as];
-  return (
-    <Comp
-      className={className}
-      initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-      transition={{ duration: 0.5, ease: EASE, delay }}
-    >
-      {children}
-    </Comp>
-  );
-}
-
-export type CountFormat = "eur" | "int" | "approx";
-
-const FORMATS: Record<CountFormat, (n: number) => string> = {
-  eur: (n) => eur(n),
-  int: (n) => String(Math.round(n)),
-  approx: (n) => `≈${Math.round(n)}`,
-};
-
-// False until the first page load has hydrated; later mounts come from client-side navigation.
-let pageHydrated = false;
-
 /**
- * Shows the real value in the server HTML (so the page reads right without JavaScript and hydrates
- * without a mismatch). It counts up from zero only where that cannot flash: numbers below the fold on
- * the first load, and every number after a client-side navigation (reset before paint). A changed
- * value counts from the old one. Reduced motion never animates.
+ * Fades a block in the first time it scrolls into view. The server HTML shows it (no JavaScript, or
+ * already on screen at load: nothing hides); only a block below the fold waits for the reader.
+ * CSS does the motion (.reveal-*), so the landing page ships no animation library.
  */
-export function CountUp({ value, format: kind, className }: { value: number; format: CountFormat; className?: string }) {
-  const format = FORMATS[kind];
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  const reduce = useReducedMotion();
-  const [shown, setShown] = useState(value);
-  const last = useRef(value);
+export function Reveal({ children, delay = 0, className, as = "div" }: { children: ReactNode; delay?: number; className?: string; as?: "div" | "section" | "li" }) {
+  const ref = useRef<HTMLElement>(null);
+  const [state, setState] = useState<"still" | "wait" | "shown">("still");
   useLayoutEffect(() => {
     const el = ref.current;
-    const visibleNow = el ? el.getBoundingClientRect().top < window.innerHeight && el.getBoundingClientRect().bottom > 0 : false;
-    const firstLoad = !pageHydrated;
-    if (!reduce && (!firstLoad || !visibleNow)) {
-      last.current = 0;
-      setShown(0);
-    }
-    // Flip after the whole hydration commit, so every number visible on the first load keeps its value.
-    if (firstLoad) setTimeout(() => (pageHydrated = true), 0);
-    // Runs once on mount by design: it only decides where the first count starts.
-  }, []);
-  useEffect(() => {
-    if (reduce) {
-      last.current = value;
-      setShown(value);
-      return;
-    }
-    if (!inView || last.current === value) return;
-    const controls = animate(last.current, value, {
-      duration: 0.9,
-      ease: EASE,
-      onUpdate: (v) => {
-        last.current = v;
-        setShown(v);
+    if (!el || el.getBoundingClientRect().top < window.innerHeight * 0.92) return;
+    setState("wait");
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setState("shown");
+          io.disconnect();
+        }
       },
-    });
-    return () => controls.stop();
-  }, [inView, value, reduce]);
-  return (
-    <span ref={ref} className={clsx("tabular", className)}>
-      <span className="sr-only">{format(value)}</span>
-      <span aria-hidden>{format(shown)}</span>
-    </span>
-  );
-}
-
-export function ProbabilityBar({ value, tone = "ink", label }: { value: number; tone?: "ink" | "ok" | "warn" | "stop" | "info"; label?: string }) {
-  const color = { ink: "bg-ink", ok: "bg-ok", warn: "bg-warn", stop: "bg-stop", info: "bg-info" }[tone];
-  return (
-    <span className="inline-flex items-center gap-2" title={label}>
-      <span className="relative h-1.5 w-16 overflow-hidden rounded-full bg-surface-2" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value * 100)} aria-label={label ?? "probability"}>
-        <motion.span
-          className={clsx("absolute inset-y-0 left-0 rounded-full", color)}
-          initial={{ width: 0 }}
-          whileInView={{ width: `${Math.max(2, value * 100)}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: EASE }}
-        />
-      </span>
-      <span className="tabular font-mono text-[11px] text-muted">{Math.round(value * 100)}%</span>
-    </span>
+      { rootMargin: "0px 0px -8% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return createElement(
+    as,
+    {
+      ref,
+      className: clsx(className, state === "wait" && "reveal-wait", state === "shown" && "reveal-in"),
+      style: state === "shown" && delay ? { transitionDelay: `${Math.round(delay * 1000)}ms` } : undefined,
+    },
+    children,
   );
 }
 
@@ -266,7 +205,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-ink"
+      className="inline-flex h-11 w-11 items-center justify-center text-current/80 transition-colors hover:bg-white/10 hover:text-current"
       aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
     >
       <Icon name={theme === "dark" ? "sun" : "moon"} className="h-[18px] w-[18px]" />
@@ -274,18 +213,78 @@ export function ThemeToggle() {
   );
 }
 
-export function Logo({ className }: { className?: string }) {
+export function Logo({ className, on = "page", size = "h-[26px]" }: { className?: string; on?: "page" | "desk"; size?: string }) {
   // The wordmark from lib/ui/brand.ts: «cuadra» with the accountant's double rule.
+  // On the blue desk it uses the brand's own colours for dark grounds (BRAND.inkDark, BRAND.accentDark).
   return (
     <span className={clsx("inline-flex items-center", className)}>
-      <svg viewBox={WORDMARK.viewBox} className="h-[26px] w-auto" role="img" aria-label="Cuadra">
+      <svg viewBox={WORDMARK.viewBox} className={clsx(size, !size.includes("w-") && "w-auto")} role="img" aria-label="Cuadra">
         <g transform={WORDMARK.transform}>
-          <path d={WORDMARK.letters} className="fill-ink" />
+          <path d={WORDMARK.letters} className={on === "page" ? "fill-ink" : undefined} fill={on === "desk" ? BRAND.inkDark : undefined} />
           {WORDMARK.rules.map((d) => (
-            <path key={d} d={d} className="fill-accent" />
+            <path key={d} d={d} className={on === "page" ? "fill-accent" : undefined} fill={on === "desk" ? BRAND.accentDark : undefined} />
           ))}
         </g>
       </svg>
+    </span>
+  );
+}
+
+/**
+ * The rubber stamp: the one decision, in red ink. It lands once (CSS, so it also runs before hydration);
+ * with reduced motion it is simply there.
+ */
+export function Stamp({
+  children,
+  sub,
+  rotate = -7,
+  delay = 0,
+  animate = true,
+  tone = "accent",
+  className,
+  style,
+}: {
+  children: ReactNode;
+  sub?: ReactNode;
+  rotate?: number;
+  delay?: number;
+  animate?: boolean;
+  /** "paper": the stamp sits on a white document in either theme, so it keeps the light-theme red. */
+  tone?: "accent" | "ok" | "info" | "warn" | "paper";
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const color = { accent: "text-accent", ok: "text-ok", info: "text-info", warn: "text-warn", paper: "text-[#cf2416]" }[tone];
+  return (
+    <span
+      className={clsx("stamp", animate && "stamp-in", color, className)}
+      style={{ ["--r" as string]: `${rotate}deg`, animationDelay: animate ? `${delay}ms` : undefined, ...style }}
+    >
+      <span>{children}</span>
+      {sub ? <span className="stamp-sub">{sub}</span> : null}
+    </span>
+  );
+}
+
+/** A link with a slight magnetic pull towards the pointer (≤ 6 px). Off on touch and with reduced motion. */
+export function Magnetic({ children, className }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const move = (e: React.PointerEvent) => {
+    const el = ref.current;
+    if (!el || e.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = el.getBoundingClientRect();
+    const dx = ((e.clientX - (r.left + r.width / 2)) / (r.width / 2)) * 6;
+    const dy = ((e.clientY - (r.top + r.height / 2)) / (r.height / 2)) * 4;
+    el.style.setProperty("--mx", `${Math.max(-6, Math.min(6, dx)).toFixed(1)}px`);
+    el.style.setProperty("--my", `${Math.max(-4, Math.min(4, dy)).toFixed(1)}px`);
+  };
+  const leave = () => {
+    ref.current?.style.setProperty("--mx", "0px");
+    ref.current?.style.setProperty("--my", "0px");
+  };
+  return (
+    <span ref={ref} onPointerMove={move} onPointerLeave={leave} className={clsx("magnet inline-flex", className)}>
+      {children}
     </span>
   );
 }

@@ -4,13 +4,16 @@ import type { Box, PageLayout } from "@/lib/ui/paper";
 
 export interface CutMark {
   box: Box;
-  tone: "warn" | "stop" | "accent";
+  tone: "warn" | "stop" | "accent" | "marker";
+  /** Marks a point the scroll thread on the landing page runs through (see landing/Thread.tsx). */
+  node?: string;
 }
 
 const TONE = {
   warn: "bg-warn/20 ring-warn",
   stop: "bg-stop/15 ring-stop",
   accent: "bg-hl/60 ring-accent",
+  marker: "marker ring-0",
 };
 
 /**
@@ -26,6 +29,7 @@ export function PageCut({
   alt,
   children,
   eager = false,
+  cut,
 }: {
   src: string;
   page: Pick<PageLayout, "width" | "height">;
@@ -35,6 +39,8 @@ export function PageCut({
   alt: string;
   children?: ReactNode;
   eager?: boolean;
+  /** A picture pre-cut to exactly `region` (lighter than the whole page); it then simply fills the box. */
+  cut?: string;
 }) {
   const [x0, y0, x1, y1] = region;
   const cw = x1 - x0;
@@ -44,14 +50,14 @@ export function PageCut({
     <div role="img" aria-label={alt} className={clsx("relative overflow-hidden bg-white", className)} style={{ aspectRatio: `${cw} / ${ch}` }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={src}
+        src={cut ?? src}
         alt=""
         aria-hidden
         loading={eager ? "eager" : "lazy"}
         decoding="async"
         draggable={false}
-        className="absolute max-w-none select-none"
-        style={{ width: pct(page.width, cw), left: pct(-x0, cw), top: pct(-y0, ch) }}
+        className={cut ? "absolute inset-0 h-full w-full select-none" : "absolute max-w-none select-none"}
+        style={cut ? undefined : { width: pct(page.width, cw), left: pct(-x0, cw), top: pct(-y0, ch) }}
       />
       {marks.map((m, i) => {
         const h = Math.max(m.box[3] - m.box[1], 9);
@@ -60,7 +66,8 @@ export function PageCut({
           <span
             key={i}
             aria-hidden
-            className={clsx("absolute rounded-[3px] ring-2", TONE[m.tone])}
+            data-node={m.node}
+            className={clsx("absolute rounded-[2px]", m.tone !== "marker" && "ring-2", TONE[m.tone])}
             style={{ left: pct(m.box[0] - x0 - 3, cw), top: pct(cy - h / 2 - 2.5 - y0, ch), width: pct(m.box[2] - m.box[0] + 6, cw), height: pct(h + 5, ch) }}
           />
         );
@@ -77,6 +84,7 @@ export function DocCrop({
   line,
   cells,
   tone = "warn",
+  nodes = [],
   above = 14,
   below = 14,
   x0 = 40,
@@ -88,7 +96,8 @@ export function DocCrop({
   page: Pick<PageLayout, "width" | "height">;
   line: Box;
   cells: Box[];
-  tone?: "warn" | "stop";
+  tone?: "warn" | "stop" | "marker";
+  nodes?: string[];
   above?: number;
   below?: number;
   x0?: number;
@@ -101,8 +110,8 @@ export function DocCrop({
       src={src}
       page={page}
       region={[x0, Math.max(0, line[1] - above), x1 ?? page.width - 40, Math.min(page.height, line[3] + below)]}
-      marks={cells.map((box) => ({ box, tone }))}
-      className={clsx("rounded-lg shadow-[0_1px_2px_rgb(0_0_0/0.08),0_8px_20px_-12px_rgb(0_0_0/0.35)]", className)}
+      marks={cells.map((box, i) => ({ box, tone, node: nodes[i] }))}
+      className={clsx("shadow-card", className)}
       alt={alt}
     />
   );

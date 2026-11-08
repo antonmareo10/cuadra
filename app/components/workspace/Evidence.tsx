@@ -9,7 +9,8 @@ import { marksFor, segmentLines } from "@/lib/ui/highlight";
 import { lineStarts } from "@/lib/ui/lines";
 import { boxForSpan, picturesFor, type CaseLayout } from "@/lib/ui/paper";
 import { PagePicture, type PictureMark } from "../paper/PagePicture";
-import { EASE, EndpointChip, ENDPOINT_NAME, Icon, ProbabilityBar, Reveal } from "../ui";
+import { EASE, EndpointChip, ENDPOINT_NAME, Icon, Reveal } from "../ui";
+import { ProbabilityBar } from "../ui-motion";
 import type { Focus } from "./Workspace";
 
 const DOC_ORDER: DocKind[] = ["invoice", "delivery", "po"];
@@ -173,7 +174,7 @@ export function DocumentsView({ run, issues, focus, layout = {} }: { run: RunRes
   return (
     <section id="documents" className="scroll-mt-32" aria-labelledby="docs-h">
       <Reveal>
-        <h2 id="docs-h" className="text-2xl font-semibold tracking-tight">
+        <h2 id="docs-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">
           The documents, as they arrived and as Clocked read them
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
@@ -184,23 +185,23 @@ export function DocumentsView({ run, issues, focus, layout = {} }: { run: RunRes
       </Reveal>
       <div id="doc-view" className="mt-6 scroll-mt-32 rounded-2xl border border-line bg-surface p-3 sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div role="tablist" aria-label="Documents" className="flex flex-wrap gap-1 rounded-full bg-surface-2 p-1">
+          <div role="tablist" aria-label="Documents" className="flex flex-wrap gap-1 rounded-[2px] bg-surface-2 p-1">
             {docs.map((d) => (
               <button
                 key={d.kind}
                 role="tab"
                 aria-selected={tab === d.kind}
                 onClick={() => setTab(d.kind)}
-                className={clsx("relative min-h-9 rounded-full px-3.5 text-[13.5px]", tab === d.kind ? "text-paper" : "text-ink-2 hover:text-ink")}
+                className={clsx("relative min-h-9 rounded-[2px] px-3.5 text-[13.5px]", tab === d.kind ? "text-paper" : "text-ink-2 hover:text-ink")}
               >
-                {tab === d.kind ? <motion.span layoutId="doc-tab" className="absolute inset-0 rounded-full bg-ink" transition={{ type: "spring", stiffness: 420, damping: 34 }} /> : null}
+                {tab === d.kind ? <motion.span layoutId="doc-tab" className="absolute inset-0 rounded-[2px] bg-ink" transition={{ type: "spring", stiffness: 420, damping: 34 }} /> : null}
                 <span className="relative">{d.label}</span>
               </button>
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
             {doc.photo ? null : (
-              <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full px-2 text-ink-2">
+              <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-[2px] px-2 text-ink-2">
                 <input type="checkbox" checked={shareSafe} onChange={(e) => setShareSafe(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
                 Share-safe copy
               </label>
@@ -210,7 +211,7 @@ export function DocumentsView({ run, issues, focus, layout = {} }: { run: RunRes
                 href={`/cases/${run.caseId}/${doc.fileName}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line px-3 text-ink-2 hover:bg-surface-2 hover:text-ink"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-[2px] border border-line px-3 text-ink-2 hover:bg-surface-2 hover:text-ink"
               >
                 <Icon name="external" className="h-3.5 w-3.5" /> Original
               </a>
@@ -219,7 +220,7 @@ export function DocumentsView({ run, issues, focus, layout = {} }: { run: RunRes
               <button
                 type="button"
                 onClick={() => downloadBase64Pdf(doc.redactedPdf!, `${doc.kind}-redacted.pdf`)}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line px-3 text-ink-2 hover:bg-surface-2 hover:text-ink"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-[2px] border border-line px-3 text-ink-2 hover:bg-surface-2 hover:text-ink"
               >
                 <Icon name="download" className="h-3.5 w-3.5" /> Redacted PDF
               </button>
@@ -264,7 +265,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
   return (
     <section id="safety" className="scroll-mt-32" aria-labelledby="safety-h">
       <Reveal>
-        <h2 id="safety-h" className="text-2xl font-semibold tracking-tight">
+        <h2 id="safety-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">
           Safety checks
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">Run on every document before anything else reads it. A flag here holds the payment in code.</p>
@@ -281,7 +282,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
                 <div className="flex items-center justify-between gap-3">
                   <span>{d.label}</span>
                   {d.guard ? (
-                    <span className={clsx("rounded-full px-2 py-0.5 text-[12px]", d.guard.flagged ? "bg-stop-soft text-stop" : "bg-ok-soft text-ok")}>
+                    <span className={clsx("rounded-[2px] px-2 py-0.5 text-[12px]", d.guard.flagged ? "bg-stop-soft text-stop" : "bg-ok-soft text-ok")}>
                       {d.guard.flagged ? `${d.guard.category} · ${d.guard.severity}` : "benign"}
                     </span>
                   ) : (
@@ -317,7 +318,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
                   <div className="flex items-center justify-between gap-3">
                     <span>{d.label}</span>
                     {d.scripts.length ? (
-                      <span className={clsx("rounded-full px-2 py-0.5 text-[12px]", d.inspect?.flagged || !d.inspect ? "bg-stop-soft text-stop" : "bg-ok-soft text-ok")}>
+                      <span className={clsx("rounded-[2px] px-2 py-0.5 text-[12px]", d.inspect?.flagged || !d.inspect ? "bg-stop-soft text-stop" : "bg-ok-soft text-ok")}>
                         {d.inspect ? `${d.inspect.verdict} · ${d.inspect.category}` : "script, not checked"}
                       </span>
                     ) : (
@@ -351,7 +352,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
                   <span>{d.label}</span>
                   <span className="flex flex-wrap gap-1">
                     {Object.entries(counts).map(([t, n]) => (
-                      <span key={t} className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] text-ink-2">
+                      <span key={t} className="rounded-[2px] bg-surface-2 px-2 py-0.5 font-mono text-[11px] text-ink-2">
                         {t.replace("_", " ")} ×{n}
                       </span>
                     ))}
@@ -395,7 +396,7 @@ export function SafetyPanel({ run }: { run: RunResult }) {
                   <span className="flex items-center gap-2">
                     <span
                       className={clsx(
-                        "rounded-full px-2 py-0.5 text-[12px]",
+                        "rounded-[2px] px-2 py-0.5 text-[12px]",
                         dup ? "bg-stop-soft text-stop" : r.relation === "conflicting" ? "bg-warn-soft text-warn" : "bg-surface-2 text-ink-2",
                       )}
                     >
@@ -471,7 +472,7 @@ export function EmailPanel({ run, onCopy }: { run: RunResult; onCopy: () => void
   return (
     <section id="email" className="scroll-mt-32" aria-labelledby="email-h">
       <Reveal>
-        <h2 id="email-h" className="text-2xl font-semibold tracking-tight">
+        <h2 id="email-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">
           The record, and the email to the supplier
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
@@ -543,7 +544,7 @@ export function EmailPanel({ run, onCopy }: { run: RunResult; onCopy: () => void
                   <button
                     type="button"
                     onClick={copy}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4 text-[14px] font-medium text-paper transition-transform active:scale-[0.97]"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-[2px] bg-ink px-4 text-[14px] font-medium text-paper transition-transform active:scale-[0.97]"
                   >
                     <Icon name="copy" /> Copy email
                   </button>
@@ -569,7 +570,7 @@ export function EmailPanel({ run, onCopy }: { run: RunResult; onCopy: () => void
             {run.supplierClaim.claims.map((c, i) => (
               <li key={i} className="flex flex-wrap items-start justify-between gap-2">
                 <span className="text-ink-2">“{c.claim}”</span>
-                <span className={clsx("rounded-full px-2 py-0.5 text-[12px]", c.verdict === "supported" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn")}>
+                <span className={clsx("rounded-[2px] px-2 py-0.5 text-[12px]", c.verdict === "supported" ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn")}>
                   {c.verdict === "supported" ? "supported by your records" : `${c.verdict.replace("_", " ")} in your records`}
                 </span>
               </li>
@@ -586,7 +587,7 @@ export function CallsTable({ run, replayKey }: { run: RunResult; replayKey: numb
   return (
     <section id="calls" className="scroll-mt-32" aria-labelledby="calls-h">
       <Reveal>
-        <h2 id="calls-h" className="text-2xl font-semibold tracking-tight">
+        <h2 id="calls-h" className="font-display text-[clamp(1.6rem,2.6vw,2.2rem)] leading-none">
           Every Clocked call in this run
         </h2>
         <p className="mt-2 text-[15px] text-ink-2">
@@ -623,7 +624,7 @@ export function CallsTable({ run, replayKey }: { run: RunResult; replayKey: numb
                 <td className="px-3 py-2.5 text-right font-mono">{c.credits ?? "—"}</td>
                 <td className="px-3 py-2.5 text-right font-mono">{c.modelMs !== null ? Math.round(c.modelMs) : "—"}</td>
                 <td className="px-4 py-2.5 text-right">
-                  <span className={clsx("rounded-full px-2 py-0.5 text-[12px]", c.ok ? "bg-ok-soft text-ok" : "bg-stop-soft text-stop")}>{c.ok ? c.status : c.error?.kind ?? "failed"}</span>
+                  <span className={clsx("rounded-[2px] px-2 py-0.5 text-[12px]", c.ok ? "bg-ok-soft text-ok" : "bg-stop-soft text-stop")}>{c.ok ? c.status : c.error?.kind ?? "failed"}</span>
                 </td>
               </motion.tr>
             ))}
