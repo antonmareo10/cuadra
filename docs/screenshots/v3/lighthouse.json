@@ -1,0 +1,24 @@
+{
+  "tool": "lighthouse 12.6.0, mobile (simulated throttling), local next start of commit 997880b",
+  "url": "/",
+  "runs": [
+    {
+      "performance": 92,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "lcp": "3.4 s",
+      "tbt": "70 ms",
+      "cls": "0",
+      "fcp": "0.9 s"
+    },
+    {
+      "performance": 91,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "lcp": "3.4 s",
+      "tbt": "90 ms",
+      "cls": "0",
+      "fcp": "0.9 s"
+    }
+  ]
+}
